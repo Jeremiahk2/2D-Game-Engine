@@ -39,17 +39,18 @@ int main() {
             repSocket.send(reply, zmq::send_flags::none);
 
             Client newClient;
-            newClient.id = numClients++;
-            newClient.offset = iterations;
+            newClient.id = ++numClients;
+            newClient.offset = iterations - 1;
             clients.push_front(newClient);
         }
+        sleep(500);
         char rtnString[MESSAGE_LIMIT] = "";
         for (Client i : clients) {
             char clientString[MESSAGE_LIMIT];
-            sprintf_s(clientString, "Client %d: Iteration %d\n\n", i.id, iterations - i.offset);
+            sprintf_s(clientString, "Client %d: Iteration %d\n", i.id, iterations - i.offset);
             strcat_s(rtnString, clientString);
         }
-        sleep(500);
+        strcat_s(rtnString, "\n");
         //Slow down for readability
         //  Send reply back to client
         if (numClients > 0) {
