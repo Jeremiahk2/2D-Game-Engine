@@ -13,7 +13,7 @@
 #endif
 
 struct Client{
-    int iteration = 1;
+    int offset = 1;
     int id = -1;
 };
 
@@ -26,33 +26,33 @@ int main() {
 
     int iterations = 0;
     int numClients = 0;
+    std::list<Client> clients;
     while (true) { 
-        std::list<Client> clients;
         //  Wait for next request from client
         zmq::message_t reply;
         zmq::recv_result_t received(socket.recv(reply, zmq::recv_flags::dontwait));
         if ( ( received.has_value() && ( EAGAIN != received.value() ) ) ) {
             Client newClient;
             newClient.id = numClients++;
+            newClient.offset = iterations;
             clients.push_front(newClient);
-            std::cout << "RAN\n";
         }
         char rtnString[MESSAGE_LIMIT] = "";
         for (Client i : clients) {
             char clientString[MESSAGE_LIMIT];
-            sprintf_s(clientString, "Client %d: Iteration %d\n", i.id, i.iteration);
+            sprintf_s(clientString, "Client %d: Iteration %d\n", i.id, iterations - i.offset);
             strcat_s(rtnString, clientString);
-            i.iteration++;
         }
-        
+        sleep(500);
         //Slow down for readability
-
         //  Send reply back to client
         if (numClients > 0) {
             zmq::message_t message;
             memcpy(message.data(), rtnString, strlen(rtnString) + 1);
             socket.send(message, zmq::send_flags::none);
+            std::cout << rtnString;
         }
+        iterations++;
     }
     return 0;
 }

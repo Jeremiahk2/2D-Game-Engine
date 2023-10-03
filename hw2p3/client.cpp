@@ -19,7 +19,7 @@ int main()
         //  Get the reply.
         zmq::message_t reply;
         socket.recv(reply, zmq::recv_flags::none);
-        std::cout << reply.data() << std::endl;
+        std::cout << (char *)reply.data() << std::endl;
     }
     return 0;
 }
