@@ -21,8 +21,10 @@ struct Client{
 int main() {
     //  Prepare our context and socket
     zmq::context_t context(2);
-    zmq::socket_t socket(context, zmq::socket_type::dealer);
-    socket.bind("tcp://*:5555");
+    zmq::socket_t repSocket(context, zmq::socket_type::rep);
+    zmq::socket_t pubSocket(context, zmq::socket_type::pub);
+    repSocket.bind("tcp://localhost:5555");
+    pubSocket.bind("tcp://localhost:5556");
 
     int iterations = 0;
     int numClients = 0;
@@ -30,8 +32,12 @@ int main() {
     while (true) { 
         //  Wait for next request from client
         zmq::message_t reply;
-        zmq::recv_result_t received(socket.recv(reply, zmq::recv_flags::dontwait));
+        zmq::recv_result_t received(repSocket.recv(reply, zmq::recv_flags::dontwait));
         if ( ( received.has_value() && ( EAGAIN != received.value() ) ) ) {
+            zmq::message_t reply;
+            memcpy(reply.data(), "Connection Received", 20);
+            repSocket.send(reply, zmq::send_flags::none);
+
             Client newClient;
             newClient.id = numClients++;
             newClient.offset = iterations;
@@ -40,17 +46,16 @@ int main() {
         char rtnString[MESSAGE_LIMIT] = "";
         for (Client i : clients) {
             char clientString[MESSAGE_LIMIT];
-            sprintf_s(clientString, "Client %d: Iteration %d\n", i.id, iterations - i.offset);
+            sprintf_s(clientString, "Client %d: Iteration %d\n\n", i.id, iterations - i.offset);
             strcat_s(rtnString, clientString);
         }
         sleep(500);
         //Slow down for readability
         //  Send reply back to client
         if (numClients > 0) {
-            zmq::message_t message;
+            zmq::message_t message(MESSAGE_LIMIT);
             memcpy(message.data(), rtnString, strlen(rtnString) + 1);
-            socket.send(message, zmq::send_flags::none);
-            std::cout << rtnString;
+            pubSocket.send(message, zmq::send_flags::none);
         }
         iterations++;
     }
