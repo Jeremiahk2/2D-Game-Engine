@@ -28,6 +28,7 @@ void GameWindow::update() {
     clear();
     //Cycle through the list of platforms and draw them.
     for (Platform* i : platforms) {
+        std::cout << "MINIRAN\n";
         draw(*i);
     }
     for (Character i : allCharacters) {
@@ -110,12 +111,13 @@ void GameWindow::updatePlatforms(Platform* newPlatforms, int n) {
 void GameWindow::updateCharacters(Character* otherCharacters, int n) {
     allCharacters.clear();
     for (int i = 0; i < n; i++) {
+
         Character newCharacter;
         newCharacter.setOrigin(otherCharacters[i].getOrigin());
-        newCharacter.setTexture(otherCharacters[i].getTexture());
+        //newCharacter.setTexture(otherCharacters[i].getTexture());
         newCharacter.setSize(otherCharacters[i].getSize());
         newCharacter.setPosition(otherCharacters[i].getPosition());
         newCharacter.setFillColor(otherCharacters[i].getFillColor());
-        allCharacters.push_front(otherCharacters[i]);
+        allCharacters.push_front(newCharacter);
     }
 }

@@ -128,6 +128,8 @@ int main() {
     Platform platforms[10];
 
     //Start main game loop
+
+    subSocket.set(zmq::sockopt::subscribe, "");
     while (window.isOpen()) {
         ticLength = FrameTime.getRealTicLength();
         currentTic = FrameTime.getTime();
@@ -186,15 +188,19 @@ int main() {
             
         for (int i = 0; i < newPlatforms.size() / sizeof(Platform); i++) {
             platforms[i] = *(Platform*)(newPlatforms.data());
+            std::cout << "Ran\n";
         }
         window.updatePlatforms(platforms, newPlatforms.size() / sizeof(Platform));
+        std::cout << "Ran8\n";
 
 
         //Receive updated characters
         zmq::message_t newCharacters;
         subSocket.recv(newCharacters, zmq::recv_flags::none);
+        std::cout << "Ran9\n";
 
         window.updateCharacters((Character*)newCharacters.data(), newCharacters.size() / sizeof(Character));
+        std::cout << "Ran10\n";
 
         //Update window visuals
         window.update();
