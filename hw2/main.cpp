@@ -11,6 +11,16 @@
 #include <iostream>
 #include <list>
 #include <thread>
+#include <zmq.hpp>
+#include <string>
+
+#ifndef _WIN32
+#include <unistd.h>
+#else
+#include <windows.h>
+
+#define sleep(n)	Sleep(n)
+#endif
 using namespace std;
 
 /**
@@ -46,13 +56,6 @@ using namespace std;
 // Left player alone for 24 minutes on 16 tic (at 1.0 scale) on the vertical platform and the player fell off at some point near the end of this period.
 #define TIC 16 //Setting this to 4 or lower causes problems. CThread can't keep up and causes undefined behavior. Need to use mutexes or some equivalent to fix this. Though it's technically on the client.
 
-/**
- * Wrapper function because threads can't take pointers to member functions.
- */
-void run_moving(MovingThread *fe)
-{
-    fe->run();
-}
 //TODO: Combine these?
 /**
 * Run the CThread
@@ -63,57 +66,12 @@ void run_cthread(CThread *fe) {
 
 int main() {
 
-    // Create a window with the same pixel depth as the desktop, with 144 frames per second.
-    GameWindow window;
-    sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
-    window.create(sf::VideoMode(800, 600, desktop.bitsPerPixel), "Window", sf::Style::Default);
-
-    //Create StartPlatform and add it to the window
-    Platform startPlatform;
-    startPlatform.setSize(sf::Vector2f(100.f, 15.f));
-    startPlatform.setFillColor(sf::Color(100, 0, 0));
-    startPlatform.setPosition(sf::Vector2f(150.f - startPlatform.getSize().x, 500.f));
-    window.addPlatform(&startPlatform, false);
-
-    //Create MovingPlatform and add it to the window
-    MovingPlatform moving(PLAT_SPEED, 1, startPlatform.getGlobalBounds().left + startPlatform.getGlobalBounds().width, 500.f);
-    moving.setSize(sf::Vector2f(100.f, 15.f));
-    moving.setFillColor(sf::Color(100, 250, 50));
-    window.addPlatform(&moving, true);
-
-    //Create endPlatform and add it to the window
-    Platform endPlatform;
-    endPlatform.setSize(sf::Vector2f(100.f, 15.f));
-    endPlatform.setFillColor(sf::Color(218, 165, 32));
-    endPlatform.setPosition(sf::Vector2f(400.f + endPlatform.getSize().x, 500.f));
-    window.addPlatform(&endPlatform, false);
-
-    MovingPlatform vertMoving(PLAT_SPEED, false, endPlatform.getPosition().x + endPlatform.getSize().x, 500.f);
-    vertMoving.setSize(sf::Vector2f(50.f, 15.f));
-    vertMoving.setFillColor(sf::Color::Magenta);
-    window.addPlatform(&vertMoving, true);
-
-    //Create headBonk platform (for testing jump) and add it to the window
-    Platform headBonk;
-    headBonk.setSize(sf::Vector2f(100.f, 15.f));
-    headBonk.setFillColor(sf::Color::Blue);
-    headBonk.setPosition(endPlatform.getPosition().x, endPlatform.getPosition().y - 60);
-    window.addPlatform(&headBonk, false);
-
-
     //Create playable character and add it to the window as the playable object
     Character character;
     character.setSize(sf::Vector2f(30.f, 30.f));
     character.setFillColor(sf::Color::White);
-    character.setPosition(startPlatform.getPosition());
     character.setOrigin(0.f, 30.f);
-    character.setSpeed(CHAR_SPEED);
-    character.setGravity(GRAV_SPEED);
-    window.addCharacter(&character);
-
-    //Set the bounds of the moving platforms
-    vertMoving.setBounds(vertMoving.getStartPos().y, 200);
-    moving.setBounds(startPlatform.getGlobalBounds().left + startPlatform.getGlobalBounds().width, endPlatform.getGlobalBounds().left - startPlatform.getGlobalBounds().width);
+    character.setPosition(100.f, 100.f);
 
     /**
     ART FOR SANTA PROVIDED BY Marco Giorgini THROUGH OPENGAMEART.ORG
@@ -126,42 +84,50 @@ int main() {
     }
     character.setTexture(&charTexture);
 
-    //Draw everything that has been added to the window
-    window.update();
-
-    //Add Moving Platforms to the list.
-    list<MovingPlatform*> movings;
-    movings.push_front(&moving);
-    movings.push_front(&vertMoving);
-
-    bool stopped = false;
-
-    std::mutex m;
-    std::condition_variable cv;
-    bool upPressed = false;
-
-    //This should allow altering all timelines through global (pausing).
-    Timeline global;
-    //MPTime and CTime need to be the same tic atm. Framtime can be different (though not too low)
-    Timeline MPTime(&global, TIC);
-    Timeline FrameTime(&global, TIC);
-    Timeline CTime(&global, TIC);
+    //Setup window and add character.
+    sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
+    GameWindow window;
+    window.create(sf::VideoMode(800, 600, desktop.bitsPerPixel), "Window", sf::Style::Default);
+    window.addCharacter(&character);
 
 
-    MovingThread mthread(&MPTime, &stopped, 0, NULL, &m, &cv, &movings);
-
-    CThread cthread(&upPressed,&window, &CTime, &stopped, &m, &cv);
-    std::thread first(run_moving, &mthread);
-    std::thread second(run_cthread, &cthread);
-
-    //The amount of frames that a jump will take place.
-    double jumpTime = JUMP_TIME;
-
+    //Setup timing stuff
     int64_t tic = 0;
     int64_t currentTic = 0;
     double scale = 1.0;
     double ticLength;
-    //Begin main game loop
+
+    //  Prepare our context and socket
+    zmq::context_t context(1);
+    zmq::socket_t reqSocket(context, zmq::socket_type::req);
+    zmq::socket_t subSocket(context, zmq::socket_type::sub);
+
+    //Connect
+    reqSocket.connect("tcp://localhost:5555");
+    subSocket.connect("tcp://localhost:5556");
+
+    //This should allow altering all timelines through global (pausing).
+    Timeline global;
+    //MPTime and CTime need to be the same tic atm. Framtime can be different (though not too low)
+    Timeline FrameTime(&global, TIC);
+    
+    //Bool for if the threads should stop
+    bool stopped = false;
+
+    //Set up necessary thread vairables
+    std::mutex m;
+    std::condition_variable cv;
+    bool upPressed = false;
+
+    Timeline CTime(&global, TIC);
+
+    //Start collision detection
+    CThread cthread(&upPressed, &window, &CTime, &stopped, &m, &cv);
+    std::thread first(run_cthread, &cthread);
+
+    Platform platforms[10];
+
+    //Start main game loop
     while (window.isOpen()) {
         ticLength = FrameTime.getRealTicLength();
         currentTic = FrameTime.getTime();
@@ -172,7 +138,6 @@ int main() {
                 //Need to notify all so they can stop
                 cv.notify_all();
                 first.join();
-                second.join();
                 window.close();
             }
             if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Q)) {
@@ -203,11 +168,43 @@ int main() {
                 window.handleResize(event);
             }
         }
-        if (currentTic > tic) {
-            CBox collision;
-            //Need to recalculate character speed in case scale changed.
-            double charSpeed = (double)character.getSpeed().x * (double)ticLength * (double)(currentTic - tic);
 
+        //Send updated character information to server
+        zmq::message_t request(sizeof(Character));
+        memcpy(request.data(), &character, sizeof(Character));
+        reqSocket.send(request, zmq::send_flags::none);
+
+        //Receive confirmation
+        zmq::message_t reply;
+        reqSocket.recv(reply, zmq::recv_flags::none);
+
+        //Receive updated platforms
+        zmq::message_t newPlatforms;
+        subSocket.recv(newPlatforms, zmq::recv_flags::none);
+            
+        for (int i = 0; i < newPlatforms.size() / sizeof(Platform); i++) {
+            platforms[i] = *(Platform*)(newPlatforms.data());
+        }
+        window.updatePlatforms(platforms, newPlatforms.size() / sizeof(Platform));
+
+
+        //Receive updated characters
+        zmq::message_t newCharacters;
+        subSocket.recv(newCharacters, zmq::recv_flags::none);
+
+        window.updateCharacters((Character*)newCharacters.data(), newCharacters.size() / sizeof(Character));
+
+        //Update window visuals
+        window.update();
+
+        double jumpTime = JUMP_TIME;
+
+
+        CBox collision;
+
+        //Need to recalculate character speed in case scale changed.
+        double charSpeed = (double)character.getSpeed().x * (double)ticLength * (double)(currentTic - tic);
+        if (currentTic > tic) {
             //Handle left input
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
             {

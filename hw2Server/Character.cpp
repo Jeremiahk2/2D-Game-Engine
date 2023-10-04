@@ -11,11 +11,11 @@ int id = -1;
 
 Character::Character() {
 }
-
+    
 sf::Vector2f Character::getSpeed() {
     return speed;
 }
-
+    
 void Character::setSpeed(double speed) {
     this->speed.x = speed;
 }

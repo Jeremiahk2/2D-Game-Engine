@@ -9,7 +9,7 @@
 * A character has speed, which is the amount of movement the character moves right or left per frame.
 * A character also has various states like jumping.
 */
-class Character : public sf::RectangleShape {
+class Character: public sf::RectangleShape {
 
 private:
     /**
@@ -56,7 +56,7 @@ public:
     */
     void setJumping(bool jump);
 
-    /*
+    /* 
     * Set the gravity for the character. This should be in the form of pixels/second. Set 0 if the character doesn't have gravity.
     */
     void setGravity(double gravity);
