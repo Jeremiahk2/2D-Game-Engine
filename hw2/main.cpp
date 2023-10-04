@@ -177,10 +177,12 @@ int main() {
         //Receive confirmation
         zmq::message_t reply;
         reqSocket.recv(reply, zmq::recv_flags::none);
+        std::cout << "Ran2\n";
 
         //Receive updated platforms
         zmq::message_t newPlatforms;
         subSocket.recv(newPlatforms, zmq::recv_flags::none);
+        std::cout << "Ran3\n";
             
         for (int i = 0; i < newPlatforms.size() / sizeof(Platform); i++) {
             platforms[i] = *(Platform*)(newPlatforms.data());

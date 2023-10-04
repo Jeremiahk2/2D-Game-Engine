@@ -142,7 +142,6 @@ int main() {
 
         ticLength = FrameTime.getRealTicLength();
         currentTic = FrameTime.getTime();
-
         if (currentTic > tic) {
             //We are expecting updates from all of our users, but a new one might slip in too.
             for (int i = 0; i < numCharacters; i++) {
@@ -172,8 +171,15 @@ int main() {
             //If we found one, set it up
             if ((received.has_value() && (EAGAIN != received.value()))) {
                 Character* current = (Character*)init.data();
-                current->setID(numCharacters);
-                characters[numCharacters] = *current;
+                Character newCharacter;
+                newCharacter.setOrigin(current->getOrigin());
+                //std::cout << "Ran4\n";
+                //newCharacter.setTexture(current->getTexture());
+                newCharacter.setSize(current->getSize());
+                newCharacter.setPosition(current->getPosition());
+                newCharacter.setFillColor(current->getFillColor());
+                newCharacter.setID(numCharacters);
+                characters[numCharacters] = newCharacter;
                 numCharacters++;
 
                 //Confirmation reply
@@ -188,9 +194,11 @@ int main() {
             Platform* rtnPlatforms = window.getPlatforms(&numPlatforms);
             if (numCharacters > 0) {
                 //Send platforms
+                std::cout << "Ran\n";
                 zmq::message_t sendPlatforms(numPlatforms * sizeof(Platform));
                 memcpy(sendPlatforms.data(), rtnPlatforms, numPlatforms * sizeof(Platform));
                 pubSocket.send(sendPlatforms, zmq::send_flags::none);
+                std::cout << "Ran2\n" << numPlatforms * sizeof(Platform) << std::endl; //Doesn't account for MOVING platform Use struct with both
 
                 //Send characters
                 zmq::message_t sendCharacters(numCharacters * sizeof(Character));
