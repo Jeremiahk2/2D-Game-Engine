@@ -31,7 +31,7 @@ void EventThread::run() {
                 *estopped = true;
                 //Need to notify all so they can stop
                 ecv->notify_all();
-                ewindow->close();
+                /*ewindow->close();*/
             }
             if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Q)) {
                 ewindow->changeScaling();

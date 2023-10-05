@@ -95,8 +95,12 @@ void CThread::run() {
                     }
                 }
             }
-            ////Notify main of the status of upPressed
-            /*_condition_variable1->notify_all();*/
+            //Notify main of the status of upPressed
+            //Need to do this until it works
+            /*while (busy) {
+                _condition_variable1->notify_all();
+            }
+            *busy = true;*/
             tic = currentTic;
             
         }

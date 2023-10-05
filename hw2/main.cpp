@@ -224,7 +224,6 @@ int main() {
             }
             while (cthread.isBusy())
             {
-                std::cout << "Ran\n";
                 cv.notify_all();
             }
             busy = true;
@@ -299,12 +298,14 @@ int main() {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && window.hasFocus())
             {
                 /*std::unique_lock<std::mutex> cv_lock(m);
-                cv.wait(cv_lock);*/
+                cv.wait(cv_lock);
+                busy = false;*/
                 if (upPressed) {
                     upPressed = false;
                     character.setJumping(true);
                 }
             }
+            /*busy = false;*/
 
             //If the character is currently jumping, move them up and check for collisions.
             double frameJump = JUMP_SPEED * (double)ticLength * (double)(currentTic - tic);
