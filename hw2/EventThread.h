@@ -17,7 +17,7 @@ using namespace std;
 class EventThread
 {
 
-    GameWindow* ewindow;
+    GameWindow ewindow;
 
     Timeline* eglobal;
 
@@ -30,7 +30,9 @@ public:
     /**
     * Create a new EThread and initialize all of the fields.
     */
-    EventThread(GameWindow* window, Timeline* global, bool* stopped, std::condition_variable* ecv);
+    EventThread(Timeline* global, bool* stopped, std::condition_variable* ecv);
+
+    GameWindow* getWindowPointer();
     /**
     * Run the thread
     */

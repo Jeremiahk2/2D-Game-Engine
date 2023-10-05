@@ -109,7 +109,9 @@ void GameWindow::updateCharacters(char *newChars) {
 
     int count = 0;
     int pos = 0;
-    while (sscanf_s(newChars + pos, "%d %f %f %n", &currentId, &currentX, &currentY, &pos) != EOF) {
+    int newPos = 0;
+    while (sscanf_s(newChars + pos, "%d %f %f %n", &currentId, &currentX, &currentY, &newPos) == 3) {
+        pos += newPos;
         //If it is one of the already registered characters, update it.
         if (count < numCharacters) {
             allCharacters[count].setID(currentId);

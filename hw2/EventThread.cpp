@@ -1,7 +1,7 @@
 #include "EventThread.h"
 
 
-GameWindow* ewindow;
+GameWindow ewindow;
 
 Timeline* eglobal;
 
@@ -11,21 +11,26 @@ std::condition_variable* ecv;
 
 
 
-EventThread::EventThread(GameWindow *window, Timeline *global, bool *stopped, std::condition_variable* ecv)
+EventThread::EventThread(Timeline* global, bool* stopped, std::condition_variable* ecv) : ewindow()
 {
-    this->ewindow = window;
     this->eglobal = global;
     this->estopped = stopped;
     this->ecv = ecv;
 
 }
 
+GameWindow *EventThread::getWindowPointer() {
+    return &ewindow;
+}
+
 void EventThread::run() {
+    sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
+    ewindow.create(sf::VideoMode(800, 600, desktop.bitsPerPixel), "Window", sf::Style::Default);
     
     double scale = 1.0;
-    while (ewindow->isOpen()) {
+    while (ewindow.isOpen()) {
         sf::Event event;
-        while (ewindow->pollEvent(event)) {
+        while (ewindow.pollEvent(event)) {
             
             if (event.type == sf::Event::Closed) {
                 *estopped = true;
@@ -34,7 +39,7 @@ void EventThread::run() {
                 /*ewindow->close();*/
             }
             if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Q)) {
-                ewindow->changeScaling();
+                ewindow.changeScaling();
             }
             if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::P)) {
                 if (eglobal->isPaused()) {
@@ -58,7 +63,7 @@ void EventThread::run() {
             }
             if (event.type == sf::Event::Resized)
             {
-                ewindow->handleResize(event);
+                ewindow.handleResize(event);
             }
         }
     }

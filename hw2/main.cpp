@@ -74,9 +74,17 @@ void run_ethread(EventThread* fe) {
 int main() {
 
     //Setup window and add character.
-    sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
     GameWindow window;
+
+    sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
     window.create(sf::VideoMode(800, 600, desktop.bitsPerPixel), "Window", sf::Style::Default);
+
+    Timeline global;
+    bool stopped = false;
+    std::condition_variable cv;
+    //This should initialize the window
+    /*EventThread ethread(&global, &stopped, &cv);*/
+    /*GameWindow *window = ethread.getWindowPointer();*/
 
     //Create StartPlatform and add it to the window
     Platform startPlatform;
@@ -152,17 +160,13 @@ int main() {
     reqSocket.connect("tcp://localhost:5555");
     subSocket.connect("tcp://localhost:5556");
 
-    //This should allow altering all timelines through global (pausing).
-    Timeline global;
     //MPTime and CTime need to be the same tic atm. Framtime can be different (though not too low)
     Timeline FrameTime(&global, TIC);
     
     //Bool for if the threads should stop
-    bool stopped = false;
 
     //Set up necessary thread vairables
     std::mutex m;
-    std::condition_variable cv;
 
     bool upPressed = false;
 
@@ -174,22 +178,60 @@ int main() {
     CThread cthread(&upPressed, &window, &CTime, &stopped, &m, &cv, &busy);
     std::thread first(run_cthread, &cthread);
 
-    EventThread ethread(&window, &global, &stopped, &cv);
-    std::thread second(run_ethread, &ethread);
+    //std::thread second(run_ethread, &ethread);
 
     Platform platforms[10];
 
     //Start main game loop
 
     double jumpTime = JUMP_TIME;
+    double scale = 1.0;
 
     subSocket.set(zmq::sockopt::subscribe, "");
-    while (!stopped) {
-
-        //
+    while (window.isOpen()) {
 
         ticLength = FrameTime.getRealTicLength();
         currentTic = FrameTime.getTime();
+
+        sf::Event event;
+
+        //TODO: Make thread to handle events, so that polling doesn't block CThread and main thread.
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                stopped = true;
+                //Need to notify all so they can stop
+                cv.notify_all();
+                first.join();
+                window.close();
+            }
+            if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Q)) {
+                window.changeScaling();
+            }
+            if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::P)) {
+                if (global.isPaused()) {
+                    global.unpause();
+                }
+                else {
+                    global.pause();
+                }
+            }
+            if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Left)) {
+                if (scale != .5) {
+                    scale *= .5;
+                    global.changeScale(scale);
+                }
+            }
+            if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Right)) {
+                if (scale != 2.0) {
+                    scale *= 2.0;
+                    global.changeScale(scale);
+                }
+            }
+            if (event.type == sf::Event::Resized)
+            {
+                window.handleResize(event);
+            }
+        }
 
         if (currentTic > tic) {
 
@@ -328,6 +370,5 @@ int main() {
         tic = currentTic;
     }
     first.join();
-    second.join();
     return EXIT_SUCCESS;
 }
