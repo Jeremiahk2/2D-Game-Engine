@@ -178,6 +178,8 @@ int main() {
         ticLength = FrameTime.getRealTicLength();
         currentTic = FrameTime.getTime();
         sf::Event event;
+
+        //TODO: Make thread to handle events, so that polling doesn't block CThread and main thread.
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 stopped = true;
@@ -213,6 +215,7 @@ int main() {
             {
                 window.handleResize(event);
             }
+            std::cout << "Ran\n";
         }
 
         if (currentTic > tic) {
