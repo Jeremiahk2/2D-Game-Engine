@@ -215,7 +215,6 @@ int main() {
             {
                 window.handleResize(event);
             }
-            std::cout << "Ran\n";
         }
 
         if (currentTic > tic) {

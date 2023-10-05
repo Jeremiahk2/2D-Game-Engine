@@ -80,7 +80,7 @@ void CThread::run() {
                             }
                             //If the platform is moving upwards
                             else {
-                                //Notify main that it can update the visuals
+                                //Notify main that it can update the visuals TODO: Change this to notify input that it is good to go?
                                 _condition_variable1->notify_all();
                                 //Set the position as one move above the next potential move from MThread. This is a reason why they need to be the same tic.
                                 character->setPosition(character->getPosition().x, collision.getCBox().top + temp->getLastMove().y);
