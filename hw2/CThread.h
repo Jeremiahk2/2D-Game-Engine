@@ -50,16 +50,22 @@ class CThread
     */
     bool *upPressed;
 
+    bool* busy;
+
+
+
 
     public :
         /**
         * Create a new CThread an d initialize all of the fields.
         */
-        CThread(bool *upPressed, GameWindow *window, Timeline *timeline, bool *stopped, 
-            std::mutex *_mutex, std::condition_variable *_condition_variable);
+        CThread(bool* upPressed, GameWindow* window, Timeline* timeline, bool* stopped,
+            std::mutex* _mutex, std::condition_variable* _condition_variable, bool *busy);
         /**
         * Run the thread
         */
         void run();
+
+        bool isBusy();
 };
 #endif

@@ -12,8 +12,16 @@ GameWindow *window;
 
 bool *upPressed;
 
-CThread::CThread(bool *upPressed, GameWindow *window, Timeline *timeline, bool *stopped, 
-    std::mutex *_mutex, std::condition_variable *_condition_variable)
+bool* busy;
+
+bool CThread::isBusy()
+{
+    std::lock_guard<std::mutex> lock(*_mutex1);  // this locks the mutuex until the variable goes out of scope (i.e., when the function returns in this case)
+    return *busy;
+}
+
+CThread::CThread(bool* upPressed, GameWindow* window, Timeline* timeline, bool* stopped,
+    std::mutex* _mutex, std::condition_variable* _condition_variable, bool* busy)
 {
     this->_mutex1 = _mutex;
     this->_condition_variable1 = _condition_variable;
@@ -21,6 +29,7 @@ CThread::CThread(bool *upPressed, GameWindow *window, Timeline *timeline, bool *
     this->line = timeline;
     this->window = window;
     this->upPressed = upPressed;
+    this->busy = busy;
 }
 
 void CThread::run() {
@@ -28,21 +37,19 @@ void CThread::run() {
     int64_t currentTic;
     double ticLength;
 
-    
-
     Character *character = window->getCharacter();
     while (!(*stop)) {
         currentTic = line->getTime();
         if (currentTic > tic) {
             ticLength = line->getRealTicLength();
-            *upPressed = false;
             //Get gravity as a function of time
-
             { // anonymous inner block to manage scop of mutex lock 
                 //Take ownership of the lock and lock it
                 std::unique_lock<std::mutex> cv_lock(*this->_mutex1);
                 _condition_variable1->wait(cv_lock);
-            } 
+                *busy = false;
+            }
+            *upPressed = false;
             double gravity = character->getGravity() * ticLength * (currentTic - tic);
             character->move(0.f, gravity);
 
@@ -76,12 +83,10 @@ void CThread::run() {
                             if (temp->getLastMove().y > 0) {
                                 //Set it's position to the top of the platform
                                 character->setPosition(character->getPosition().x, collision.getCBox().top);
-                                _condition_variable1->notify_all();
                             }
                             //If the platform is moving upwards
                             else {
                                 //Notify main that it can update the visuals TODO: Change this to notify input that it is good to go?
-                                _condition_variable1->notify_all();
                                 //Set the position as one move above the next potential move from MThread. This is a reason why they need to be the same tic.
                                 character->setPosition(character->getPosition().x, collision.getCBox().top + temp->getLastMove().y);
                             }
@@ -90,6 +95,8 @@ void CThread::run() {
                     }
                 }
             }
+            ////Notify main of the status of upPressed
+            /*_condition_variable1->notify_all();*/
             tic = currentTic;
             
         }

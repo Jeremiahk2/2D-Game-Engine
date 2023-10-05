@@ -130,6 +130,7 @@
     <ClInclude Include="CBox.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="CThread.h" />
+    <ClInclude Include="EventThread.h" />
     <ClInclude Include="GameWindow.h" />
     <ClInclude Include="MovingPlatform.h" />
     <ClInclude Include="MovingThread.h" />
@@ -140,6 +141,7 @@
     <ClCompile Include="CBox.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="CThread.cpp" />
+    <ClCompile Include="EventThread.cpp" />
     <ClCompile Include="GameWindow.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MovingPlatform.cpp" />

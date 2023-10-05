@@ -5,6 +5,7 @@
 #include "GameWindow.h"
 #include "MovingThread.h"
 #include "CThread.h"
+#include "EventThread.h"
 
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
@@ -66,6 +67,10 @@ void run_cthread(CThread *fe) {
     fe->run();
 }
 
+
+void run_ethread(EventThread* fe) {
+    fe->run();
+}
 int main() {
 
     //Setup window and add character.
@@ -136,7 +141,6 @@ int main() {
     //Setup timing stuff
     int64_t tic = 0;
     int64_t currentTic = 0;
-    double scale = 1.0;
     double ticLength;
 
     //  Prepare our context and socket
@@ -159,13 +163,19 @@ int main() {
     //Set up necessary thread vairables
     std::mutex m;
     std::condition_variable cv;
+
     bool upPressed = false;
 
     Timeline CTime(&global, TIC);
 
+    bool busy = true;
+
     //Start collision detection
-    CThread cthread(&upPressed, &window, &CTime, &stopped, &m, &cv);
+    CThread cthread(&upPressed, &window, &CTime, &stopped, &m, &cv, &busy);
     std::thread first(run_cthread, &cthread);
+
+    EventThread ethread(&window, &global, &stopped, &cv);
+    std::thread second(run_ethread, &ethread);
 
     Platform platforms[10];
 
@@ -174,48 +184,12 @@ int main() {
     double jumpTime = JUMP_TIME;
 
     subSocket.set(zmq::sockopt::subscribe, "");
-    while (window.isOpen()) {
+    while (!stopped) {
+
+        //
+
         ticLength = FrameTime.getRealTicLength();
         currentTic = FrameTime.getTime();
-        sf::Event event;
-
-        //TODO: Make thread to handle events, so that polling doesn't block CThread and main thread.
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
-                stopped = true;
-                //Need to notify all so they can stop
-                cv.notify_all();
-                first.join();
-                window.close();
-            }
-            if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Q)) {
-                window.changeScaling();
-            }
-            if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::P)) {
-                if (global.isPaused()) {
-                    global.unpause();
-                }
-                else {
-                    global.pause();
-                }
-            }
-            if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Left)) {
-                if (scale != .5) {
-                    scale *= .5;
-                    global.changeScale(scale);
-                }
-            }
-            if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Right)) {
-                if (scale != 2.0) {
-                    scale *= 2.0;
-                    global.changeScale(scale);
-                }
-            }
-            if (event.type == sf::Event::Resized)
-            {
-                window.handleResize(event);
-            }
-        }
 
         if (currentTic > tic) {
 
@@ -248,10 +222,12 @@ int main() {
 
                 i->move(x - i->getPosition().x, y - i->getPosition().y);
             }
+            while (cthread.isBusy())
             {
-                std::unique_lock<std::mutex> cv_lock(m);
+                std::cout << "Ran\n";
                 cv.notify_all();
             }
+            busy = true;
 
             //Receive updated characters
             zmq::message_t newCharacters;
@@ -270,9 +246,8 @@ int main() {
             if (!stopped && !global.isPaused()) {
                 window.update();
             }
-
             //Handle left input
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && window.hasFocus())
             {
                 //Move left
                 character.move(-1 * charSpeed, 0.f);
@@ -320,14 +295,20 @@ int main() {
                     }
                 }
             }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && upPressed && window.hasFocus())
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && window.hasFocus())
             {
-                upPressed = false;
-                character.setJumping(true);
+                /*std::unique_lock<std::mutex> cv_lock(m);
+                cv.wait(cv_lock);*/
+                if (upPressed) {
+                    upPressed = false;
+                    character.setJumping(true);
+                }
             }
 
             //If the character is currently jumping, move them up and check for collisions.
             double frameJump = JUMP_SPEED * (double)ticLength * (double)(currentTic - tic);
+            
             if (character.isJumping()) {
                 character.move(0, -1 * frameJump);
                 jumpTime -= (double)ticLength * (double)(currentTic - tic);
@@ -345,5 +326,7 @@ int main() {
         }
         tic = currentTic;
     }
+    first.join();
+    second.join();
     return EXIT_SUCCESS;
 }

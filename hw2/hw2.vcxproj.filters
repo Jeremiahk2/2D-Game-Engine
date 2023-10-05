@@ -39,6 +39,9 @@
     <ClInclude Include="Timeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="EventThread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CBox.cpp">
@@ -66,6 +69,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Timeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EventThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
