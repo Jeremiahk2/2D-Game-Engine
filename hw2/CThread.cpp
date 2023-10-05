@@ -37,6 +37,12 @@ void CThread::run() {
             ticLength = line->getRealTicLength();
             *upPressed = false;
             //Get gravity as a function of time
+
+            { // anonymous inner block to manage scop of mutex lock 
+                //Take ownership of the lock and lock it
+                std::unique_lock<std::mutex> cv_lock(*this->_mutex1);
+                _condition_variable1->wait(cv_lock);
+            } 
             double gravity = character->getGravity() * ticLength * (currentTic - tic);
             character->move(0.f, gravity);
 

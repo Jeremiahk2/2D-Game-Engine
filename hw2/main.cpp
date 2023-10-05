@@ -50,6 +50,8 @@ using namespace std;
 
 #define JUMP_TIME .5
 
+#define MESSAGE_LIMIT 1024
+
 //TESTS:
 // 9/4/2023 4:26 PM
 // Left alone for 30 minutes on 16 tic (at 1.0 scale) and nothing broke. My character remained on the horizontal moving platform.
@@ -66,12 +68,50 @@ void run_cthread(CThread *fe) {
 
 int main() {
 
+    //Setup window and add character.
+    sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
+    GameWindow window;
+    window.create(sf::VideoMode(800, 600, desktop.bitsPerPixel), "Window", sf::Style::Default);
+
+    //Create StartPlatform and add it to the window
+    Platform startPlatform;
+    startPlatform.setSize(sf::Vector2f(100.f, 15.f));
+    startPlatform.setFillColor(sf::Color(100, 0, 0));
+    startPlatform.setPosition(sf::Vector2f(150.f - startPlatform.getSize().x, 500.f));
+    window.addPlatform(&startPlatform, false);
+
+    //Create MovingPlatform and add it to the window
+    MovingPlatform moving(PLAT_SPEED, 1, startPlatform.getGlobalBounds().left + startPlatform.getGlobalBounds().width, 500.f);
+    moving.setSize(sf::Vector2f(100.f, 15.f));
+    moving.setFillColor(sf::Color(100, 250, 50));
+    window.addPlatform(&moving, true);
+
+    //Create endPlatform and add it to the window
+    Platform endPlatform;
+    endPlatform.setSize(sf::Vector2f(100.f, 15.f));
+    endPlatform.setFillColor(sf::Color(218, 165, 32));
+    endPlatform.setPosition(sf::Vector2f(400.f + endPlatform.getSize().x, 500.f));
+    window.addPlatform(&endPlatform, false);
+
+    MovingPlatform vertMoving(PLAT_SPEED, false, endPlatform.getPosition().x + endPlatform.getSize().x, 500.f);
+    vertMoving.setSize(sf::Vector2f(50.f, 15.f));
+    vertMoving.setFillColor(sf::Color::Magenta);
+    window.addPlatform(&vertMoving, true);
+
+    //Create headBonk platform (for testing jump) and add it to the window
+    Platform headBonk;
+    headBonk.setSize(sf::Vector2f(100.f, 15.f));
+    headBonk.setFillColor(sf::Color::Blue);
+    headBonk.setPosition(endPlatform.getPosition().x, endPlatform.getPosition().y - 60);
+    window.addPlatform(&headBonk, false);
+
     //Create playable character and add it to the window as the playable object
     Character character;
     character.setSize(sf::Vector2f(30.f, 30.f));
     character.setFillColor(sf::Color::White);
     character.setOrigin(0.f, 30.f);
     character.setPosition(100.f, 100.f);
+    character.setSpeed(CHAR_SPEED);
 
     /**
     ART FOR SANTA PROVIDED BY Marco Giorgini THROUGH OPENGAMEART.ORG
@@ -83,12 +123,14 @@ int main() {
         std::cout << "Failed";
     }
     character.setTexture(&charTexture);
-
-    //Setup window and add character.
-    sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
-    GameWindow window;
-    window.create(sf::VideoMode(800, 600, desktop.bitsPerPixel), "Window", sf::Style::Default);
+    character.setGravity(GRAV_SPEED);
     window.addCharacter(&character);
+
+    //Add Moving Platforms to the list.
+    list<MovingPlatform*> movings;
+    movings.push_front(&moving);
+    movings.push_front(&vertMoving);
+
 
 
     //Setup timing stuff
@@ -128,6 +170,8 @@ int main() {
     Platform platforms[10];
 
     //Start main game loop
+
+    double jumpTime = JUMP_TIME;
 
     subSocket.set(zmq::sockopt::subscribe, "");
     while (window.isOpen()) {
@@ -171,48 +215,60 @@ int main() {
             }
         }
 
-        //Send updated character information to server
-        zmq::message_t request(sizeof(Character));
-        memcpy(request.data(), &character, sizeof(Character));
-        reqSocket.send(request, zmq::send_flags::none);
-
-        //Receive confirmation
-        zmq::message_t reply;
-        reqSocket.recv(reply, zmq::recv_flags::none);
-        std::cout << "Ran2\n";
-
-        //Receive updated platforms
-        zmq::message_t newPlatforms;
-        subSocket.recv(newPlatforms, zmq::recv_flags::none);
-        std::cout << "Ran3\n";
-            
-        for (int i = 0; i < newPlatforms.size() / sizeof(Platform); i++) {
-            platforms[i] = *(Platform*)(newPlatforms.data());
-            std::cout << "Ran\n";
-        }
-        window.updatePlatforms(platforms, newPlatforms.size() / sizeof(Platform));
-        std::cout << "Ran8\n";
-
-
-        //Receive updated characters
-        zmq::message_t newCharacters;
-        subSocket.recv(newCharacters, zmq::recv_flags::none);
-        std::cout << "Ran9\n";
-
-        window.updateCharacters((Character*)newCharacters.data(), newCharacters.size() / sizeof(Character));
-        std::cout << "Ran10\n";
-
-        //Update window visuals
-        window.update();
-
-        double jumpTime = JUMP_TIME;
-
-
-        CBox collision;
-
-        //Need to recalculate character speed in case scale changed.
-        double charSpeed = (double)character.getSpeed().x * (double)ticLength * (double)(currentTic - tic);
         if (currentTic > tic) {
+
+            //Send updated character information to server
+            char characterString[MESSAGE_LIMIT];
+            sprintf_s(characterString, "%d %f %f", character.getID(), character.getPosition().x, character.getPosition().y);
+            zmq::message_t request(strlen(characterString) + 1);
+            memcpy(request.data(), &characterString, strlen(characterString) + 1);
+            reqSocket.send(request, zmq::send_flags::none);
+
+            //Receive confirmation
+            zmq::message_t reply;
+            reqSocket.recv(reply, zmq::recv_flags::none);
+            char* replyString = (char *)reply.data();
+            int newID;
+            int matches = sscanf_s(replyString, "%d", &newID);
+            character.setID(newID);
+        
+
+            //Receive updated platforms
+            zmq::message_t newPlatforms;
+            subSocket.recv(newPlatforms, zmq::recv_flags::none);
+
+            char* platformsString = (char *)newPlatforms.data();
+            int pos = 0;
+            for (MovingPlatform* i : movings) {
+                float x = 0;
+                float y = 0;
+                int matches = sscanf_s(platformsString + pos, "%f %f %n", &x, &y, &pos);
+
+                i->move(x - i->getPosition().x, y - i->getPosition().y);
+            }
+            {
+                std::unique_lock<std::mutex> cv_lock(m);
+                cv.notify_all();
+            }
+
+            //Receive updated characters
+            zmq::message_t newCharacters;
+            subSocket.recv(newCharacters, zmq::recv_flags::none);
+
+            char* newCharString = (char*)newCharacters.data();
+            //Update the characters in the window with new ones
+            window.updateCharacters(newCharString);
+
+            CBox collision;
+
+            //Need to recalculate character speed in case scale changed.
+            double charSpeed = (double)character.getSpeed().x * (double)ticLength * (double)(currentTic - tic);
+
+            //Update window visuals
+            if (!stopped && !global.isPaused()) {
+                window.update();
+            }
+
             //Handle left input
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
             {
@@ -239,7 +295,7 @@ int main() {
             }
 
             //Handle right input
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && window.hasFocus())
             {
                 // Move Right
                 character.move(charSpeed, 0.f);
@@ -262,7 +318,7 @@ int main() {
                     }
                 }
             }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && upPressed)
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && upPressed && window.hasFocus())
             {
                 upPressed = false;
                 character.setJumping(true);
@@ -284,12 +340,6 @@ int main() {
                 }
             }
             //Update the window's visuals.
-            if (!stopped && !global.isPaused()) {
-                //Wait for MThread to update. This creates a smoother looking ride, as the updates are consistently at the same spot.
-                std::unique_lock<std::mutex> lock(m);
-                cv.wait(lock);
-                window.update();
-            }
         }
         tic = currentTic;
     }

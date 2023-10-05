@@ -10,7 +10,9 @@ bool isProportional = true;
 
 int numPlatforms = 0;
 
-list<Character> allCharacters;
+Character allCharacters[10];
+
+int numCharacters = 0;
 
 Platform realPlatforms[10];
 
@@ -28,12 +30,11 @@ void GameWindow::update() {
     clear();
     //Cycle through the list of platforms and draw them.
     for (Platform* i : platforms) {
-        std::cout << "MINIRAN\n";
         draw(*i);
     }
-    for (Character i : allCharacters) {
-        draw(i);
-    };
+    for (int i = 0; i < numCharacters; i++) {
+        draw(allCharacters[i]);
+    }
     display();
 }
 
@@ -95,29 +96,44 @@ Platform* GameWindow::getPlatforms(int* n) {
     return rtnPlatforms;
 }
 
-void GameWindow::updatePlatforms(Platform* newPlatforms, int n) {
-    platforms.clear();
-    for (int i = 0; i < n; i++) {
-        Platform newPlatform;
-        newPlatform.setOrigin(newPlatforms->getOrigin());
-        newPlatform.setPosition(newPlatforms->getPosition());
-        newPlatform.setSize(newPlatforms->getSize());
-        newPlatform.setFillColor(newPlatforms->getFillColor());
-        realPlatforms[i] = newPlatform;
-        platforms.push_front(&realPlatforms[i]);
-    }
-}
+void GameWindow::updateCharacters(char *newChars) {
+    
+    int currentId = 0;
+    float currentX = 0.f;
+    float currentY = 0.f;
 
-void GameWindow::updateCharacters(Character* otherCharacters, int n) {
-    allCharacters.clear();
-    for (int i = 0; i < n; i++) {
+    int count = 0;
+    int pos = 0;
+    while (sscanf_s(newChars + pos, "%d %f %f %n", &currentId, &currentX, &currentY, &pos) != EOF) {
+        //If it is one of the already registered characters, update it.
+        if (count < numCharacters) {
+            allCharacters[count].setID(currentId);
+            allCharacters[count].setPosition(currentX, currentY);
+        }
+        //If the server added a new character, create it and store it.
+        else {
+            Character newCharacter;
+            newCharacter.setSize(sf::Vector2f(30.f, 30.f));
+            newCharacter.setFillColor(sf::Color::White);
+            newCharacter.setOrigin(0.f, 30.f);
+            newCharacter.setID(currentId);
+            newCharacter.setPosition(currentX, currentY);
 
-        Character newCharacter;
-        newCharacter.setOrigin(otherCharacters[i].getOrigin());
-        //newCharacter.setTexture(otherCharacters[i].getTexture());
-        newCharacter.setSize(otherCharacters[i].getSize());
-        newCharacter.setPosition(otherCharacters[i].getPosition());
-        newCharacter.setFillColor(otherCharacters[i].getFillColor());
-        allCharacters.push_front(newCharacter);
+            /**
+            ART FOR SANTA PROVIDED BY Marco Giorgini THROUGH OPENGAMEART.ORG
+            License: CC0 (Public Domain) @ 12/28/21
+            https://opengameart.org/content/santas-rats-issue-c64-sprites
+            */
+            sf::Texture charTexture;
+            if (!charTexture.loadFromFile("Santa_standing.png")) {
+                std::cout << "Failed";
+            }
+            newCharacter.setTexture(&charTexture);
+            allCharacters[count] = newCharacter;
+            numCharacters++;
+        }
+        count++;
     }
+    
+
 }

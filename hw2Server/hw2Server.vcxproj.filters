@@ -18,54 +18,54 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CBox.cpp">
+    <ClCompile Include="..\hw2\CBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Character.cpp">
+    <ClCompile Include="..\hw2\Character.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CThread.cpp">
+    <ClCompile Include="..\hw2\CThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameWindow.cpp">
+    <ClCompile Include="..\hw2\GameWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MovingPlatform.cpp">
+    <ClCompile Include="..\hw2\MovingPlatform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MovingThread.cpp">
+    <ClCompile Include="..\hw2\MovingThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Platform.cpp">
+    <ClCompile Include="..\hw2\Platform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Timeline.cpp">
+    <ClCompile Include="..\hw2\Timeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CBox.h">
+    <ClInclude Include="..\hw2\CBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Character.h">
+    <ClInclude Include="..\hw2\Character.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CThread.h">
+    <ClInclude Include="..\hw2\CThread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameWindow.h">
+    <ClInclude Include="..\hw2\GameWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MovingPlatform.h">
+    <ClInclude Include="..\hw2\MovingPlatform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MovingThread.h">
+    <ClInclude Include="..\hw2\MovingThread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Platform.h">
+    <ClInclude Include="..\hw2\Platform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Timeline.h">
+    <ClInclude Include="..\hw2\Timeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -58,6 +58,10 @@
         Platform::move(x, y);
         lastMove = sf::Vector2f(x, y);
     }
+    void MovingPlatform::move(float x, float y) {
+        Platform::move(x, y);
+        lastMove = sf::Vector2f(x, y);
+    }
 
     void MovingPlatform::move(sf::Vector2f v) {
         Platform::move(v);

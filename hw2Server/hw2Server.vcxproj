@@ -127,25 +127,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CBox.cpp" />
-    <ClCompile Include="Character.cpp" />
-    <ClCompile Include="CThread.cpp" />
-    <ClCompile Include="GameWindow.cpp" />
+    <ClCompile Include="..\hw2\CBox.cpp" />
+    <ClCompile Include="..\hw2\Character.cpp" />
+    <ClCompile Include="..\hw2\CThread.cpp" />
+    <ClCompile Include="..\hw2\GameWindow.cpp" />
+    <ClCompile Include="..\hw2\MovingPlatform.cpp" />
+    <ClCompile Include="..\hw2\MovingThread.cpp" />
+    <ClCompile Include="..\hw2\Platform.cpp" />
+    <ClCompile Include="..\hw2\Timeline.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MovingPlatform.cpp" />
-    <ClCompile Include="MovingThread.cpp" />
-    <ClCompile Include="Platform.cpp" />
-    <ClCompile Include="Timeline.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CBox.h" />
-    <ClInclude Include="Character.h" />
-    <ClInclude Include="CThread.h" />
-    <ClInclude Include="GameWindow.h" />
-    <ClInclude Include="MovingPlatform.h" />
-    <ClInclude Include="MovingThread.h" />
-    <ClInclude Include="Platform.h" />
-    <ClInclude Include="Timeline.h" />
+    <ClInclude Include="..\hw2\CBox.h" />
+    <ClInclude Include="..\hw2\Character.h" />
+    <ClInclude Include="..\hw2\CThread.h" />
+    <ClInclude Include="..\hw2\GameWindow.h" />
+    <ClInclude Include="..\hw2\MovingPlatform.h" />
+    <ClInclude Include="..\hw2\MovingThread.h" />
+    <ClInclude Include="..\hw2\Platform.h" />
+    <ClInclude Include="..\hw2\Timeline.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

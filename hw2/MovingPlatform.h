@@ -90,6 +90,8 @@ public:
     */
     void move(double x, double y);
 
+    void move(float x, float y);
+
     /**
     * Override of move. Overrided in order to set lastMove
     */

@@ -42,6 +42,8 @@
 
 #define TIC 16
 
+#define MESSAGE_LIMIT 1024
+
 /**
  * Wrapper function because threads can't take pointers to member functions.
  */
@@ -57,8 +59,10 @@ void run_cthread(CThread* fe) {
     fe->run();
 }
 
-struct PlatStruct {
-    Platform plat;
+struct CharStruct {
+    int id;
+    float x;
+    float y;
 };
 
 int main() {
@@ -101,6 +105,8 @@ int main() {
     vertMoving.setBounds(vertMoving.getStartPos().y, 200);
     moving.setBounds(startPlatform.getGlobalBounds().left + startPlatform.getGlobalBounds().width, endPlatform.getGlobalBounds().left - startPlatform.getGlobalBounds().width);
 
+
+
     //Add Moving Platforms to the list.
     list<MovingPlatform*> movings;
     movings.push_front(&moving);
@@ -134,7 +140,7 @@ int main() {
     repSocket.bind("tcp://localhost:5555");
     pubSocket.bind("tcp://localhost:5556");
 
-    Character characters[10];
+    CharStruct characters[10];
     int numCharacters = 0;
 
     //Begin main update loop
@@ -143,25 +149,42 @@ int main() {
         ticLength = FrameTime.getRealTicLength();
         currentTic = FrameTime.getTime();
         if (currentTic > tic) {
+
+
             //We are expecting updates from all of our users, but a new one might slip in too.
             for (int i = 0; i < numCharacters; i++) {
                 zmq::message_t update;
                 zmq::recv_result_t received(repSocket.recv(update, zmq::recv_flags::none));
-                Character* current = (Character *)update.data();
-                //If it's a new client mixed in here, set it up.
-                if (current->getID() == -1) {
-                    current->setID(numCharacters);
-                    characters[numCharacters] = *current;
+                char* current = (char*)update.data();
+                CharStruct newCharacter;
+                int matches = sscanf_s(current, "%d %f %f", &(newCharacter.id), &(newCharacter.x), &(newCharacter.y));
+
+                //The reply we will send to the user
+
+                //If it's a new client, update it's ID and add it to our array.
+                if (newCharacter.id == -1) {
+                    newCharacter.id = numCharacters;
+                    characters[numCharacters] = newCharacter;
                     numCharacters++;
+
+                    //Send a response with the character's new ID
+                    char response[MESSAGE_LIMIT];
+                    sprintf_s(response, "%d", newCharacter.id);
+                    zmq::message_t reply(strlen(response) + 1);
+                    memcpy(reply.data(), response, strlen(response) + 1);
+                    repSocket.send(reply, zmq::send_flags::none);
                 }
-                //Else, replace it's position in the list (Updates it's position);
-                else {
-                    characters[current->getID()] = *current;
+                else { //If it's a returning client, update it's position only.
+                    characters[newCharacter.id].x = newCharacter.x;
+                    characters[newCharacter.id].y = newCharacter.y;
+
+                    //Send a response with the character's ID. Should be the same.
+                    char response[MESSAGE_LIMIT];
+                    sprintf_s(response, "%d", newCharacter.id);
+                    zmq::message_t reply(strlen(response) + 1);
+                    memcpy(reply.data(), response, strlen(response) + 1);
+                    repSocket.send(reply, zmq::send_flags::none);
                 }
-                //Confirmation reply
-                zmq::message_t reply(20);
-                memcpy(reply.data(), "Connection Received", 20);
-                repSocket.send(reply, zmq::send_flags::none);
             }
 
             //Check for incoming users. This will probably only occur for the first user.
@@ -170,39 +193,60 @@ int main() {
 
             //If we found one, set it up
             if ((received.has_value() && (EAGAIN != received.value()))) {
-                Character* current = (Character*)init.data();
-                Character newCharacter;
-                newCharacter.setOrigin(current->getOrigin());
-                //std::cout << "Ran4\n";
-                //newCharacter.setTexture(current->getTexture());
-                newCharacter.setSize(current->getSize());
-                newCharacter.setPosition(current->getPosition());
-                newCharacter.setFillColor(current->getFillColor());
-                newCharacter.setID(numCharacters);
-                characters[numCharacters] = newCharacter;
-                numCharacters++;
+                char* current = (char*)init.data();
+                CharStruct newCharacter;
+                int matches = sscanf_s(current, "%d %f %f", &(newCharacter.id), &(newCharacter.x), &(newCharacter.y));
+                if (newCharacter.id == -1) {
+                    newCharacter.id = numCharacters;
+                    characters[numCharacters] = newCharacter;
+                    numCharacters++;
 
-                //Confirmation reply
-                zmq::message_t reply(20);
-                memcpy(reply.data(), "Connection Received", 20);
-                repSocket.send(reply, zmq::send_flags::none);
+                    //Send a response with the character's new ID
+                    char response[MESSAGE_LIMIT];
+                    sprintf_s(response, "%d", newCharacter.id);
+                    zmq::message_t reply(strlen(response) + 1);
+                    memcpy(reply.data(), response, strlen(response) + 1);
+                    repSocket.send(reply, zmq::send_flags::none);
+                }
+                else { //Just in case another user was very fast and somehow slipped in here.
+                    characters[newCharacter.id].x = newCharacter.x;
+                    characters[newCharacter.id].y = newCharacter.y;
+
+                    //Send a response with the character's new ID
+                    char response[MESSAGE_LIMIT];
+                    sprintf_s(response, "%d", newCharacter.id);
+                    zmq::message_t reply(strlen(response) + 1);
+                    memcpy(reply.data(), response, strlen(response) + 1);
+                    repSocket.send(reply, zmq::send_flags::none);
+                }
             }
+
 
             //Done processing character updates, return platforms and characters
             //TODO: NEED TO BE NOTIFIED BY MTHREAD BEFORE DOING THIS
-            int numPlatforms;
-            Platform* rtnPlatforms = window.getPlatforms(&numPlatforms);
             if (numCharacters > 0) {
-                //Send platforms
-                std::cout << "Ran\n";
-                zmq::message_t sendPlatforms(numPlatforms * sizeof(Platform));
-                memcpy(sendPlatforms.data(), rtnPlatforms, numPlatforms * sizeof(Platform));
+                //Construct platform position string
+                char platRtnString[MESSAGE_LIMIT] = "";
+                for (MovingPlatform *i : movings) {
+                    char platString[MESSAGE_LIMIT];
+                    sprintf_s(platString, "%f %f ", i->getPosition().x, i->getPosition().y);
+                    strcat_s(platRtnString, platString);
+                }
+                //Send platform information
+                zmq::message_t sendPlatforms(strlen(platRtnString) + 1);
+                memcpy(sendPlatforms.data(), platRtnString, strlen(platRtnString) + 1);
                 pubSocket.send(sendPlatforms, zmq::send_flags::none);
-                std::cout << "Ran2\n" << numPlatforms * sizeof(Platform) << std::endl; //Doesn't account for MOVING platform Use struct with both
 
-                //Send characters
-                zmq::message_t sendCharacters(numCharacters * sizeof(Character));
-                memcpy(sendCharacters.data(), characters, numCharacters * sizeof(Character));
+                //Construct character position string
+                char charRtnString[MESSAGE_LIMIT] = "";
+                for (int i = 0; i < numCharacters; i++) {
+                    char charString[MESSAGE_LIMIT];
+                    sprintf_s(charString, "%d %f %f ", characters[i].id, characters[i].x, characters[i].y);
+                    strcat_s(charRtnString, charString);
+                }
+                //Send character information
+                zmq::message_t sendCharacters(strlen(charRtnString) + 1);
+                memcpy(sendCharacters.data(), charRtnString, strlen(charRtnString) + 1);
                 pubSocket.send(sendCharacters, zmq::send_flags::none);
             }
         }

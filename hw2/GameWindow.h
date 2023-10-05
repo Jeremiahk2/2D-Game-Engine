@@ -38,7 +38,9 @@ private:
     */
     Character* character;
 
-    list<Character> allCharacters;
+    Character allCharacters[10];
+
+    int numCharacters = 0;
 
     /**
     * Whether or not the window uses proportional scaling.
@@ -101,9 +103,7 @@ public:
 
     Platform* getPlatforms(int* n);
 
-    void updatePlatforms(Platform* newPlatforms, int n);
-
-    void updateCharacters(Character* otherCharacters, int n);
+    void updateCharacters(char *newChars);
 };
 
 #endif
