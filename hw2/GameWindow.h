@@ -49,6 +49,8 @@ private:
 
     int numPlatforms = 0;
 
+    sf::Texture charTexture;
+
 
 
 

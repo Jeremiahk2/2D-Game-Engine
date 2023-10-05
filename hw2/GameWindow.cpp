@@ -16,8 +16,13 @@ int numCharacters = 0;
 
 Platform realPlatforms[10];
 
+sf::Texture charTexture;
+
 
 GameWindow::GameWindow() {
+    if (!charTexture.loadFromFile("Santa_standing.png")) {
+        std::cout << "Failed";
+    }
 }
 
 void GameWindow::addPlatform(Platform* platform, bool isMoving) {
@@ -118,17 +123,8 @@ void GameWindow::updateCharacters(char *newChars) {
             newCharacter.setOrigin(0.f, 30.f);
             newCharacter.setID(currentId);
             newCharacter.setPosition(currentX, currentY);
-
-            /**
-            ART FOR SANTA PROVIDED BY Marco Giorgini THROUGH OPENGAMEART.ORG
-            License: CC0 (Public Domain) @ 12/28/21
-            https://opengameart.org/content/santas-rats-issue-c64-sprites
-            */
-            sf::Texture charTexture;
-            if (!charTexture.loadFromFile("Santa_standing.png")) {
-                std::cout << "Failed";
-            }
             newCharacter.setTexture(&charTexture);
+
             allCharacters[count] = newCharacter;
             numCharacters++;
         }
