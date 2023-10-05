@@ -66,40 +66,33 @@ struct CharStruct {
 };
 
 int main() {
-    // Create a window with the same pixel depth as the desktop, with 144 frames per second.
-    GameWindow window;
 
     //Create StartPlatform and add it to the window
     Platform startPlatform;
     startPlatform.setSize(sf::Vector2f(100.f, 15.f));
     startPlatform.setFillColor(sf::Color(100, 0, 0));
     startPlatform.setPosition(sf::Vector2f(150.f - startPlatform.getSize().x, 500.f));
-    window.addPlatform(&startPlatform, false);
 
     //Create MovingPlatform and add it to the window
     MovingPlatform moving(PLAT_SPEED, 1, startPlatform.getGlobalBounds().left + startPlatform.getGlobalBounds().width, 500.f);
     moving.setSize(sf::Vector2f(100.f, 15.f));
     moving.setFillColor(sf::Color(100, 250, 50));
-    window.addPlatform(&moving, true);
 
     //Create endPlatform and add it to the window
     Platform endPlatform;
     endPlatform.setSize(sf::Vector2f(100.f, 15.f));
     endPlatform.setFillColor(sf::Color(218, 165, 32));
     endPlatform.setPosition(sf::Vector2f(400.f + endPlatform.getSize().x, 500.f));
-    window.addPlatform(&endPlatform, false);
 
     MovingPlatform vertMoving(PLAT_SPEED, false, endPlatform.getPosition().x + endPlatform.getSize().x, 500.f);
     vertMoving.setSize(sf::Vector2f(50.f, 15.f));
     vertMoving.setFillColor(sf::Color::Magenta);
-    window.addPlatform(&vertMoving, true);
 
     //Create headBonk platform (for testing jump) and add it to the window
     Platform headBonk;
     headBonk.setSize(sf::Vector2f(100.f, 15.f));
     headBonk.setFillColor(sf::Color::Blue);
     headBonk.setPosition(endPlatform.getPosition().x, endPlatform.getPosition().y - 60);
-    window.addPlatform(&headBonk, false);
 
     //Set the bounds of the moving platforms
     vertMoving.setBounds(vertMoving.getStartPos().y, 200);
@@ -149,7 +142,6 @@ int main() {
         ticLength = FrameTime.getRealTicLength();
         currentTic = FrameTime.getTime();
         if (currentTic > tic) {
-
 
             //We are expecting updates from all of our users, but a new one might slip in too.
             for (int i = 0; i < numCharacters; i++) {
