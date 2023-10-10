@@ -134,6 +134,7 @@ int main() {
     pubSocket.bind("tcp://localhost:5556");
 
     CharStruct characters[10];
+    int numClients = 0;
     int numCharacters = 0;
 
     //Begin main update loop
@@ -144,19 +145,21 @@ int main() {
         if (currentTic > tic) {
 
             //We are expecting updates from all of our users, but a new one might slip in too.
-            for (int i = 0; i < numCharacters; i++) {
+            for (int i = 0; i < numClients; i++) {
                 zmq::message_t update;
                 zmq::recv_result_t received(repSocket.recv(update, zmq::recv_flags::none));
                 char* current = (char*)update.data();
                 CharStruct newCharacter;
-                int matches = sscanf_s(current, "%d %f %f", &(newCharacter.id), &(newCharacter.x), &(newCharacter.y));
+                char status;
+                int matches = sscanf_s(current, "%d %f %f %c", &(newCharacter.id), &(newCharacter.x), &(newCharacter.y), &status, 1);
 
                 //The reply we will send to the user
 
-                //If it's a new client, update it's ID and add it to our array.
-                if (newCharacter.id == -1) {
-                    newCharacter.id = numCharacters;
-                    characters[numCharacters] = newCharacter;
+                //If it's a new client, who is connecting for the first time, set it up in the array.
+                if (newCharacter.id == -1 && status == 'c') {
+                    newCharacter.id = numClients;
+                    characters[numClients] = newCharacter;
+                    numClients++;
                     numCharacters++;
 
                     //Send a response with the character's new ID
@@ -166,7 +169,19 @@ int main() {
                     memcpy(reply.data(), response, strlen(response) + 1);
                     repSocket.send(reply, zmq::send_flags::none);
                 }
-                else { //If it's a returning client, update it's position only.
+                //If it is a client that is disconnecting, remove it from the array
+                else if (status == 'd' && numClients != 0 && newCharacter.id >= 0 && newCharacter.id < 9) {
+                    characters[newCharacter.id].id = (characters[newCharacter.id].id + 1) * -1;
+                    numClients--;
+
+                    //Send a response with the character's ID. Should be the same.
+                    char response[MESSAGE_LIMIT];
+                    sprintf_s(response, "%d", newCharacter.id);
+                    zmq::message_t reply(strlen(response) + 1);
+                    memcpy(reply.data(), response, strlen(response) + 1);
+                    repSocket.send(reply, zmq::send_flags::none);
+                }
+                else if (status == 'c') { //If it's a returning client, update it's position only.
                     characters[newCharacter.id].x = newCharacter.x;
                     characters[newCharacter.id].y = newCharacter.y;
 
@@ -187,10 +202,12 @@ int main() {
             if ((received.has_value() && (EAGAIN != received.value()))) {
                 char* current = (char*)init.data();
                 CharStruct newCharacter;
-                int matches = sscanf_s(current, "%d %f %f", &(newCharacter.id), &(newCharacter.x), &(newCharacter.y));
-                if (newCharacter.id == -1) {
-                    newCharacter.id = numCharacters;
-                    characters[numCharacters] = newCharacter;
+                char status;
+                int matches = sscanf_s(current, "%d %f %f %c", &(newCharacter.id), &(newCharacter.x), &(newCharacter.y), &status, 1);
+                if (newCharacter.id == -1 && status == 'c') {
+                    newCharacter.id = numClients;
+                    characters[numClients] = newCharacter;
+                    numClients++;
                     numCharacters++;
 
                     //Send a response with the character's new ID
@@ -200,7 +217,19 @@ int main() {
                     memcpy(reply.data(), response, strlen(response) + 1);
                     repSocket.send(reply, zmq::send_flags::none);
                 }
-                else { //Just in case another user was very fast and somehow slipped in here.
+                //If it is a client that is disconnecting, remove it from the array
+                else if (status == 'd' && numClients != 0) {
+                    characters[newCharacter.id].id = (characters[newCharacter.id].id + 1) * -1;
+                    numClients--;
+
+                    //Send a response with the character's new ID
+                    char response[MESSAGE_LIMIT];
+                    sprintf_s(response, "%d", newCharacter.id);
+                    zmq::message_t reply(strlen(response) + 1);
+                    memcpy(reply.data(), response, strlen(response) + 1);
+                    repSocket.send(reply, zmq::send_flags::none);
+                }
+                else if (status == 'c') { //Just in case another user was very fast and somehow slipped in here.
                     characters[newCharacter.id].x = newCharacter.x;
                     characters[newCharacter.id].y = newCharacter.y;
 
@@ -216,7 +245,7 @@ int main() {
 
             //Done processing character updates, return platforms and characters
             //TODO: NEED TO BE NOTIFIED BY MTHREAD BEFORE DOING THIS
-            if (numCharacters > 0) {
+            if (numClients > 0) {
                 //Construct platform position string
                 char platRtnString[MESSAGE_LIMIT] = "";
                 for (MovingPlatform *i : movings) {

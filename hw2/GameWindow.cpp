@@ -38,7 +38,9 @@ void GameWindow::update() {
         draw(*i);
     }
     for (int i = 0; i < numCharacters; i++) {
-        draw(allCharacters[i]);
+        if ((allCharacters[i].getID() >= 0) ) {
+            draw(allCharacters[i]);
+        }
     }
     display();
 }
@@ -110,6 +112,7 @@ void GameWindow::updateCharacters(char *newChars) {
     int count = 0;
     int pos = 0;
     int newPos = 0;
+
     while (sscanf_s(newChars + pos, "%d %f %f %n", &currentId, &currentX, &currentY, &newPos) == 3) {
         pos += newPos;
         //If it is one of the already registered characters, update it.

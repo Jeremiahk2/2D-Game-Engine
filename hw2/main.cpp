@@ -186,6 +186,7 @@ int main() {
 
     double jumpTime = JUMP_TIME;
     double scale = 1.0;
+    char status = 'c';
 
     subSocket.set(zmq::sockopt::subscribe, "");
     while (window.isOpen()) {
@@ -194,50 +195,51 @@ int main() {
         currentTic = FrameTime.getTime();
 
         sf::Event event;
-
-        //TODO: Make thread to handle events, so that polling doesn't block CThread and main thread.
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
-                stopped = true;
-                //Need to notify all so they can stop
-                cv.notify_all();
-                first.join();
-                window.close();
-            }
-            if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Q)) {
-                window.changeScaling();
-            }
-            if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::P)) {
-                if (global.isPaused()) {
-                    global.unpause();
-                }
-                else {
-                    global.pause();
-                }
-            }
-            if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Left)) {
-                if (scale != .5) {
-                    scale *= .5;
-                    global.changeScale(scale);
-                }
-            }
-            if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Right)) {
-                if (scale != 2.0) {
-                    scale *= 2.0;
-                    global.changeScale(scale);
-                }
-            }
-            if (event.type == sf::Event::Resized)
-            {
-                window.handleResize(event);
-            }
-        }
-
         if (currentTic > tic) {
+
+            //TODO: Make thread to handle events, so that polling doesn't block CThread and main thread.
+            while (window.pollEvent(event)) {
+                if (event.type == sf::Event::Closed) {
+                    stopped = true;
+                    //Need to notify all so they can stop
+                    cv.notify_all();
+                    first.join();
+                    window.close();
+                    //Set the status as disconnecting
+                    status = 'd';
+                }
+                if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Q)) {
+                    window.changeScaling();
+                }
+                if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::P)) {
+                    if (global.isPaused()) {
+                        global.unpause();
+                    }
+                    else {
+                        global.pause();
+                    }
+                }
+                if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Left)) {
+                    if (scale != .5) {
+                        scale *= .5;
+                        global.changeScale(scale);
+                    }
+                }
+                if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Right)) {
+                    if (scale != 2.0) {
+                        scale *= 2.0;
+                        global.changeScale(scale);
+                    }
+                }
+                if (event.type == sf::Event::Resized)
+                {
+                    window.handleResize(event);
+                }
+            }
 
             //Send updated character information to server
             char characterString[MESSAGE_LIMIT];
-            sprintf_s(characterString, "%d %f %f", character.getID(), character.getPosition().x, character.getPosition().y);
+            sprintf_s(characterString, "%d %f %f %c", character.getID(), character.getPosition().x, character.getPosition().y, status);
             zmq::message_t request(strlen(characterString) + 1);
             memcpy(request.data(), &characterString, strlen(characterString) + 1);
             reqSocket.send(request, zmq::send_flags::none);
@@ -249,34 +251,36 @@ int main() {
             int newID;
             int matches = sscanf_s(replyString, "%d", &newID);
             character.setID(newID);
-        
 
-            //Receive updated platforms
-            zmq::message_t newPlatforms;
-            subSocket.recv(newPlatforms, zmq::recv_flags::none);
+            if (status != 'd') {
+                //Receive updated platforms
+                zmq::message_t newPlatforms;
+                subSocket.recv(newPlatforms, zmq::recv_flags::none);
 
-            char* platformsString = (char *)newPlatforms.data();
-            int pos = 0;
-            for (MovingPlatform* i : movings) {
-                float x = 0;
-                float y = 0;
-                int matches = sscanf_s(platformsString + pos, "%f %f %n", &x, &y, &pos);
+                char* platformsString = (char*)newPlatforms.data();
+                int pos = 0;
+                for (MovingPlatform* i : movings) {
+                    float x = 0;
+                    float y = 0;
+                    int matches = sscanf_s(platformsString + pos, "%f %f %n", &x, &y, &pos);
 
-                i->move(x - i->getPosition().x, y - i->getPosition().y);
+                    i->move(x - i->getPosition().x, y - i->getPosition().y);
+                }
+                while (cthread.isBusy())
+                {
+                    cv.notify_all();
+                }
+                busy = true;
+
+                //Receive updated characters
+                zmq::message_t newCharacters;
+                subSocket.recv(newCharacters, zmq::recv_flags::none);
+
+                char* newCharString = (char*)newCharacters.data();
+                //Update the characters in the window with new ones
+                window.updateCharacters(newCharString);
             }
-            while (cthread.isBusy())
-            {
-                cv.notify_all();
-            }
-            busy = true;
-
-            //Receive updated characters
-            zmq::message_t newCharacters;
-            subSocket.recv(newCharacters, zmq::recv_flags::none);
-
-            char* newCharString = (char*)newCharacters.data();
-            //Update the characters in the window with new ones
-            window.updateCharacters(newCharString);
+            
 
             CBox collision;
 
@@ -369,6 +373,5 @@ int main() {
         }
         tic = currentTic;
     }
-    first.join();
     return EXIT_SUCCESS;
 }
