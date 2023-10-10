@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <list>
+//Correct version
 
 #include "MovingPlatform.h"
 #include "Character.h"
@@ -9,7 +10,6 @@
 #include "CBox.h"
 #include "GameWindow.h"
 #include "MovingThread.h"
-#include "CThread.h"
 
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
@@ -51,13 +51,6 @@ void run_moving(MovingThread* fe)
 {
     fe->run();
 }
-//TODO: Combine these?
-/**
-* Run the CThread
-*/
-void run_cthread(CThread* fe) {
-    fe->run();
-}
 
 struct CharStruct {
     int id;
@@ -95,8 +88,8 @@ int main() {
     headBonk.setPosition(endPlatform.getPosition().x, endPlatform.getPosition().y - 60);
 
     //Set the bounds of the moving platforms
-    vertMoving.setBounds(vertMoving.getStartPos().y, 200);
-    moving.setBounds(startPlatform.getGlobalBounds().left + startPlatform.getGlobalBounds().width, endPlatform.getGlobalBounds().left - startPlatform.getGlobalBounds().width);
+    vertMoving.setBounds((int)vertMoving.getStartPos().y, 200);
+    moving.setBounds((int)startPlatform.getGlobalBounds().left + (int)startPlatform.getGlobalBounds().width, (int)endPlatform.getGlobalBounds().left - (int)startPlatform.getGlobalBounds().width);
 
 
 

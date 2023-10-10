@@ -5,7 +5,7 @@
 #include "GameWindow.h"
 #include "MovingThread.h"
 #include "CThread.h"
-#include "EventThread.h"
+//Correct version
 
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
@@ -68,9 +68,6 @@ void run_cthread(CThread *fe) {
 }
 
 
-void run_ethread(EventThread* fe) {
-    fe->run();
-}
 int main() {
 
     //Setup window and add character.
@@ -149,7 +146,7 @@ int main() {
     //Setup timing stuff
     int64_t tic = 0;
     int64_t currentTic = 0;
-    double ticLength;
+    float ticLength;
 
     //  Prepare our context and socket
     zmq::context_t context(1);
@@ -184,8 +181,8 @@ int main() {
 
     //Start main game loop
 
-    double jumpTime = JUMP_TIME;
-    double scale = 1.0;
+    float jumpTime = JUMP_TIME;
+    float scale = 1.0;
     char status = 'c';
 
     subSocket.set(zmq::sockopt::subscribe, "");
@@ -285,7 +282,7 @@ int main() {
             CBox collision;
 
             //Need to recalculate character speed in case scale changed.
-            double charSpeed = (double)character.getSpeed().x * (double)ticLength * (double)(currentTic - tic);
+            float charSpeed = (float)character.getSpeed().x * (float)ticLength * (float)(currentTic - tic);
 
             //Update window visuals
             if (!stopped && !global.isPaused()) {
@@ -354,11 +351,11 @@ int main() {
             /*busy = false;*/
 
             //If the character is currently jumping, move them up and check for collisions.
-            double frameJump = JUMP_SPEED * (double)ticLength * (double)(currentTic - tic);
+            float frameJump = JUMP_SPEED * (float)ticLength * (float)(currentTic - tic);
             
             if (character.isJumping()) {
                 character.move(0, -1 * frameJump);
-                jumpTime -= (double)ticLength * (double)(currentTic - tic);
+                jumpTime -= (float)ticLength * (float)(currentTic - tic);
                 bool jumpCollides = window.checkCollisions(&collision);
                 //Exit jumping if there are no more jump frames or if we collided with something.
                 if (jumpTime <= 0 || jumpCollides) {

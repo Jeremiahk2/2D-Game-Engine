@@ -1,5 +1,6 @@
 #ifndef CHARACTER_H
 #define CHARACTER_H
+//Correct version
 
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
@@ -25,7 +26,7 @@ private:
     /**
     * How much does the character fall per second
     */
-    double gravity = 0.f;
+    float gravity = 0.f;
 
     int id = -1;
 
@@ -44,7 +45,7 @@ public:
     /**
     * set the speed of the character
     */
-    void setSpeed(double speed);
+    void setSpeed(float speed);
 
     /**
     * check if the character is currently jumping
@@ -59,12 +60,12 @@ public:
     /*
     * Set the gravity for the character. This should be in the form of pixels/second. Set 0 if the character doesn't have gravity.
     */
-    void setGravity(double gravity);
+    void setGravity(float gravity);
 
     /**
     * Return the gravity for the character.
     */
-    double getGravity();
+    float getGravity();
 
     void setID(int id);
 

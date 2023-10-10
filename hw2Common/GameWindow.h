@@ -1,15 +1,16 @@
 #ifndef GAMEWINDOW_H
 #define GAMEWINDOW_H
+//Correct version
 
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
 #include <list>
 #include <thread>
+#include <iostream>
 #include "Character.h"
 #include "CBox.h"
 #include "Platform.h"
-#include "MovingPlatform.h"
-#include "MovingThread.h"
+
 using namespace std;
 
 /**
@@ -38,7 +39,9 @@ private:
     */
     Character* character;
 
-    list<Character> allCharacters;
+    Character allCharacters[10];
+
+    int numCharacters = 0;
 
     /**
     * Whether or not the window uses proportional scaling.
@@ -46,6 +49,8 @@ private:
     bool isProportional = true;
 
     int numPlatforms = 0;
+
+    sf::Texture charTexture;
 
 
 
@@ -101,9 +106,7 @@ public:
 
     Platform* getPlatforms(int* n);
 
-    void updatePlatforms(Platform* newPlatforms, int n);
-
-    void updateCharacters(Character* otherCharacters, int n);
+    void updateCharacters(char *newChars);
 };
 
 #endif

@@ -1,4 +1,5 @@
 #include "MovingPlatform.h"
+//Correct version
 
     bool m_type;
 
@@ -13,7 +14,7 @@
     sf::Vector2f lastMove = sf::Vector2f(0, 0);
 
     //Bound bound1 is the left/bottom bound. bound 2 is the right/top bound. Type is 0 for vertical, 1 for horizontal.
-    MovingPlatform::MovingPlatform(double speed, bool type, double startx, double starty) : Platform()
+    MovingPlatform::MovingPlatform(float speed, bool type, float startx, float starty) : Platform()
     {
         startPos = sf::Vector2f(startx, starty);
         setPosition(startPos);
@@ -53,8 +54,7 @@
     void MovingPlatform::setHSpeed(sf::Vector2f speed) {
         h_speed = speed;
     }
-
-    void MovingPlatform::move(double x, double y) {
+    void MovingPlatform::move(float x, float y) {
         Platform::move(x, y);
         lastMove = sf::Vector2f(x, y);
     }

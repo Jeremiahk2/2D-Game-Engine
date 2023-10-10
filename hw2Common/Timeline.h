@@ -1,5 +1,6 @@
 #ifndef TIMELINE_H
 #define TIMELINE_H
+//Correct version
 
 #include <chrono>
 #include <stdio.h>
@@ -53,7 +54,7 @@ private:
     /**
     * The scale to which the timeline should alter itself to.
     */
-    double scale;
+    float scale;
 
 public:
 
@@ -100,13 +101,13 @@ public:
     * Useful for if your objects are in terms of real time (pixels/second).
     * If you are changing scale arbitrarily, you will need to update this every iteration
     */
-    double getRealTicLength();
+    float getRealTicLength();
 
     /**
     * Change the scale of the timeline. 
     * What this actually does is multiply getRealTicLength() by scale.
     * So if you put it at 2, each tic counts for double the time.
     */
-    void changeScale(double scale);
+    void changeScale(float scale);
 };
 #endif

@@ -1,5 +1,6 @@
 #ifndef CBOX_H
 #define CBOX_H
+//Correct version
 
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>

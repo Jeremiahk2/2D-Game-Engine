@@ -2,6 +2,7 @@
 #define MP_H
 
 #include "Platform.h"
+//Correct version
 
 /**
 * Class for handling a Platform that moves.
@@ -43,7 +44,7 @@ public:
     * @param startx The x coordinate for where the platform should be created.
     * @param starty the y coordinate for where the platform should be created.
     */
-    MovingPlatform(double speed, bool type, double startx, double starty);
+    MovingPlatform(float speed, bool type, float startx, float starty);
 
     /**
     * Set the bounds for movement.
@@ -84,11 +85,6 @@ public:
     * return bound1 and bound2 as a vector
     */
     sf::Vector2i getBounds();
-
-    /**
-    * Override of move. Overrided in order to set lastMove
-    */
-    void move(double x, double y);
 
     void move(float x, float y);
 

@@ -105,6 +105,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\Jerry\source\repos\VS 481\hw2Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -119,6 +120,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\Jerry\source\repos\VS 481\hw2Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,27 +130,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CBox.h" />
-    <ClInclude Include="Character.h" />
-    <ClInclude Include="CThread.h" />
-    <ClInclude Include="EventThread.h" />
-    <ClInclude Include="GameWindow.h" />
-    <ClInclude Include="MovingPlatform.h" />
-    <ClInclude Include="MovingThread.h" />
-    <ClInclude Include="Platform.h" />
-    <ClInclude Include="Timeline.h" />
+    <ClCompile Include="..\hw2Common\CBox.cpp" />
+    <ClCompile Include="..\hw2Common\Character.cpp" />
+    <ClCompile Include="..\hw2Common\CThread.cpp" />
+    <ClCompile Include="..\hw2Common\GameWindow.cpp" />
+    <ClCompile Include="..\hw2Common\MovingPlatform.cpp" />
+    <ClCompile Include="..\hw2Common\Platform.cpp" />
+    <ClCompile Include="..\hw2Common\Timeline.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CBox.cpp" />
-    <ClCompile Include="Character.cpp" />
-    <ClCompile Include="CThread.cpp" />
-    <ClCompile Include="EventThread.cpp" />
-    <ClCompile Include="GameWindow.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="MovingPlatform.cpp" />
-    <ClCompile Include="MovingThread.cpp" />
-    <ClCompile Include="Platform.cpp" />
-    <ClCompile Include="Timeline.cpp" />
+    <ClInclude Include="..\hw2Common\CBox.h" />
+    <ClInclude Include="..\hw2Common\Character.h" />
+    <ClInclude Include="..\hw2Common\CThread.h" />
+    <ClInclude Include="..\hw2Common\GameWindow.h" />
+    <ClInclude Include="..\hw2Common\MovingPlatform.h" />
+    <ClInclude Include="..\hw2Common\Platform.h" />
+    <ClInclude Include="..\hw2Common\Timeline.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

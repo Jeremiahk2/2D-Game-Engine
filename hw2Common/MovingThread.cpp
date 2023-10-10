@@ -1,4 +1,5 @@
 #include "MovingThread.h"
+//Correct version
 
 bool busy;
 int i;
@@ -37,7 +38,7 @@ bool MovingThread::isBusy() {
 void MovingThread::run() {
     int64_t tic = 0;
     int64_t currentTic;
-    double ticLength;
+    float ticLength;
     while (!(*stopped)) {
         ticLength = timeline->getRealTicLength();
         currentTic = timeline->getTime();
@@ -51,18 +52,19 @@ void MovingThread::run() {
                 }
                 else {
                     i->move(i->getSpeed().x * ticLength * (currentTic - tic), 0);
+                    std::cout << i->getLastMove().x << std::endl;
                 }
                 //If we intersected the bounds, switch direction
 
                 if (!(i->getType())) {
                     //Check the bounds. Round to the nearest 2 decimal places to avoid floating point errors.
                     if ((int)i->getGlobalBounds().top < bounds.y || (int)i->getGlobalBounds().top > bounds.x ) {
-                        i->setVSpeed(sf::Vector2f(0, i->getSpeed().y * -1.0));
+                        i->setVSpeed(sf::Vector2f(0, i->getSpeed().y * -1.f));
                     }
                 }
                 else {
                     if (i->getGlobalBounds().left > bounds.y || i->getGlobalBounds().left < bounds.x ) {
-                        i->setHSpeed(sf::Vector2f(i->getSpeed().x * -1.0, 0));
+                        i->setHSpeed(sf::Vector2f(i->getSpeed().x * -1.f, 0));
                     }
                 }
                 _condition_variable->notify_all();

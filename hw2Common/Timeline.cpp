@@ -1,4 +1,5 @@
 #include "Timeline.h"
+//Correct version
 
 int64_t start_time;
 int64_t elapsed_paused_time;
@@ -6,7 +7,7 @@ int64_t last_paused_time;
 int64_t tic;
 bool paused;
 Timeline *anchor;
-double scale;
+float scale;
 
 std::recursive_mutex timeMutex;
 
@@ -66,10 +67,10 @@ bool Timeline::isPaused() {
     return paused;
 }
 
-double Timeline::getRealTicLength() {
-    return anchor ? tic * anchor->getRealTicLength() : scale * sf::milliseconds(tic).asSeconds();
+float Timeline::getRealTicLength() {
+    return anchor ? tic * anchor->getRealTicLength() : scale * sf::milliseconds(1).asSeconds();
 }
 
-void Timeline::changeScale(double scale) {
+void Timeline::changeScale(float scale) {
     this->scale = scale;
 }

@@ -1,22 +1,23 @@
 #include "Character.h"
 #define DEFAULT_SPEED 1.f
+//Correct version
 
 sf::Vector2f speed = sf::Vector2f(DEFAULT_SPEED, 0);
 
 bool jumping = false;
 
-double gravity = 0.f;
+float gravity = 0.f;
 
 int id = -1;
 
 Character::Character() {
 }
-    
+
 sf::Vector2f Character::getSpeed() {
     return speed;
 }
-    
-void Character::setSpeed(double speed) {
+
+void Character::setSpeed(float speed) {
     this->speed.x = speed;
 }
 
@@ -28,11 +29,11 @@ void Character::setJumping(bool jump) {
     this->jumping = jump;
 }
 
-double Character::getGravity() {
+float Character::getGravity() {
     return gravity;
 }
 
-void Character::setGravity(double gravity) {
+void Character::setGravity(float gravity) {
     this->gravity = gravity;
 }
 
