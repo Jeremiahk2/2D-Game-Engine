@@ -52,6 +52,8 @@ void CThread::run() {
                     //Enable jumping. TODO: Rename variable to better fit. canJump? canJump(bool)?
                     *upPressed = true;
                 }
+
+
                 else {
                     //If the collision IS moving, AND the character is above the platform, correct the position upwards.
                     //This helps prevent the character from getting stuck on the platform after jumping off.

@@ -147,6 +147,7 @@ int main() {
     Timeline FrameTime(&global, TIC);
     Timeline CTime(&global, TIC);
 
+    bool busy = false;
 
     MovingThread mthread(&MPTime, &stopped, 0, NULL, &m, &cv, &movings);
 

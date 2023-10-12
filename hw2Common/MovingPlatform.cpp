@@ -1,5 +1,4 @@
 #include "MovingPlatform.h"
-//Correct version
 
     bool m_type;
 

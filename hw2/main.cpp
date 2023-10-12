@@ -53,13 +53,7 @@ using namespace std;
 
 #define MESSAGE_LIMIT 1024
 
-//TESTS:
-// 9/4/2023 4:26 PM
-// Left alone for 30 minutes on 16 tic (at 1.0 scale) and nothing broke. My character remained on the horizontal moving platform.
-// Left player alone for 24 minutes on 16 tic (at 1.0 scale) on the vertical platform and the player fell off at some point near the end of this period.
-#define TIC 16 //Setting this to 4 or lower causes problems. CThread can't keep up and causes undefined behavior. Need to use mutexes or some equivalent to fix this. Though it's technically on the client.
-
-//TODO: Combine these?
+#define TIC 8 //Setting this to 8 seems to produce optimal behavior. At least on my machine. 16 and 32 both work but they don't look very good. 4 usually results in 8 behavior anyway.
 /**
 * Run the CThread
 */
@@ -79,41 +73,38 @@ int main() {
     Timeline global;
     bool stopped = false;
     std::condition_variable cv;
-    //This should initialize the window
-    /*EventThread ethread(&global, &stopped, &cv);*/
-    /*GameWindow *window = ethread.getWindowPointer();*/
 
     //Create StartPlatform and add it to the window
     Platform startPlatform;
     startPlatform.setSize(sf::Vector2f(100.f, 15.f));
     startPlatform.setFillColor(sf::Color(100, 0, 0));
-    startPlatform.setPosition(sf::Vector2f(150.f - startPlatform.getSize().x, 500.f));
+    startPlatform.setPosition(sf::Vector2f(50.f, 500.f));
     window.addPlatform(&startPlatform, false);
-
-    //Create MovingPlatform and add it to the window
-    MovingPlatform moving(PLAT_SPEED, 1, startPlatform.getGlobalBounds().left + startPlatform.getGlobalBounds().width, 500.f);
-    moving.setSize(sf::Vector2f(100.f, 15.f));
-    moving.setFillColor(sf::Color(100, 250, 50));
-    window.addPlatform(&moving, true);
 
     //Create endPlatform and add it to the window
     Platform endPlatform;
     endPlatform.setSize(sf::Vector2f(100.f, 15.f));
     endPlatform.setFillColor(sf::Color(218, 165, 32));
-    endPlatform.setPosition(sf::Vector2f(400.f + endPlatform.getSize().x, 500.f));
+    endPlatform.setPosition(sf::Vector2f(500.f, 500.f));
     window.addPlatform(&endPlatform, false);
-
-    MovingPlatform vertMoving(PLAT_SPEED, false, endPlatform.getPosition().x + endPlatform.getSize().x, 500.f);
-    vertMoving.setSize(sf::Vector2f(50.f, 15.f));
-    vertMoving.setFillColor(sf::Color::Magenta);
-    window.addPlatform(&vertMoving, true);
 
     //Create headBonk platform (for testing jump) and add it to the window
     Platform headBonk;
     headBonk.setSize(sf::Vector2f(100.f, 15.f));
     headBonk.setFillColor(sf::Color::Blue);
-    headBonk.setPosition(endPlatform.getPosition().x, endPlatform.getPosition().y - 60);
+    headBonk.setPosition(500.f, 440.f);
     window.addPlatform(&headBonk, false);
+
+    //Create MovingPlatform and add it to the window
+    MovingPlatform moving(PLAT_SPEED, 1, 150.f, 500.f);
+    moving.setSize(sf::Vector2f(100.f, 15.f));
+    moving.setFillColor(sf::Color(100, 250, 50));
+    window.addPlatform(&moving, true);
+
+    MovingPlatform vertMoving(PLAT_SPEED, false, 600.f, 500.f);
+    vertMoving.setSize(sf::Vector2f(50.f, 15.f));
+    vertMoving.setFillColor(sf::Color::Magenta);
+    window.addPlatform(&vertMoving, true);
 
     //Create playable character and add it to the window as the playable object
     Character character;
@@ -159,8 +150,6 @@ int main() {
 
     //MPTime and CTime need to be the same tic atm. Framtime can be different (though not too low)
     Timeline FrameTime(&global, TIC);
-    
-    //Bool for if the threads should stop
 
     //Set up necessary thread vairables
     std::mutex m;
@@ -208,14 +197,14 @@ int main() {
                 if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Q)) {
                     window.changeScaling();
                 }
-                if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::P)) {
+                /*if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::P)) {
                     if (global.isPaused()) {
                         global.unpause();
                     }
                     else {
                         global.pause();
                     }
-                }
+                }*/
                 if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Left)) {
                     if (scale != .5) {
                         scale *= .5;
@@ -234,7 +223,7 @@ int main() {
                 }
             }
 
-            //Send updated character information to server
+            //Send updated character information to server or disconnect if status is 'd'
             char characterString[MESSAGE_LIMIT];
             sprintf_s(characterString, "%d %f %f %c", character.getID(), character.getPosition().x, character.getPosition().y, status);
             zmq::message_t request(strlen(characterString) + 1);
@@ -248,7 +237,9 @@ int main() {
             int newID;
             int matches = sscanf_s(replyString, "%d", &newID);
             character.setID(newID);
-
+            if (newID > 9) {
+                exit(1);
+            }
             if (status != 'd') {
                 //Receive updated platforms
                 zmq::message_t newPlatforms;

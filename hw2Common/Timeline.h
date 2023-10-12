@@ -1,6 +1,5 @@
 #ifndef TIMELINE_H
 #define TIMELINE_H
-//Correct version
 
 #include <chrono>
 #include <stdio.h>

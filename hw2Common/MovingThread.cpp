@@ -1,5 +1,4 @@
 #include "MovingThread.h"
-//Correct version
 
 bool busy;
 int i;
@@ -32,17 +31,15 @@ bool MovingThread::isBusy() {
     return busy;
 }
 
-/**
-* TODO: Sync the critical sections of this with CThread to avoid unpredictable errors. Or lock move. Try both?
-*/
 void MovingThread::run() {
     int64_t tic = 0;
     int64_t currentTic;
     float ticLength;
     while (!(*stopped)) {
+        //Check to see if a new tic has gone by.
         ticLength = timeline->getRealTicLength();
         currentTic = timeline->getTime();
-        if (currentTic > tic) {
+        if (currentTic > tic) { //It has, move platforms
             for (MovingPlatform *i : *movingPlatforms) {
                 sf::Vector2i bounds = i->getBounds();
                 if (!(i->getType())) {
@@ -53,8 +50,8 @@ void MovingThread::run() {
                 else {
                     i->move(i->getSpeed().x * ticLength * (currentTic - tic), 0);
                 }
-                //If we intersected the bounds, switch direction
 
+                //If we intersected the bounds, switch direction
                 if (!(i->getType())) {
                     //Check the bounds. Round to the nearest 2 decimal places to avoid floating point errors.
                     if ((int)i->getGlobalBounds().top < bounds.y || (int)i->getGlobalBounds().top > bounds.x ) {
@@ -66,7 +63,6 @@ void MovingThread::run() {
                         i->setHSpeed(sf::Vector2f(i->getSpeed().x * -1.f, 0));
                     }
                 }
-                _condition_variable->notify_all();
             }
             tic = currentTic;
         }

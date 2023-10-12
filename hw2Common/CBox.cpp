@@ -1,5 +1,4 @@
 #include "CBox.h"
-//Correct version
 
 
 bool movable = false;

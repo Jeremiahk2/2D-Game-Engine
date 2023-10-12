@@ -1,6 +1,5 @@
 #ifndef MOVINGTHREAD_H
 #define MOVINGTHREAD_H
-//Correct version
 
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>

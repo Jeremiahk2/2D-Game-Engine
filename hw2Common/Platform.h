@@ -1,6 +1,5 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
-//Correct version
 
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>

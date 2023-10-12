@@ -1,6 +1,5 @@
 #ifndef CHARACTER_H
 #define CHARACTER_H
-//Correct version
 
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
@@ -28,6 +27,11 @@ private:
     */
     float gravity = 0.f;
 
+    /**
+    * The ID of the character. Init at -1 for a client who has not yet connected.
+    * Server should change this to 0 or a positive value to show it has connected, and return
+    * a negative value if it has disconnected
+    */
     int id = -1;
 
 public:
@@ -67,8 +71,14 @@ public:
     */
     float getGravity();
 
+    /**
+    * Set the ID of the character. This should pretty much only be used by the server.
+    */
     void setID(int id);
 
+    /**
+    * Get the ID of the character.
+    */
     int getID();
 };
 #endif

@@ -2,7 +2,6 @@
 #define MP_H
 
 #include "Platform.h"
-//Correct version
 
 /**
 * Class for handling a Platform that moves.
@@ -95,7 +94,6 @@ public:
 
     /**
     * Return the last recorded move 
-    * TODO: Make thread-safe. Lock-guard?
     */
     sf::Vector2f getLastMove(); 
 

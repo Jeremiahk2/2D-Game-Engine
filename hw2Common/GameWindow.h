@@ -1,6 +1,5 @@
 #ifndef GAMEWINDOW_H
 #define GAMEWINDOW_H
-//Correct version
 
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
@@ -27,6 +26,9 @@ private:
     */
     list<Platform*> platforms;
 
+    /**
+    * The list of platforms that need to be drawn on screen. These are the platforms that are continously updated from the server.
+    */
     Platform realPlatforms[10];
 
     /**
@@ -39,6 +41,9 @@ private:
     */
     Character* character;
 
+    /**
+    * An array of all character objects that have been loaded. Disconnected clients (Negative ID's) will not be drawn.
+    */
     Character allCharacters[10];
 
     int numCharacters = 0;
@@ -48,8 +53,14 @@ private:
     */
     bool isProportional = true;
 
+    /**
+    * The number of platforms in the realPlatforms array.
+    */
     int numPlatforms = 0;
 
+    /**
+    * The texture used for all characters
+    */
     sf::Texture charTexture;
 
 
@@ -104,8 +115,15 @@ public:
     */
     Character* getCharacter();
 
+    /**
+    * Return the list of platforms (realPlatforms) in the window. 
+    * @param n the number of real platforms in the window.
+    */
     Platform* getPlatforms(int* n);
 
+    /**
+    * Update the characters using a string that contains information about all of the updated characters.
+    */
     void updateCharacters(char *newChars);
 };
 

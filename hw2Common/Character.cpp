@@ -1,6 +1,5 @@
 #include "Character.h"
 #define DEFAULT_SPEED 1.f
-//Correct version
 
 sf::Vector2f speed = sf::Vector2f(DEFAULT_SPEED, 0);
 

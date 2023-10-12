@@ -1,24 +1,25 @@
 #include "MovingThread.h"
+//Correct version
 
 bool busy;
 int i;
 
-MovingThread *other;
+MovingThread* other;
 
-std::mutex *_mutex;
+std::mutex* _mutex;
 
-std::condition_variable *_condition_variable;
+std::condition_variable* _condition_variable;
 
-list<MovingPlatform*> *movingPlatforms;
+list<MovingPlatform*>* movingPlatforms;
 
-bool *stopped;
+bool* stopped;
 
-Timeline *timeline;
+Timeline* timeline;
 
-MovingThread::MovingThread(Timeline *timeline, bool *stopped, int i, MovingThread *other, std::mutex *_mutex, std::condition_variable *_condition_variable, list<MovingPlatform*> *movingPlatforms) {
+MovingThread::MovingThread(Timeline* timeline, bool* stopped, int i, MovingThread* other, std::mutex* _mutex, std::condition_variable* _condition_variable, list<MovingPlatform*>* movingPlatforms) {
     this->stopped = stopped;
     this->i = i; // set the id of this thread
-    if(i==0) { busy = true; }
+    if (i == 0) { busy = true; }
     else { this->other = other; }
     this->_mutex = _mutex;
     this->_condition_variable = _condition_variable;
@@ -37,12 +38,12 @@ bool MovingThread::isBusy() {
 void MovingThread::run() {
     int64_t tic = 0;
     int64_t currentTic;
-    double ticLength;
+    float ticLength;
     while (!(*stopped)) {
         ticLength = timeline->getRealTicLength();
         currentTic = timeline->getTime();
         if (currentTic > tic) {
-            for (MovingPlatform *i : *movingPlatforms) {
+            for (MovingPlatform* i : *movingPlatforms) {
                 sf::Vector2i bounds = i->getBounds();
                 if (!(i->getType())) {
                     //Move the platform by the current tic difference. Ideally currentTic - tic should be 1.
@@ -56,13 +57,13 @@ void MovingThread::run() {
 
                 if (!(i->getType())) {
                     //Check the bounds. Round to the nearest 2 decimal places to avoid floating point errors.
-                    if ((int)i->getGlobalBounds().top < bounds.y || (int)i->getGlobalBounds().top > bounds.x ) {
-                        i->setVSpeed(sf::Vector2f(0, i->getSpeed().y * -1.0));
+                    if ((int)i->getGlobalBounds().top < bounds.y || (int)i->getGlobalBounds().top > bounds.x) {
+                        i->setVSpeed(sf::Vector2f(0, i->getSpeed().y * -1.f));
                     }
                 }
                 else {
-                    if (i->getGlobalBounds().left > bounds.y || i->getGlobalBounds().left < bounds.x ) {
-                        i->setHSpeed(sf::Vector2f(i->getSpeed().x * -1.0, 0));
+                    if (i->getGlobalBounds().left > bounds.y || i->getGlobalBounds().left < bounds.x) {
+                        i->setHSpeed(sf::Vector2f(i->getSpeed().x * -1.f, 0));
                     }
                 }
                 _condition_variable->notify_all();

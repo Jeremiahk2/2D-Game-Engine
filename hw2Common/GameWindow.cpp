@@ -1,5 +1,4 @@
 #include "GameWindow.h"
-//Correct version
 
 list<Platform*> platforms;
 
@@ -27,6 +26,7 @@ GameWindow::GameWindow() {
 }
 
 void GameWindow::addPlatform(Platform* platform, bool isMoving) {
+    //Add the platform to the list of platforms and collision boxes
     platforms.push_front(platform);
     collisions.push_front(CBox(isMoving, platform));
     numPlatforms++;
@@ -38,6 +38,7 @@ void GameWindow::update() {
     for (Platform* i : platforms) {
         draw(*i);
     }
+    //Cycle through the list of characters and draw them (Our character is included here)
     for (int i = 0; i < numCharacters; i++) {
         if ((allCharacters[i].getID() >= 0) ) {
             draw(allCharacters[i]);
@@ -45,7 +46,7 @@ void GameWindow::update() {
     }
     display();
 }
-
+//Add this client's playable character.
 void GameWindow::addCharacter(Character* character) {
     this->character = character;
 }
@@ -94,7 +95,7 @@ Character* GameWindow::getCharacter() {
 }
 
 Platform* GameWindow::getPlatforms(int* n) {
-    Platform rtnPlatforms[10]; //Update this later to not be capped at 10
+    Platform rtnPlatforms[10];
     int count = 0;
     for (Platform* i : platforms) {
         rtnPlatforms[count] = *i;
@@ -113,7 +114,7 @@ void GameWindow::updateCharacters(char *newChars) {
     int count = 0;
     int pos = 0;
     int newPos = 0;
-
+    //Parse the string to find the information about each character
     while (sscanf_s(newChars + pos, "%d %f %f %n", &currentId, &currentX, &currentY, &newPos) == 3) {
         pos += newPos;
         //If it is one of the already registered characters, update it.
@@ -136,6 +137,4 @@ void GameWindow::updateCharacters(char *newChars) {
         }
         count++;
     }
-    
-
 }
