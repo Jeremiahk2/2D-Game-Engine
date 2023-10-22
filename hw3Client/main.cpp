@@ -1,19 +1,10 @@
 #include "MovingPlatform.h"
 #include "Character.h"
-#include "Platform.h"
 #include "CBox.h"
 #include "GameWindow.h"
-#include "MovingThread.h"
 #include "CThread.h"
+#include "ReqSubThread.h"
 //Correct version
-
-#include <SFML/OpenGL.hpp>
-#include <SFML/Graphics.hpp>
-#include <iostream>
-#include <list>
-#include <thread>
-#include <zmq.hpp>
-#include <string>
 
 #ifndef _WIN32
 #include <unistd.h>
@@ -51,13 +42,15 @@ using namespace std;
 
 #define JUMP_TIME .5
 
-#define MESSAGE_LIMIT 1024
-
 #define TIC 8 //Setting this to 8 seems to produce optimal behavior. At least on my machine. 16 and 32 both work but they don't look very good. 4 usually results in 8 behavior anyway.
 /**
 * Run the CThread
 */
 void run_cthread(CThread *fe) {
+    fe->run();
+}
+
+void run_rsthread(ReqSubThread* fe) {
     fe->run();
 }
 
@@ -139,15 +132,6 @@ int main() {
     int64_t currentTic = 0;
     float ticLength;
 
-    //  Prepare our context and socket
-    zmq::context_t context(1);
-    zmq::socket_t reqSocket(context, zmq::socket_type::req);
-    zmq::socket_t subSocket(context, zmq::socket_type::sub);
-
-    //Connect
-    reqSocket.connect("tcp://localhost:5555");
-    subSocket.connect("tcp://localhost:5556");
-
     //MPTime and CTime need to be the same tic atm. Framtime can be different (though not too low)
     Timeline FrameTime(&global, TIC);
 
@@ -157,14 +141,13 @@ int main() {
     bool upPressed = false;
 
     Timeline CTime(&global, TIC);
+    Timeline RSTime(&global, TIC);
 
     bool busy = true;
 
     //Start collision detection
     CThread cthread(&upPressed, &window, &CTime, &stopped, &m, &cv, &busy);
     std::thread first(run_cthread, &cthread);
-
-    //std::thread second(run_ethread, &ethread);
 
     Platform platforms[10];
 
@@ -174,7 +157,10 @@ int main() {
     float scale = 1.0;
     char status = 'c';
 
-    subSocket.set(zmq::sockopt::subscribe, "");
+    //Start server/client response
+    ReqSubThread rsthread(&status, &window, &cthread, &busy, &cv, &RSTime);
+    std::thread second(run_rsthread, &rsthread);
+
     while (window.isOpen()) {
 
         ticLength = FrameTime.getRealTicLength();
@@ -187,12 +173,13 @@ int main() {
             while (window.pollEvent(event)) {
                 if (event.type == sf::Event::Closed) {
                     stopped = true;
+                    status = 'd';
                     //Need to notify all so they can stop
                     cv.notify_all();
                     first.join();
+                    second.join();
                     window.close();
                     //Set the status as disconnecting
-                    status = 'd';
                 }
                 if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Q)) {
                     window.changeScaling();
@@ -222,54 +209,6 @@ int main() {
                     window.handleResize(event);
                 }
             }
-
-            //Send updated character information to server or disconnect if status is 'd'
-            char characterString[MESSAGE_LIMIT];
-            sprintf_s(characterString, "%d %f %f %c", character.getID(), character.getPosition().x, character.getPosition().y, status);
-            zmq::message_t request(strlen(characterString) + 1);
-            memcpy(request.data(), &characterString, strlen(characterString) + 1);
-            reqSocket.send(request, zmq::send_flags::none);
-
-            //Receive confirmation
-            zmq::message_t reply;
-            reqSocket.recv(reply, zmq::recv_flags::none);
-            char* replyString = (char *)reply.data();
-            int newID;
-            int matches = sscanf_s(replyString, "%d", &newID);
-            character.setID(newID);
-            if (newID > 9) {
-                exit(1);
-            }
-            if (status != 'd') {
-                //Receive updated platforms
-                zmq::message_t newPlatforms;
-                subSocket.recv(newPlatforms, zmq::recv_flags::none);
-
-                char* platformsString = (char*)newPlatforms.data();
-                int pos = 0;
-                for (MovingPlatform* i : movings) {
-                    float x = 0;
-                    float y = 0;
-                    int matches = sscanf_s(platformsString + pos, "%f %f %n", &x, &y, &pos);
-
-                    i->move(x - i->getPosition().x, y - i->getPosition().y);
-                }
-                while (cthread.isBusy())
-                {
-                    cv.notify_all();
-                }
-                busy = true;
-
-                //Receive updated characters
-                zmq::message_t newCharacters;
-                subSocket.recv(newCharacters, zmq::recv_flags::none);
-
-                char* newCharString = (char*)newCharacters.data();
-                //Update the characters in the window with new ones
-                window.updateCharacters(newCharString);
-            }
-            
-
             CBox collision;
 
             //Need to recalculate character speed in case scale changed.

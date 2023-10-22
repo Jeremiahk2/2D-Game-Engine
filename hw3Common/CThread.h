@@ -1,15 +1,9 @@
 #ifndef CTHREAD_H
 #define CTHREAD_H
 //Correct version
-
-#include <SFML/OpenGL.hpp>
-#include <SFML/Graphics.hpp>
-#include <list>
 #include <thread>
-#include <chrono>
-#include <mutex>
 #include <condition_variable>
-#include <iostream>
+
 #include "MovingPlatform.h"
 #include "Timeline.h"
 #include "GameWindow.h"

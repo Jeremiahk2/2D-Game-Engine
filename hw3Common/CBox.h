@@ -1,8 +1,6 @@
 #ifndef CBOX_H
 #define CBOX_H
 
-#include <SFML/OpenGL.hpp>
-#include <SFML/Graphics.hpp>
 #include "MovingPlatform.h"
 
 /**

@@ -5,7 +5,6 @@
 #include <SFML/Graphics.hpp>
 #include <list>
 #include <thread>
-#include <chrono>
 #include <mutex>
 #include <condition_variable>
 #include <iostream>

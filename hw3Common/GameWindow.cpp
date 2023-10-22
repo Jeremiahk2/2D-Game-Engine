@@ -1,54 +1,24 @@
 #include "GameWindow.h"
 
 list<Platform*> platforms;
-
-Character* character;
-
 list<CBox> collisions;
-
-bool isProportional = true;
-
-int numPlatforms = 0;
+list<MovingPlatform*> movings;
 
 Character allCharacters[10];
-
-int numCharacters = 0;
-
 Platform realPlatforms[10];
 
+Character* character;
 sf::Texture charTexture;
+
+bool isProportional = true;
+int numPlatforms = 0;
+int numCharacters = 0;
 
 
 GameWindow::GameWindow() {
     if (!charTexture.loadFromFile("Santa_standing.png")) {
         std::cout << "Failed";
     }
-}
-
-void GameWindow::addPlatform(Platform* platform, bool isMoving) {
-    //Add the platform to the list of platforms and collision boxes
-    platforms.push_front(platform);
-    collisions.push_front(CBox(isMoving, platform));
-    numPlatforms++;
-}
-
-void GameWindow::update() {
-    clear();
-    //Cycle through the list of platforms and draw them.
-    for (Platform* i : platforms) {
-        draw(*i);
-    }
-    //Cycle through the list of characters and draw them (Our character is included here)
-    for (int i = 0; i < numCharacters; i++) {
-        if ((allCharacters[i].getID() >= 0) ) {
-            draw(allCharacters[i]);
-        }
-    }
-    display();
-}
-//Add this client's playable character.
-void GameWindow::addCharacter(Character* character) {
-    this->character = character;
 }
 
 bool GameWindow::checkCollisions(CBox* collides) {
@@ -75,23 +45,25 @@ bool GameWindow::checkCollisions(CBox* collides) {
     return false;
 }
 
-void GameWindow::changeScaling() {
-    isProportional = !isProportional;
-}
-
-bool GameWindow::checkMode() {
-    return isProportional;
-}
-
-void GameWindow::handleResize(sf::Event event) {
-    if (!isProportional) {
-        sf::FloatRect visibleArea(0, 0, (float)event.size.width, (float)event.size.height);
-        setView(sf::View(visibleArea));
-    }
+//Add this client's playable character.
+void GameWindow::addCharacter(Character* character) {
+    this->character = character;
 }
 
 Character* GameWindow::getCharacter() {
     return character;
+}
+
+void GameWindow::addPlatform(Platform* platform, bool isMoving) {
+    //Add the platform to the list of platforms
+    platforms.push_front(platform);
+    //Make a collision box for the platform and add it in.
+    collisions.push_front(CBox(isMoving, platform));
+    //If it is a moving platform, add it to the list of moving platforms.
+    if (isMoving) {
+        movings.push_front((MovingPlatform*)platform);
+    }
+    numPlatforms++;
 }
 
 Platform* GameWindow::getPlatforms(int* n) {
@@ -103,6 +75,25 @@ Platform* GameWindow::getPlatforms(int* n) {
     }
     *n = count;
     return rtnPlatforms;
+}
+
+list<MovingPlatform*>* GameWindow::getMovings() {
+    return &movings;
+}
+
+void GameWindow::update() {
+    clear();
+    //Cycle through the list of platforms and draw them.
+    for (Platform* i : platforms) {
+        draw(*i);
+    }
+    //Cycle through the list of characters and draw them (Our character is included here)
+    for (int i = 0; i < numCharacters; i++) {
+        if ((allCharacters[i].getID() >= 0)) {
+            draw(allCharacters[i]);
+        }
+    }
+    display();
 }
 
 void GameWindow::updateCharacters(char *newChars) {
@@ -136,5 +127,20 @@ void GameWindow::updateCharacters(char *newChars) {
             numCharacters++;
         }
         count++;
+    }
+}
+
+void GameWindow::changeScaling() {
+    isProportional = !isProportional;
+}
+
+bool GameWindow::checkMode() {
+    return isProportional;
+}
+
+void GameWindow::handleResize(sf::Event event) {
+    if (!isProportional) {
+        sf::FloatRect visibleArea(0, 0, (float)event.size.width, (float)event.size.height);
+        setView(sf::View(visibleArea));
     }
 }

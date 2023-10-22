@@ -1,10 +1,7 @@
 #ifndef GAMEWINDOW_H
 #define GAMEWINDOW_H
 
-#include <SFML/OpenGL.hpp>
-#include <SFML/Graphics.hpp>
 #include <list>
-#include <thread>
 #include <iostream>
 #include "Character.h"
 #include "CBox.h"
@@ -25,6 +22,8 @@ private:
     * The list of platform pointers that need to be drawn on screen.
     */
     list<Platform*> platforms;
+
+    list<MovingPlatform*> movings;
 
     /**
     * The list of platforms that need to be drawn on screen. These are the platforms that are continously updated from the server.
@@ -109,6 +108,8 @@ public:
     * If the current view is constant, this will resize the view to fit the new size
     */
     void handleResize(sf::Event event);
+
+    list<MovingPlatform*>* getMovings();
 
     /**
     * return a pointer to the character.

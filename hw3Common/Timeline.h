@@ -2,9 +2,7 @@
 #define TIMELINE_H
 
 #include <chrono>
-#include <stdio.h>
 #include <mutex>
-#include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
 using namespace std::chrono;
 
