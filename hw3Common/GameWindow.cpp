@@ -30,6 +30,7 @@ GameWindow::GameWindow() {
     if (windowMutex != NULL) {
         memcpy(windowMutex, &tempMutex, sizeof(std::mutex));
     }
+    character = NULL;
 }
 
 bool GameWindow::checkCollisions(CBox* collides) {

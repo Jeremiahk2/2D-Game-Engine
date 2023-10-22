@@ -3,6 +3,7 @@
 
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
+#include <mutex>
 
 /**
 * A class for platforms, a type of RectangleShape.
@@ -15,6 +16,8 @@ private:
     */
     bool passthrough;
 
+    std::mutex *platMutex;
+
     
 public:
     /**
@@ -26,6 +29,16 @@ public:
     * Set the passthrough setting on this platform.
     */
     void setPassthrough(bool passthrough);
+
+    void move(float offsetX, float offsetY);
+
+    void move(const sf::Vector2f offset);
+
+    void setPosition(float x, float y);
+
+    void setPosition(const sf::Vector2f position);
+
+    sf::FloatRect getGlobalBounds();
 };
 
 #endif
