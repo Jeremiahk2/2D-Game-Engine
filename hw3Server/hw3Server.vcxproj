@@ -151,6 +151,9 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RepPubThread.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="KnownBugs.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -1,0 +1,7 @@
+KNOWN:
+- Occasionally, the program appears to deadlock upon opening up the window.
+- Pressing jump and then quickly resizing or moving the window causes the player's jump to last much longer than intended.
+
+
+FIXED:
+- Character falls through floor while resizing or moving window.
