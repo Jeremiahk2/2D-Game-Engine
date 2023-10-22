@@ -12,6 +12,8 @@
 
     sf::Vector2f lastMove = sf::Vector2f(0, 0);
 
+    std::mutex *mpMutex;
+
     //Bound bound1 is the left/bottom bound. bound 2 is the right/top bound. Type is 0 for vertical, 1 for horizontal.
     MovingPlatform::MovingPlatform(float speed, bool type, float startx, float starty) : Platform()
     {
@@ -20,9 +22,24 @@
         v_speed.y = speed;
         h_speed.x = speed;
         m_type = type;
+        bound1 = 0;
+        bound2 = 0;
+
+        mpMutex = Platform::getMutex();
+    }
+
+    void MovingPlatform::setVSpeed(sf::Vector2f speed) {
+        std::lock_guard<std::mutex> lock(*mpMutex);
+        v_speed = speed;
+    }
+
+    void MovingPlatform::setHSpeed(sf::Vector2f speed) {
+        std::lock_guard<std::mutex> lock(*mpMutex);
+        h_speed = speed;
     }
 
     sf::Vector2f MovingPlatform::getSpeed() {
+        std::lock_guard<std::mutex> lock(*mpMutex);
         if (m_type == 0) {
             return(v_speed);
         }
@@ -38,20 +55,14 @@
     }
 
     void MovingPlatform::setBounds(int bound1, int bound2) {
+        std::lock_guard<std::mutex> lock(*mpMutex);
         this->bound1 = bound1;
         this->bound2 = bound2;
     }
 
     sf::Vector2i MovingPlatform::getBounds() {
+        std::lock_guard<std::mutex> lock(*mpMutex);
         return sf::Vector2i(bound1, bound2);
-    }
-
-    void MovingPlatform::setVSpeed(sf::Vector2f speed) {
-        v_speed = speed;
-    }
-
-    void MovingPlatform::setHSpeed(sf::Vector2f speed) {
-        h_speed = speed;
     }
     void MovingPlatform::move(float x, float y) {
         Platform::move(x, y);
@@ -64,6 +75,7 @@
     }
 
     sf::Vector2f MovingPlatform::getLastMove() {
+        std::lock_guard<std::mutex> lock(*mpMutex);
         return lastMove;
     }
 

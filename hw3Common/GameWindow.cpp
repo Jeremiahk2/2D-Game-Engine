@@ -25,7 +25,6 @@ GameWindow::GameWindow() {
     }
 
     windowMutex = (std::mutex*)malloc(sizeof(std::mutex));
-
     std::mutex tempMutex;
     if (windowMutex != NULL) {
         memcpy(windowMutex, &tempMutex, sizeof(std::mutex));

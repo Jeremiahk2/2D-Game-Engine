@@ -13,7 +13,6 @@ std::mutex *charMutex;
 
 Character::Character() {
     charMutex = (std::mutex *)malloc(sizeof(std::mutex));
-
     std::mutex tempMutex;
     if (charMutex != NULL) {
         memcpy(charMutex, &tempMutex, sizeof(std::mutex));

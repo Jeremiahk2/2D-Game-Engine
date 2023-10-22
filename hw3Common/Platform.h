@@ -39,6 +39,8 @@ public:
     void setPosition(const sf::Vector2f position);
 
     sf::FloatRect getGlobalBounds();
+
+    std::mutex* getMutex();
 };
 
 #endif

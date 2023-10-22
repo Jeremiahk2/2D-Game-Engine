@@ -34,6 +34,8 @@ private:
     */
     sf::Vector2f lastMove = sf::Vector2f(0, 0);
 
+    std::mutex* mpMutex;
+
 
 public:
     /**

@@ -3,7 +3,7 @@
 
 bool passthrough;
 
-std::mutex platMutex;
+std::mutex *platMutex;
 
 
 
@@ -44,4 +44,8 @@ void Platform::setPosition(const sf::Vector2f position) {
 sf::FloatRect Platform::getGlobalBounds() {
     std::lock_guard<std::mutex> lock(*platMutex);
     return sf::RectangleShape::getGlobalBounds();
+}
+
+std::mutex* Platform::getMutex() {
+    return platMutex;
 }
