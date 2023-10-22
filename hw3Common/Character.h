@@ -3,6 +3,7 @@
 
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
+#include <mutex>
 
 /**
 * Class for Character objects, or the shape that is controlled by the player.
@@ -33,6 +34,8 @@ private:
     * a negative value if it has disconnected
     */
     int id = -1;
+
+    std::mutex *charMutex;
 
 public:
     /**
@@ -80,5 +83,15 @@ public:
     * Get the ID of the character.
     */
     int getID();
+
+    void move(float offsetX, float offsetY);
+
+    void move(const sf::Vector2f offset);
+
+    void setPosition(float x, float y);
+
+    void setPosition(const sf::Vector2f position);
+
+    sf::FloatRect getGlobalBounds();
 };
 #endif
