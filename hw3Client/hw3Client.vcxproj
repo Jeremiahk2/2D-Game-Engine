@@ -137,6 +137,7 @@
     <ClInclude Include="..\hw3Common\MovingThread.h" />
     <ClInclude Include="..\hw3Common\Platform.h" />
     <ClInclude Include="..\hw3Common\Timeline.h" />
+    <ClInclude Include="ReqSubThread.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\hw3Common\CBox.cpp" />
@@ -148,6 +149,7 @@
     <ClCompile Include="..\hw3Common\Platform.cpp" />
     <ClCompile Include="..\hw3Common\Timeline.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ReqSubThread.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
