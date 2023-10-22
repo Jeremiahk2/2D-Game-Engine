@@ -24,16 +24,10 @@
     <ClInclude Include="..\hw3Common\Character.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\hw3Common\CThread.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\hw3Common\GameWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\hw3Common\MovingPlatform.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\hw3Common\MovingThread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\hw3Common\Platform.h">
@@ -43,6 +37,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RepPubThread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MovingThread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -56,16 +53,10 @@
     <ClCompile Include="..\hw3Common\Character.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\hw3Common\CThread.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\hw3Common\GameWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\hw3Common\MovingPlatform.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\hw3Common\MovingThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\hw3Common\Platform.cpp">
@@ -75,6 +66,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RepPubThread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MovingThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
