@@ -3,6 +3,11 @@
 #include <zmq.hpp>
 #define MESSAGE_LIMIT 1024
 
+struct ClientStruct {
+    std::thread* thread;
+    RepThread* repThread;
+};
+
 struct CharStruct {
     int id;
     float x;

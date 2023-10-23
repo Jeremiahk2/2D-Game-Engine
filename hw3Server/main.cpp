@@ -114,7 +114,7 @@ int main() {
     int numCharacters = 0;
     int availPort = 5557;
 
-    std::list<RepThread> clientThreads;
+    std::list<std::thread> clientThreads;
 
     //Begin main game loop
     while (true) {
@@ -132,7 +132,9 @@ int main() {
             int newPort = availPort++;
             int id = numClients++;
             RepThread newRep(availPort, numClients);
-            run_rep(&newRep);
+            //clientThreads.push_front(new std::thread(run_rep, &newRep)); Use new keyword?
+            std::thread newThread(run_rep, &newRep);
+            //Malloc room for thread and then store pointer to it in clientThreads?
 
         }
     }
