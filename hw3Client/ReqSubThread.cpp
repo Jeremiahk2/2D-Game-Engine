@@ -26,15 +26,45 @@ void ReqSubThread::run() {
     zmq::socket_t reqSocket(context, zmq::socket_type::req);
     zmq::socket_t subSocket(context, zmq::socket_type::sub);
 
-    //Connect
-    reqSocket.connect("tcp://localhost:5555");
-    subSocket.connect("tcp://localhost:5556");
-    subSocket.set(zmq::sockopt::subscribe, "");
-
     Character* character = rswindow->getCharacter();
 
-    list<MovingPlatform*> *movings = rswindow->getMovings();
+    list<MovingPlatform*>* movings = rswindow->getMovings();
 
+    //Connect and get your own port.
+    reqSocket.connect("tcp://localhost:5556");
+
+    //Send the request to the server.
+    char characterString[MESSAGE_LIMIT];
+    sprintf_s(characterString, "Connect");
+    zmq::message_t request(strlen(characterString) + 1);
+    memcpy(request.data(), &characterString, strlen(characterString) + 1);
+    reqSocket.send(request, zmq::send_flags::none);
+
+    //Receive the reply from the server, should contain our port and ID
+    zmq::message_t initReply;
+    reqSocket.recv(initReply, zmq::recv_flags::none);
+    char* replyString = (char*)initReply.data();
+    int initId = -1;
+    int port = -1;
+    int matches = sscanf_s(replyString, "%d %d", &initId, &port);
+
+    //Exit if we didn't get a proper reply
+    if (matches != 2) {
+        exit(2);
+    }
+    //Set our character's ID and configure port string
+    character->setID(initId);
+    char portString[21];
+    sprintf_s(portString, "%s%d", "tcp://localhost:", port);
+
+    //Disconnect from main server process.
+    reqSocket.disconnect("tcp://localhost:5556");
+    //Connect to your unique port provided by the server.
+    reqSocket.connect(portString);
+
+    //Connect to general subsocket.
+    subSocket.connect("tcp://localhost:5555");
+    subSocket.set(zmq::sockopt::subscribe, "");
 
     int64_t tic = 0;
     int64_t currentTic = 0;

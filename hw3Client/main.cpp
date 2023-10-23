@@ -132,7 +132,7 @@ int main() {
     int64_t currentTic = 0;
     float ticLength;
 
-    //MPTime and CTime need to be the same tic atm. Framtime can be different (though not too low)
+    //Set up timeline for frame updates
     Timeline FrameTime(&global, TIC);
 
     //Set up necessary thread vairables
@@ -148,7 +148,7 @@ int main() {
     //Start collision detection
     CThread cthread(&upPressed, &window, &CTime, &stopped, &m, &cv, &busy);
     std::thread first(run_cthread, &cthread);
-
+    //Array for server platform updates
     Platform platforms[10];
 
     //Start main game loop
@@ -168,8 +168,6 @@ int main() {
 
         sf::Event event;
         if (currentTic > tic) {
-
-            //TODO: Make thread to handle events, so that polling doesn't block CThread and main thread.
             while (window.pollEvent(event)) {
                 if (event.type == sf::Event::Closed) {
                     stopped = true;
@@ -184,6 +182,7 @@ int main() {
                 if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Q)) {
                     window.changeScaling();
                 }
+                //Uncomment below to enable pausing
                 /*if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::P)) {
                     if (global.isPaused()) {
                         global.unpause();
@@ -270,15 +269,11 @@ int main() {
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && window.hasFocus())
             {
-                /*std::unique_lock<std::mutex> cv_lock(m);
-                cv.wait(cv_lock);
-                busy = false;*/
                 if (upPressed) {
                     upPressed = false;
                     character.setJumping(true);
                 }
             }
-            /*busy = false;*/
 
             //If the character is currently jumping, move them up and check for collisions.
             float frameJump = JUMP_SPEED * (float)ticLength * (float)(currentTic - tic);

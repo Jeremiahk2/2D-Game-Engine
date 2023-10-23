@@ -36,10 +36,13 @@
     <ClInclude Include="..\hw3Common\Timeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RepPubThread.h">
+    <ClInclude Include="MovingThread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MovingThread.h">
+    <ClInclude Include="RepThread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PubThread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -65,10 +68,13 @@
     <ClCompile Include="..\hw3Common\Timeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RepPubThread.cpp">
+    <ClCompile Include="MovingThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MovingThread.cpp">
+    <ClCompile Include="RepThread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PubThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

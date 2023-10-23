@@ -136,7 +136,8 @@
     <ClInclude Include="..\hw3Common\Platform.h" />
     <ClInclude Include="..\hw3Common\Timeline.h" />
     <ClInclude Include="MovingThread.h" />
-    <ClInclude Include="RepPubThread.h" />
+    <ClInclude Include="PubThread.h" />
+    <ClInclude Include="RepThread.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\hw3Common\CBox.cpp" />
@@ -147,7 +148,8 @@
     <ClCompile Include="..\hw3Common\Timeline.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MovingThread.cpp" />
-    <ClCompile Include="RepPubThread.cpp" />
+    <ClCompile Include="PubThread.cpp" />
+    <ClCompile Include="RepThread.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="KnownBugs.txt" />
