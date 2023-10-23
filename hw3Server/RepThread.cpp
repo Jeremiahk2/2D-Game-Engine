@@ -23,7 +23,7 @@ void RepThread::run() {
     char characterString[MESSAGE_LIMIT];
     sprintf_s(characterString, "Connect");
     zmq::message_t request(strlen(characterString) + 1);
-    memcpy(request.data(), &characterString, strlen(characterString) + 1);
+    memcpy(request.data(), characterString, strlen(characterString) + 1);
     repSocket.send(request, zmq::send_flags::none);
 
     while (true) {

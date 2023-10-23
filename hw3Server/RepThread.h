@@ -1,6 +1,7 @@
 #ifndef REPTHREAD_H
 #define REPTHREAD_H
 #include <zmq.hpp>
+#include <thread>
 #define MESSAGE_LIMIT 1024
 
 struct ClientStruct {

@@ -114,7 +114,7 @@ int main() {
     int numCharacters = 0;
     int availPort = 5557;
 
-    std::list<std::thread> clientThreads;
+    std::list<ClientStruct> clientThreads;
 
     //Begin main game loop
     while (true) {
@@ -125,17 +125,27 @@ int main() {
         //It has, do stuff
         if (currentTic > tic) {
             //Check for new clients.
-            zmq::message_t update;
-            zmq::recv_result_t received(repSocket.recv(update, zmq::recv_flags::none));
+            zmq::message_t request;
+            zmq::recv_result_t received(repSocket.recv(request, zmq::recv_flags::none));
             
-            //Client received, create thread for client
+            //Client received, create thread for client and store it.
             int newPort = availPort++;
             int id = numClients++;
-            RepThread newRep(availPort, numClients);
-            //clientThreads.push_front(new std::thread(run_rep, &newRep)); Use new keyword?
-            std::thread newThread(run_rep, &newRep);
-            //Malloc room for thread and then store pointer to it in clientThreads?
 
+            //Create client struct and thread
+            ClientStruct newClient;
+            newClient.repThread = new RepThread(newPort, id);
+            newClient.thread = new std::thread(run_rep, newClient.repThread);
+            clientThreads.push_back(newClient); //Pushing back should guarantee that ID matches the position (until it's removed)
+
+            //Return the ID and port to the client.
+            char rtnString[MESSAGE_LIMIT];
+            sprintf_s(rtnString, "%d %d", id, newPort);
+            zmq::message_t reply(strlen(rtnString) + 1);
+            memcpy(reply.data(), rtnString, strlen(rtnString) + 1);
+            repSocket.send(reply, zmq::send_flags::none);
+
+            //Done processing client.
         }
     }
     return EXIT_SUCCESS;
