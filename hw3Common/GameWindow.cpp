@@ -103,7 +103,6 @@ void GameWindow::update() {
 
 void GameWindow::updateCharacters(char *newChars) {
     std::lock_guard<std::mutex> lock(*innerMutex);
-    /*std::cout << newChars << std::endl;*/
     int currentId = 0;
     float currentX = 0.f;
     float currentY = 0.f;

@@ -1,6 +1,6 @@
-#include "ReqSubThread.h"
+#include "ReqThread.h"
 
-ReqSubThread::ReqSubThread(bool *stopped, GameWindow *window, CThread *other, bool *busy, std::condition_variable *rscv,
+ReqThread::ReqThread(bool *stopped, GameWindow *window, CThread *other, bool *busy, std::condition_variable *rscv,
                            Timeline *timeline) {
     this->stopped = stopped;
     this->rswindow = window;
@@ -11,15 +11,12 @@ ReqSubThread::ReqSubThread(bool *stopped, GameWindow *window, CThread *other, bo
 
 }
 
-void ReqSubThread::run() {
+void ReqThread::run() {
     //  Prepare our context and socket
     zmq::context_t context(2);
     zmq::socket_t reqSocket(context, zmq::socket_type::req);
-    zmq::socket_t subSocket(context, zmq::socket_type::sub);
 
     Character* character = rswindow->getCharacter();
-
-    list<MovingPlatform*>* movings = rswindow->getMovings();
 
     //Connect and get your own port.
     reqSocket.connect("tcp://localhost:5556");
@@ -55,14 +52,11 @@ void ReqSubThread::run() {
     int64_t tic = 0;
     int64_t currentTic = 0;
     float ticLength;
-    subSocket.connect("tcp://localhost:5555");
-    subSocket.set(zmq::sockopt::subscribe, "");
     while (*stopped == false) {
         ticLength = rstime->getRealTicLength();
         currentTic = rstime->getTime();
 
         if (currentTic > tic) {
-            std::cout << currentTic - tic;
             //Send updated character information to server
             char characterString[MESSAGE_LIMIT];
             sprintf_s(characterString, "%d %f %f %c", character->getID(), character->getPosition().x, character->getPosition().y, 'c');
@@ -77,32 +71,6 @@ void ReqSubThread::run() {
             int newID;
             int matches = sscanf_s(replyString, "%d", &newID);
             character->setID(newID);
-
-            //Receive updated platforms
-            zmq::message_t newPlatforms;
-            subSocket.recv(newPlatforms, zmq::recv_flags::none);
-            char* platformsString = (char*)newPlatforms.data();
-            int pos = 0;
-            for (MovingPlatform* i : *movings) {
-                float x = 0;
-                float y = 0;
-                int matches = sscanf_s(platformsString + pos, "%f %f %n", &x, &y, &pos);
-
-                i->move(x - i->getPosition().x, y - i->getPosition().y);
-            }
-            while (other->isBusy())
-            {
-                rscv->notify_all();
-            }
-            *rsbusy = true;
-
-            //Receive updated characters
-            zmq::message_t newCharacters;
-            subSocket.recv(newCharacters, zmq::recv_flags::none);
-            char* newCharString = (char*)newCharacters.data();
-            /*std::cout << newCharString << std::endl;*/
-            //Update the characters in the window with new ones
-            rswindow->updateCharacters(newCharString);
         }
         tic = currentTic;
     }
@@ -119,7 +87,7 @@ void ReqSubThread::run() {
     reqSocket.recv(reply, zmq::recv_flags::none);
 }
 
-bool ReqSubThread::isBusy() {
+bool ReqThread::isBusy() {
     return *rsbusy;
 }
 

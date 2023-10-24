@@ -3,16 +3,9 @@
 #include "CBox.h"
 #include "GameWindow.h"
 #include "CThread.h"
-#include "ReqSubThread.h"
+#include "ReqThread.h"
+#include "SubThread.h"
 //Correct version
-
-#ifndef _WIN32
-#include <unistd.h>
-#else
-#include <windows.h>
-
-#define sleep(n)	Sleep(n)
-#endif
 using namespace std;
 
 /**
@@ -50,7 +43,10 @@ void run_cthread(CThread *fe) {
     fe->run();
 }
 
-void run_rsthread(ReqSubThread* fe) {
+void run_reqthread(ReqThread* fe) {
+    fe->run();
+}
+void run_subthread(SubThread* fe) {
     fe->run();
 }
 
@@ -138,7 +134,8 @@ int main() {
     std::mutex m;
     bool upPressed = false;
     Timeline CTime(&global, TIC);
-    Timeline RSTime(&global, TIC);
+    Timeline RTime(&global, TIC);
+    Timeline STime(&global, TIC);
     bool busy = true;
 
     //Start collision detection thread
@@ -146,8 +143,12 @@ int main() {
     std::thread first(run_cthread, &cthread);
 
     //Start server/client req/rep
-    ReqSubThread rsthread(&stopped, &window, &cthread, &busy, &cv, &RSTime);
-    std::thread second(run_rsthread, &rsthread);
+    ReqThread reqthread(&stopped, &window, &cthread, &busy, &cv, &RTime);
+    std::thread second(run_reqthread, &reqthread);
+
+    //start server/client pub/sub
+    SubThread subthread(&stopped, &window, &cthread, &busy, &cv, &STime);
+    std::thread third(run_subthread, &subthread);
 
     while (window.isOpen()) {
 

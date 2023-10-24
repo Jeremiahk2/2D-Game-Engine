@@ -25,7 +25,6 @@ void PubThread::run() {
         currentTic = time->getTime();
 
         if (currentTic > tic) {
-
             //Construct platform position string
             char platRtnString[MESSAGE_LIMIT] = "";
             for (MovingPlatform* i : *movings) {
@@ -37,7 +36,6 @@ void PubThread::run() {
             zmq::message_t sendPlatforms(strlen(platRtnString) + 1);
             memcpy(sendPlatforms.data(), platRtnString, strlen(platRtnString) + 1);
             pubSocket.send(sendPlatforms, zmq::send_flags::none);
-            //std::cout << platRtnString << std::endl;
             //Construct character position string
             char charRtnString[MESSAGE_LIMIT] = "";
             {

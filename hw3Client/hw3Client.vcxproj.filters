@@ -30,13 +30,16 @@
     <ClInclude Include="..\hw3Common\Timeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ReqSubThread.h">
+    <ClInclude Include="ReqThread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CThread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\hw3Common\MovingPlatform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SubThread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -59,13 +62,16 @@
     <ClCompile Include="..\hw3Common\Timeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ReqSubThread.cpp">
+    <ClCompile Include="ReqThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\hw3Common\MovingPlatform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SubThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
