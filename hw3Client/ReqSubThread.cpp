@@ -13,7 +13,7 @@ ReqSubThread::ReqSubThread(bool *stopped, GameWindow *window, CThread *other, bo
 
 void ReqSubThread::run() {
     //  Prepare our context and socket
-    zmq::context_t context(1);
+    zmq::context_t context(2);
     zmq::socket_t reqSocket(context, zmq::socket_type::req);
     zmq::socket_t subSocket(context, zmq::socket_type::sub);
 
@@ -78,14 +78,10 @@ void ReqSubThread::run() {
             int newID;
             int matches = sscanf_s(replyString, "%d", &newID);
             character->setID(newID);
-            if (newID > 9) {
-                exit(1);
-            }
 
             //Receive updated platforms
             zmq::message_t newPlatforms;
             subSocket.recv(newPlatforms, zmq::recv_flags::none);
-
             char* platformsString = (char*)newPlatforms.data();
             int pos = 0;
             for (MovingPlatform* i : *movings) {
@@ -104,8 +100,8 @@ void ReqSubThread::run() {
             //Receive updated characters
             zmq::message_t newCharacters;
             subSocket.recv(newCharacters, zmq::recv_flags::none);
-
             char* newCharString = (char*)newCharacters.data();
+            /*std::cout << newCharString << std::endl;*/
             //Update the characters in the window with new ones
             rswindow->updateCharacters(newCharString);
         }

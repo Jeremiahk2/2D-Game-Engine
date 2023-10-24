@@ -37,7 +37,7 @@ void PubThread::run() {
             zmq::message_t sendPlatforms(strlen(platRtnString) + 1);
             memcpy(sendPlatforms.data(), platRtnString, strlen(platRtnString) + 1);
             pubSocket.send(sendPlatforms, zmq::send_flags::none);
-
+            //std::cout << platRtnString << std::endl;
             //Construct character position string
             char charRtnString[MESSAGE_LIMIT] = "";
             {
@@ -53,5 +53,6 @@ void PubThread::run() {
             memcpy(sendCharacters.data(), charRtnString, strlen(charRtnString) + 1);
             pubSocket.send(sendCharacters, zmq::send_flags::none);
         }
+        tic = currentTic;
     }
 }

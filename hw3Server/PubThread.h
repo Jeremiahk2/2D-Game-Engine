@@ -2,6 +2,7 @@
 #define PUBTHREAD_H
 #include <zmq.hpp>
 #include <list>
+#include <iostream> //Remove later. Testing purposes only
 #include "Timeline.h"
 #include "MovingPlatform.h"
 #include "CommonTypes.h"
