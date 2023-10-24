@@ -35,7 +35,7 @@ using namespace std;
 
 #define JUMP_TIME .5
 
-#define TIC 8 //Setting this to 8 seems to produce optimal behavior. At least on my machine. 16 and 32 both work but they don't look very good. 4 usually results in 8 behavior anyway.
+#define TIC 16 //Setting this to 8 seems to produce optimal behavior. At least on my machine. 16 and 32 both work but they don't look very good. 4 usually results in 8 behavior anyway.
 /**
 * Run the CThread
 */
@@ -58,10 +58,6 @@ int main() {
 
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
     window.create(sf::VideoMode(800, 600, desktop.bitsPerPixel), "Window", sf::Style::Default);
-
-    Timeline global;
-    bool stopped = false;
-    std::condition_variable cv;
 
     //Create StartPlatform and add it to the window
     Platform startPlatform;
@@ -125,29 +121,30 @@ int main() {
     float ticLength;
     float jumpTime = JUMP_TIME;
 
-    //Set up 
-
-    //Set up timeline for frame updates
-    Timeline FrameTime(&global, TIC);
-
     //Set up necessary thread vairables
-    std::mutex m;
+    std::mutex mutex;
     bool upPressed = false;
+    bool busy = true;
+    bool stopped = false;
+    std::condition_variable cv;
+
+    //Set up Timelines
+    Timeline global;
+    Timeline FrameTime(&global, TIC);
     Timeline CTime(&global, TIC);
     Timeline RTime(&global, TIC);
     Timeline STime(&global, TIC);
-    bool busy = true;
 
     //Start collision detection thread
-    CThread cthread(&upPressed, &window, &CTime, &stopped, &m, &cv, &busy);
+    CThread cthread(&upPressed, &window, &CTime, &stopped, &mutex, &cv, &busy);
     std::thread first(run_cthread, &cthread);
 
     //Start server/client req/rep
-    ReqThread reqthread(&stopped, &window, &cthread, &busy, &cv, &RTime);
+    ReqThread reqthread(&stopped, &window, &cthread, &busy, &cv, &RTime, &mutex);
     std::thread second(run_reqthread, &reqthread);
 
     //start server/client pub/sub
-    SubThread subthread(&stopped, &window, &cthread, &busy, &cv, &STime);
+    SubThread subthread(&stopped, &window, &cthread, &busy, &cv, &STime, &mutex);
     std::thread third(run_subthread, &subthread);
 
     while (window.isOpen()) {
@@ -164,6 +161,7 @@ int main() {
                     cv.notify_all();
                     first.join();
                     second.join();
+                    third.join();
                     window.close();
 
                 }
@@ -204,6 +202,7 @@ int main() {
 
             //Update window visuals
             if (!stopped && !global.isPaused()) {
+                std::lock_guard<std::mutex> lock(mutex);
                 window.update();
             }
             //Handle left input

@@ -1,13 +1,14 @@
 #include "ReqThread.h"
 
 ReqThread::ReqThread(bool *stopped, GameWindow *window, CThread *other, bool *busy, std::condition_variable *rscv,
-                           Timeline *timeline) {
+                           Timeline *timeline, std::mutex *m) {
     this->stopped = stopped;
     this->rswindow = window;
     this->other = other;
     this->rsbusy = busy;
     this->rscv = rscv;
     this->rstime = timeline;
+    this->mutex = m;
 
 }
 
@@ -59,7 +60,10 @@ void ReqThread::run() {
         if (currentTic > tic) {
             //Send updated character information to server
             char characterString[MESSAGE_LIMIT];
-            sprintf_s(characterString, "%d %f %f %c", character->getID(), character->getPosition().x, character->getPosition().y, 'c');
+            {
+                std::lock_guard<std::mutex> lock(*mutex);
+                sprintf_s(characterString, "%d %f %f %c", character->getID(), character->getPosition().x, character->getPosition().y, 'c');
+            }
             zmq::message_t request(strlen(characterString) + 1);
             memcpy(request.data(), &characterString, strlen(characterString) + 1);
             reqSocket.send(request, zmq::send_flags::none);
@@ -77,7 +81,10 @@ void ReqThread::run() {
 
     //Disconnect
     char characterString[MESSAGE_LIMIT];
-    sprintf_s(characterString, "%d %f %f %c", character->getID(), character->getPosition().x, character->getPosition().y, 'd');
+    {
+        std::lock_guard<std::mutex> lock(*mutex);
+        sprintf_s(characterString, "%d %f %f %c", character->getID(), character->getPosition().x, character->getPosition().y, 'd');
+    }
     zmq::message_t request(strlen(characterString) + 1);
     memcpy(request.data(), &characterString, strlen(characterString) + 1);
     reqSocket.send(request, zmq::send_flags::none);

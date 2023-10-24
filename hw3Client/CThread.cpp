@@ -30,59 +30,59 @@ void CThread::run() {
         if (currentTic > tic) {
             ticLength = line->getRealTicLength();
 
-            { // anonymous inner block to manage scop of mutex lock 
-                //Take ownership of the lock and lock it
-                std::unique_lock<std::mutex> cv_lock(*this->mutex);
-                cv->wait(cv_lock);
-                *busy = false;
-            }
             *upPressed = false;
             //Get gravity as a function of time
             float gravity = character->getGravity() * ticLength * (currentTic - tic);
-            character->move(0.f, gravity);
+            {
+                //Character is entering an inconsistent state, lock it.
+                std::lock_guard<std::mutex> lock(*mutex);
+                character->move(0.f, gravity);
 
-            //Collision box for all collisions
-            CBox collision;
-            //Check collisions after gravity movement.
-            if (window->checkCollisions(&collision)) {
-                //If the collided object is not moving, correct the position by moving up one.
-                if (!collision.isMoving()) {
-                    // character->setPosition(character->getPosition().x, collision.getCBox().top);
-                    character->move(0.f, -1.f * gravity); //Comment this and enable the above line for not getting stuck between moving platform and stationary.
+                //Collision box for all collisions
+                CBox collision;
+                //Check collisions after gravity movement.
+                if (window->checkCollisions(&collision)) {
+                    //If the collided object is not moving, correct the position by moving up one.
+                    if (!collision.isMoving()) {
+                        character->setPosition(character->getPosition().x, collision.getCBox().top);
+                        /*character->move(0.f, -1.f * gravity);*/ //Comment this and enable the above line for not getting stuck between moving platform and stationary.
 
-                    //Enable jumping. TODO: Rename variable to better fit. canJump? canJump(bool)?
-                    *upPressed = true;
-                }
-                else {
-                    //If the collision IS moving, AND the character is above the platform, correct the position upwards.
-                    //This helps prevent the character from getting stuck on the platform after jumping off.
-                    MovingPlatform *temp = (MovingPlatform *)collision.getPlatform();
-                    if (temp->getType()) {
-                        //Round to 2 decimal places to avoid floating point errors.
-                        if ((int)((collision.getCBox().top + gravity) * 100) >= (int)((character->getPosition().y) * 100)) {
-                            character->setPosition(character->getPosition().x, temp->getGlobalBounds().top);
-                            *upPressed = true;
-                        }
-                        character->move(temp->getLastMove());
+                        //Enable jumping. TODO: Rename variable to better fit. canJump? canJump(bool)?
+                        *upPressed = true;
                     }
                     else {
-                        if ((int)((collision.getCBox().top + gravity + abs(temp->getLastMove().y)) * 100) >= (int)(character->getPosition().y * 100)) {
-                            //If the platform is moving downward
-                            if (temp->getLastMove().y > 0) {
-                                //Set it's position to the top of the platform
-                                character->setPosition(character->getPosition().x, collision.getCBox().top);
+                        //If the collision IS moving, AND the character is above the platform, correct the position upwards.
+                        //This helps prevent the character from getting stuck on the platform after jumping off.
+                        MovingPlatform* temp = (MovingPlatform*)collision.getPlatform();
+                        if (temp->getType()) {
+                            //Round to 2 decimal places to avoid floating point errors.
+                            if ((int)((collision.getCBox().top + gravity) * 100) >= (int)((character->getPosition().y) * 100)) {
+                                character->setPosition(character->getPosition().x, temp->getGlobalBounds().top);
+                                *upPressed = true;
                             }
-                            //If the platform is moving upwards
-                            else {
-                                //Notify main that it can update the visuals TODO: Change this to notify input that it is good to go?
-                                //Set the position as one move above the next potential move from MThread. This is a reason why they need to be the same tic.
-                                character->setPosition(character->getPosition().x, collision.getCBox().top + temp->getLastMove().y);
+                            character->move(temp->getLastMove());
+                            std::cout << temp->getLastMove().x << std::endl;
+                        }
+                        else {
+                            if ((int)((collision.getCBox().top + gravity + abs(temp->getLastMove().y)) * 100) >= (int)(character->getPosition().y * 100)) {
+                                //If the platform is moving downward
+                                if (temp->getLastMove().y > 0) {
+                                    //Set it's position to the top of the platform
+                                    character->setPosition(character->getPosition().x, collision.getCBox().top);
+                                }
+                                //If the platform is moving upwards
+                                else {
+                                    //Notify main that it can update the visuals TODO: Change this to notify input that it is good to go?
+                                    //Set the position as one move above the next potential move from MThread. This is a reason why they need to be the same tic.
+                                    character->setPosition(character->getPosition().x, collision.getCBox().top + temp->getLastMove().y);
+                                }
+                                *upPressed = true;
                             }
-                            *upPressed = true;
                         }
                     }
                 }
             }
+            //Character is no longer in an inconsistent state, notify other threads
             tic = currentTic;
             
         }

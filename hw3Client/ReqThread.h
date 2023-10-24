@@ -27,6 +27,7 @@ private:
     bool* rsbusy;
     std::condition_variable* rscv;
     Timeline* rstime;
+    std::mutex* mutex;
 
 
 
@@ -35,7 +36,7 @@ public:
     * Create a new CThread an d initialize all of the fields.
     */
     ReqThread(bool* stopped, GameWindow* window, CThread* other, bool* busy, std::condition_variable* rscv,
-                 Timeline *timeline);
+                 Timeline *timeline, std::mutex *m);
     /**
     * Run the thread
     */

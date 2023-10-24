@@ -1,13 +1,14 @@
 #include "SubThread.h"
 
 SubThread::SubThread(bool* stopped, GameWindow* window, CThread* other, bool* busy, std::condition_variable* rscv,
-    Timeline* timeline) {
+    Timeline* timeline, std::mutex *m) {
     this->stopped = stopped;
     this->rswindow = window;
     this->other = other;
     this->rsbusy = busy;
     this->rscv = rscv;
     this->rstime = timeline;
+    this->mutex = m;
 
 }
 
@@ -28,7 +29,6 @@ void SubThread::run() {
     while (*stopped == false) {
         ticLength = rstime->getRealTicLength();
         currentTic = rstime->getTime();
-
         if (currentTic > tic) {
 
             //Receive updated platforms
@@ -36,16 +36,15 @@ void SubThread::run() {
             subSocket.recv(newPlatforms, zmq::recv_flags::none);
             char* platformsString = (char*)newPlatforms.data();
             int pos = 0;
-            for (MovingPlatform* i : *movings) {
-                float x = 0;
-                float y = 0;
-                int matches = sscanf_s(platformsString + pos, "%f %f %n", &x, &y, &pos);
-
-                i->move(x - i->getPosition().x, y - i->getPosition().y);
-            }
-            while (other->isBusy())
             {
-                rscv->notify_all();
+                std::lock_guard<std::mutex> lock(*mutex);
+                for (MovingPlatform* i : *movings) {
+                    float x = 0;
+                    float y = 0;
+                    int matches = sscanf_s(platformsString + pos, "%f %f %n", &x, &y, &pos);
+
+                    i->move(x - i->getPosition().x, y - i->getPosition().y);
+                }
             }
             *rsbusy = true;
 

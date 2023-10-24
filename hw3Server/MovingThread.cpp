@@ -34,6 +34,7 @@ void MovingThread::run() {
                 }
                 else {
                     i->move(i->getSpeed().x * ticLength * (currentTic - tic), 0);
+                    std::cout << i->getLastMove().x << std::endl;
                 }
 
                 //If we intersected the bounds, switch direction
