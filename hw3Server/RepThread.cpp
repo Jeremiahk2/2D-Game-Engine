@@ -50,3 +50,4 @@ void RepThread::run() {
         memcpy(reply.data(), response, strlen(response) + 1);
         repSocket.send(reply, zmq::send_flags::none);
     }
+}

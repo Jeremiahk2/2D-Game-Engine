@@ -58,11 +58,9 @@ void run_pub(PubThread* fe) {
     fe->run();
 }
 
-//Struct for other client's characters
-struct CharStruct {
-    int id;
-    float x;
-    float y;
+struct ClientStruct {
+    std::thread* thread;
+    RepThread* repThread;
 };
 
 int main() {
@@ -160,6 +158,12 @@ int main() {
 
             //Done processing new client.
         }
+    }
+
+    for (ClientStruct i : clientThreads) {
+        i.thread->join();
+        delete i.repThread;
+        delete i.thread;
     }
     return EXIT_SUCCESS;
 }

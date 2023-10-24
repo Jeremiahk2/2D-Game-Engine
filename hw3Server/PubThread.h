@@ -4,13 +4,8 @@
 #include <list>
 #include "Timeline.h"
 #include "MovingPlatform.h"
+#include "CommonTypes.h"
 #define MESSAGE_LIMIT 1024
-
-struct CharStruct {
-    int id;
-    float x;
-    float y;
-};
 
 class PubThread
 {

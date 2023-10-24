@@ -280,9 +280,9 @@ int main() {
                     jumpTime = JUMP_TIME;
                 }
             }
-            //Update the window's visuals.
         }
         tic = currentTic;
     }
+
     return EXIT_SUCCESS;
 }

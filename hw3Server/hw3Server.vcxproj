@@ -135,6 +135,7 @@
     <ClInclude Include="..\hw3Common\MovingPlatform.h" />
     <ClInclude Include="..\hw3Common\Platform.h" />
     <ClInclude Include="..\hw3Common\Timeline.h" />
+    <ClInclude Include="CommonTypes.h" />
     <ClInclude Include="MovingThread.h" />
     <ClInclude Include="PubThread.h" />
     <ClInclude Include="RepThread.h" />

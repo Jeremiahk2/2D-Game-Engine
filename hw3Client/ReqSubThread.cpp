@@ -25,19 +25,19 @@ void ReqSubThread::run() {
     reqSocket.connect("tcp://localhost:5556");
 
     //Send the request to the server.
-    char characterString[MESSAGE_LIMIT];
-    sprintf_s(characterString, "Connect");
-    zmq::message_t initRequest(strlen(characterString) + 1);
-    memcpy(initRequest.data(), characterString, strlen(characterString) + 1);
+    char initRecvString[MESSAGE_LIMIT];
+    sprintf_s(initRecvString, "Connect");
+    zmq::message_t initRequest(strlen(initRecvString) + 1);
+    memcpy(initRequest.data(), initRecvString, strlen(initRecvString) + 1);
     reqSocket.send(initRequest, zmq::send_flags::none);
 
     //Receive the reply from the server, should contain our port and ID
     zmq::message_t initReply;
     reqSocket.recv(initReply, zmq::recv_flags::none);
-    char* replyString = (char*)initReply.data();
+    char* initReplyString = (char*)initReply.data();
     int initId = -1;
     int port = -1;
-    int matches = sscanf_s(replyString, "%d %d", &initId, &port);
+    int matches = sscanf_s(initReplyString, "%d %d", &initId, &port);
 
     //Exit if we didn't get a proper reply
     if (matches != 2) {

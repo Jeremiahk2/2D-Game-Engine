@@ -40,10 +40,9 @@ private:
     */
     Character* character;
 
-    /**
-    * An array of all character objects that have been loaded. Disconnected clients (Negative ID's) will not be drawn.
-    */
-    Character allCharacters[10];
+    std::map<int, Character>* characters;
+
+    Character templateCharacter;
 
     int numCharacters = 0;
 

@@ -3,18 +3,8 @@
 #include <zmq.hpp>
 #include <thread>
 #include <map>
+#include "CommonTypes.h"
 #define MESSAGE_LIMIT 1024
-
-struct ClientStruct {
-    std::thread* thread;
-    RepThread* repThread;
-};
-
-struct CharStruct {
-    int id;
-    float x;
-    float y;
-};
 
 class RepThread
 {

@@ -1,8 +1,5 @@
 #include "GameWindow.h"
 
-
-
-
 GameWindow::GameWindow() {
     if (!charTexture.loadFromFile("Santa_standing.png")) {
         std::cout << "Failed";
@@ -13,6 +10,13 @@ GameWindow::GameWindow() {
     if (innerMutex != NULL) {
         memcpy(innerMutex, &tempMutex, sizeof(std::mutex));
     }
+
+    templateCharacter.setSize(sf::Vector2f(30.f, 30.f));
+    templateCharacter.setFillColor(sf::Color::White);
+    templateCharacter.setOrigin(0.f, 30.f);
+    templateCharacter.setPosition(0, 0);
+    templateCharacter.setTexture(&charTexture);
+
     character = NULL;
 }
 
@@ -91,17 +95,15 @@ void GameWindow::update() {
     for (Platform* i : platforms) {
         draw(*i);
     }
-    //Cycle through the list of characters and draw them (Our character is included here)
-    for (int i = 0; i < numCharacters; i++) {
-        if ((allCharacters[i].getID() >= 0)) {
-            draw(allCharacters[i]);
-        }
+
+    for (auto iter = characters->begin(); iter != characters->end(); ++iter) {
+        draw(iter->second);
     }
     display();
 }
 
 void GameWindow::updateCharacters(char *newChars) {
-    
+    std::lock_guard<std::mutex> lock(*innerMutex);
     int currentId = 0;
     float currentX = 0.f;
     float currentY = 0.f;
@@ -110,30 +112,11 @@ void GameWindow::updateCharacters(char *newChars) {
     int pos = 0;
     int newPos = 0;
     //Parse the string to find the information about each character
+    characters->clear();
     while (sscanf_s(newChars + pos, "%d %f %f %n", &currentId, &currentX, &currentY, &newPos) == 3) {
-        pos += newPos;
-        //If it is one of the already registered characters, update it.
-        if (count < numCharacters) {
-            std::lock_guard<std::mutex> lock(*innerMutex);
-            allCharacters[count].setID(currentId);
-            allCharacters[count].setPosition(currentX, currentY);
-        }
-        //If the server added a new character, create it and store it.
-        else {
-            Character newCharacter;
-            newCharacter.setSize(sf::Vector2f(30.f, 30.f));
-            newCharacter.setFillColor(sf::Color::White);
-            newCharacter.setOrigin(0.f, 30.f);
-            newCharacter.setID(currentId);
-            newCharacter.setPosition(currentX, currentY);
-            newCharacter.setTexture(&charTexture);
-            {
-                std::lock_guard<std::mutex> lock(*innerMutex);
-                allCharacters[count] = newCharacter;
-                numCharacters++;
-            }
-        }
-        count++;
+        templateCharacter.setID(currentId);
+        templateCharacter.setPosition(currentX, currentY);
+        characters->insert_or_assign(currentId, templateCharacter);
     }
 }
 

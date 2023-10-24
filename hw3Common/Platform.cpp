@@ -6,7 +6,7 @@ Platform::Platform() : sf::RectangleShape() {
     mutex = (std::mutex*)malloc(sizeof(std::mutex));
     std::mutex tempMutex;
     if (mutex != NULL) {
-        memcpy(platMutex, &tempMutex, sizeof(std::mutex));
+        memcpy(mutex, &tempMutex, sizeof(std::mutex));
     }
 }
 
