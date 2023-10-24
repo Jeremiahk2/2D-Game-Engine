@@ -147,7 +147,7 @@ int main() {
 
             //Create client struct and thread
             ClientStruct newClient;
-            newClient.repThread = new RepThread(newPort, id, &characters, &mutex);
+            newClient.repThread = new RepThread(newPort, id, &characters, &mutex, &FrameTime);
             newClient.thread = new std::thread(run_rep, newClient.repThread);
             clientThreads.push_back(newClient);
 

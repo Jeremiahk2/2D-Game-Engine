@@ -52,18 +52,17 @@ void ReqSubThread::run() {
     //Connect to your unique port provided by the server.
     reqSocket.connect(portString);
 
-    //Connect to general subsocket.
-    subSocket.connect("tcp://localhost:5555");
-    subSocket.set(zmq::sockopt::subscribe, "");
-
     int64_t tic = 0;
     int64_t currentTic = 0;
     float ticLength;
+    subSocket.connect("tcp://localhost:5555");
+    subSocket.set(zmq::sockopt::subscribe, "");
     while (*stopped == false) {
         ticLength = rstime->getRealTicLength();
         currentTic = rstime->getTime();
 
         if (currentTic > tic) {
+            std::cout << currentTic - tic;
             //Send updated character information to server
             char characterString[MESSAGE_LIMIT];
             sprintf_s(characterString, "%d %f %f %c", character->getID(), character->getPosition().x, character->getPosition().y, 'c');
