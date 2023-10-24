@@ -1,10 +1,11 @@
 #include "PubThread.h"
 
 
-PubThread::PubThread(Timeline *time, std::list<MovingPlatform*> *movings, std::map<int, CharStruct>* characters) {
+PubThread::PubThread(Timeline *time, std::list<MovingPlatform*> *movings, std::map<int, CharStruct>* characters, std::mutex *m) {
     this->time = time;
     this->movings = movings;
     this->characters = characters;
+    this->mutex = m;
 }
 
 bool PubThread::isBusy() {
@@ -25,8 +26,6 @@ void PubThread::run() {
 
         if (currentTic > tic) {
 
-            //TODO: Cmbine these strings?
-
             //Construct platform position string
             char platRtnString[MESSAGE_LIMIT] = "";
             for (MovingPlatform* i : *movings) {
@@ -41,10 +40,13 @@ void PubThread::run() {
 
             //Construct character position string
             char charRtnString[MESSAGE_LIMIT] = "";
-            for (auto iter = characters->begin(); iter != characters->end(); ++iter) {
-                char charString[MESSAGE_LIMIT];
-                sprintf_s(charString, "%d %f %f ", iter->second.id, iter->second.x, iter->second.y);
-                strcat_s(charRtnString, charString);
+            {
+                std::lock_guard<std::mutex> lock(*mutex);
+                for (auto iter = characters->begin(); iter != characters->end(); ++iter) {
+                    char charString[MESSAGE_LIMIT];
+                    sprintf_s(charString, "%d %f %f ", iter->second.id, iter->second.x, iter->second.y);
+                    strcat_s(charRtnString, charString);
+                }
             }
             //Send character information
             zmq::message_t sendCharacters(strlen(charRtnString) + 1);

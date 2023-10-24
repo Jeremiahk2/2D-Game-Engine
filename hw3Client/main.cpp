@@ -120,10 +120,16 @@ int main() {
     character.setGravity(GRAV_SPEED);
     window.addCharacter(&character);
 
-    //Setup timing stuff
+    //END SETTING UP GAME OBJECTS
+
+    //Set up timing variables
     int64_t tic = 0;
     int64_t currentTic = 0;
+    float scale = 1.0;
     float ticLength;
+    float jumpTime = JUMP_TIME;
+
+    //Set up 
 
     //Set up timeline for frame updates
     Timeline FrameTime(&global, TIC);
@@ -135,17 +141,9 @@ int main() {
     Timeline RSTime(&global, TIC);
     bool busy = true;
 
-    //Start collision detection
+    //Start collision detection thread
     CThread cthread(&upPressed, &window, &CTime, &stopped, &m, &cv, &busy);
     std::thread first(run_cthread, &cthread);
-    //Array for server platform updates
-    Platform platforms[10];
-
-    //Start main game loop
-
-    float jumpTime = JUMP_TIME;
-    float scale = 1.0;
-    char status = 'c';
 
     //Start server/client req/rep
     ReqSubThread rsthread(&stopped, &window, &cthread, &busy, &cv, &RSTime);
@@ -166,7 +164,7 @@ int main() {
                     first.join();
                     second.join();
                     window.close();
-                    //Set the status as disconnecting
+
                 }
                 if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Q)) {
                     window.changeScaling();
@@ -197,8 +195,10 @@ int main() {
                     window.handleResize(event);
                 }
             }
-            CBox collision;
 
+            //END EVENT CHECKS
+
+            CBox collision;
             //Need to recalculate character speed in case scale changed.
             float charSpeed = (float)character.getSpeed().x * (float)ticLength * (float)(currentTic - tic);
 

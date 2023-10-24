@@ -68,6 +68,11 @@ void Character::setPosition(const sf::Vector2f position) {
     sf::RectangleShape::setPosition(position);
 }
 
+sf::Vector2f Character::getPosition() {
+    std::lock_guard<std::mutex> lock(*innerMutex);
+    return sf::RectangleShape::getPosition();
+}
+
 sf::FloatRect Character::getGlobalBounds() {
     std::lock_guard<std::mutex> lock(*innerMutex);
     return sf::RectangleShape::getGlobalBounds();

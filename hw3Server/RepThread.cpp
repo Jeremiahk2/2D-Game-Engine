@@ -2,10 +2,11 @@
 
 
 
-RepThread::RepThread(int port, int id, std::map<int, CharStruct> *characters) {
+RepThread::RepThread(int port, int id, std::map<int, CharStruct> *characters, std::mutex *m) {
     this->port = port;
     this->id = id;
     this->characters = characters;
+    this->mutex = m;
 }
 
 bool RepThread::isBusy() {
@@ -34,11 +35,13 @@ void RepThread::run() {
 
         //If it is a client that is disconnecting, remove them from the map
         if (status == 'd' && characters->size() != 0 && newCharacter.id >= 0 && newCharacter.id < 10) {
+            std::lock_guard<std::mutex> lock(*mutex);
             characters->erase(id);
             /*characters[newCharacter.id].id = (characters[newCharacter.id].id + 1) * -1;
             numClients--;*/
         }
         else if (status == 'c') { //If it's a returning client, update it with the new information
+            std::lock_guard<std::mutex> lock(*mutex);
             characters->insert_or_assign(id, newCharacter);
             /*characters[newCharacter.id].x = newCharacter.x;
             characters[newCharacter.id].y = newCharacter.y;*/

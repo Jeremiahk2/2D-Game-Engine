@@ -80,30 +80,25 @@ int main() {
     list<MovingPlatform*> movings;
     movings.push_front(&moving);
     movings.push_front(&vertMoving);
+    
+    //DONE SETTING UP GAME OBJECTS
 
-    //Boolean so that the threads know that main has stopped
-    bool stopped = false;
-
-    std::mutex m;
-    std::condition_variable cv;
-    //Should be named "canJump"
-    bool upPressed = false;
-
-    //This should allow altering all timelines through global (pausing).
+    //Set up timelines
     Timeline global;
-    //most systems should really have the same tic rate as of now. 
     Timeline MPTime(&global, TIC);
     Timeline FrameTime(&global, TIC);
 
-    MovingThread mthread(&MPTime, &stopped, 0, NULL, &m, &cv, &movings);
-
-    std::thread first(run_moving, &mthread);
-
-    //Maintain time information
+    //Set up time variables
     int64_t tic = 0;
     int64_t currentTic = 0;
     double scale = 1.0;
     double ticLength;
+
+    //Set up thread variables
+    bool stopped = false;
+    std::mutex mutex;
+    std::condition_variable cv;
+    bool upPressed = false; //Should be named "canJump"
 
     //Starting server processes...
     zmq::context_t context(2);
@@ -112,13 +107,17 @@ int main() {
 
     //Creating server information structures...
     std::map<int, CharStruct> characters;
+    std::list<ClientStruct> clientThreads;
     int numClients = 0;
     int numCharacters = 0;
     int availPort = 5557;
 
-    std::list<ClientStruct> clientThreads;
+    //Create and run moving platform thread
+    MovingThread mthread(&MPTime, &stopped, 0, NULL, &mutex, &cv, &movings);
+    std::thread first(run_moving, &mthread);
 
-    PubThread pubthread(&FrameTime, &movings, &characters);
+    //Create and run publisher thread
+    PubThread pubthread(&FrameTime, &movings, &characters, &mutex);
     std::thread second(run_pub, &pubthread);
 
 
@@ -138,14 +137,17 @@ int main() {
             int newPort = availPort++;
             int id = numClients++;
 
-            //Add a new character to the character vector.
+            //Add the new character to the character map
             CharStruct newCharacter;
             newCharacter.id = id;
-            characters.insert({ id, newCharacter });
+            {
+                std::lock_guard<std::mutex> lock(mutex);
+                characters.insert({ id, newCharacter });
+            }
 
             //Create client struct and thread
             ClientStruct newClient;
-            newClient.repThread = new RepThread(newPort, id, &characters);
+            newClient.repThread = new RepThread(newPort, id, &characters, &mutex);
             newClient.thread = new std::thread(run_rep, newClient.repThread);
             clientThreads.push_back(newClient);
 
@@ -160,6 +162,7 @@ int main() {
         }
     }
 
+    //Join with the threads and free their information
     for (ClientStruct i : clientThreads) {
         i.thread->join();
         delete i.repThread;

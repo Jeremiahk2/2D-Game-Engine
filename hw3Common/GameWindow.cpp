@@ -96,7 +96,7 @@ void GameWindow::update() {
         draw(*i);
     }
 
-    for (auto iter = characters->begin(); iter != characters->end(); ++iter) {
+    for (auto iter = characters.begin(); iter != characters.end(); ++iter) {
         draw(iter->second);
     }
     display();
@@ -112,11 +112,11 @@ void GameWindow::updateCharacters(char *newChars) {
     int pos = 0;
     int newPos = 0;
     //Parse the string to find the information about each character
-    characters->clear();
+    characters.clear();
     while (sscanf_s(newChars + pos, "%d %f %f %n", &currentId, &currentX, &currentY, &newPos) == 3) {
         templateCharacter.setID(currentId);
         templateCharacter.setPosition(currentX, currentY);
-        characters->insert_or_assign(currentId, templateCharacter);
+        characters.insert_or_assign(currentId, templateCharacter);
     }
 }
 

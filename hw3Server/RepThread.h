@@ -3,6 +3,7 @@
 #include <zmq.hpp>
 #include <thread>
 #include <map>
+#include <mutex>
 #include "CommonTypes.h"
 #define MESSAGE_LIMIT 1024
 
@@ -13,12 +14,13 @@ private:
     int port;
     int id;
     std::map<int, CharStruct> *characters;
+    std::mutex* mutex;
 
 public:
     /**
     * Constructor
     */
-    RepThread(int port, int id, std::map<int, CharStruct>* characters);
+    RepThread(int port, int id, std::map<int, CharStruct>* characters, std::mutex *m);
 
     /**
     * Not used. Possibly not needed.

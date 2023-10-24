@@ -40,7 +40,7 @@ private:
     */
     Character* character;
 
-    std::map<int, Character>* characters;
+    std::map<int, Character> characters;
 
     Character templateCharacter;
 

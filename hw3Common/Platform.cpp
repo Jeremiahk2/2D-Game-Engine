@@ -34,6 +34,11 @@ void Platform::setPosition(const sf::Vector2f position) {
     sf::RectangleShape::setPosition(position);
 }
 
+sf::Vector2f Platform::getPosition() {
+    std::lock_guard<std::mutex> lock(*mutex);
+    return sf::RectangleShape::getPosition();
+}
+
 sf::FloatRect Platform::getGlobalBounds() {
     std::lock_guard<std::mutex> lock(*mutex);
     return sf::RectangleShape::getGlobalBounds();
