@@ -1,33 +1,18 @@
 #include "MovingThread.h"
 
-bool busy;
-int i;
-
-MovingThread *other;
-
-std::mutex *_mutex;
-
-std::condition_variable *_condition_variable;
-
-list<MovingPlatform*> *movingPlatforms;
-
-bool *stopped;
-
-Timeline *timeline;
-
-MovingThread::MovingThread(Timeline *timeline, bool *stopped, int i, MovingThread *other, std::mutex *_mutex, std::condition_variable *_condition_variable, list<MovingPlatform*> *movingPlatforms) {
+MovingThread::MovingThread(Timeline *timeline, bool *stopped, int i, MovingThread *other, std::mutex *mutex, std::condition_variable *cv, list<MovingPlatform*> *movingPlatforms) {
     this->stopped = stopped;
     this->i = i; // set the id of this thread
     if(i==0) { busy = true; }
     else { this->other = other; }
-    this->_mutex = _mutex;
-    this->_condition_variable = _condition_variable;
+    this->mutex = mutex;
+    this->cv = cv;
     this->movingPlatforms = movingPlatforms;
     this->timeline = timeline;
 }
 
 bool MovingThread::isBusy() {
-    std::lock_guard<std::mutex> lock(*_mutex);  // this locks the mutuex until the variable goes out of scope (i.e., when the function returns in this case)
+    std::lock_guard<std::mutex> lock(*mutex);  // this locks the mutuex until the variable goes out of scope (i.e., when the function returns in this case)
     return busy;
 }
 

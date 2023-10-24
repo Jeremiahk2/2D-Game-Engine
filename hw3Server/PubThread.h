@@ -1,6 +1,10 @@
 #ifndef PUBTHREAD_H
 #define PUBTHREAD_H
 #include <zmq.hpp>
+#include <list>
+#include "Timeline.h"
+#include "MovingPlatform.h"
+#define MESSAGE_LIMIT 1024
 
 struct CharStruct {
     int id;
@@ -12,13 +16,16 @@ class PubThread
 {
 private:
 
+    Timeline* time;
+    std::list<MovingPlatform*>* movings;
+    std::map<int, CharStruct>* characters;
 
 
 public:
     /**
     * Constructor
     */
-    PubThread();
+    PubThread(Timeline* time, std::list<MovingPlatform*>* movings, std::map<int, CharStruct>* characters);
 
     /**
     * Not used. Possibly not needed.

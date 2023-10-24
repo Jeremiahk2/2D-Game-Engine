@@ -36,12 +36,12 @@ class MovingThread
     /**
     * The mutex to handle mutual exclusion. Share this with CThread
     */
-    std::mutex *_mutex;
+    std::mutex *mutex;
 
     /**
     * The condition variable to handle notifications
     */
-    std::condition_variable *_condition_variable;
+    std::condition_variable *cv;
 
     /**
     * The list of moving platforms in the window.

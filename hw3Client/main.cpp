@@ -120,13 +120,6 @@ int main() {
     character.setGravity(GRAV_SPEED);
     window.addCharacter(&character);
 
-    //Add Moving Platforms to the list.
-    list<MovingPlatform*> movings;
-    movings.push_front(&moving);
-    movings.push_front(&vertMoving);
-
-
-
     //Setup timing stuff
     int64_t tic = 0;
     int64_t currentTic = 0;
@@ -137,12 +130,9 @@ int main() {
 
     //Set up necessary thread vairables
     std::mutex m;
-
     bool upPressed = false;
-
     Timeline CTime(&global, TIC);
     Timeline RSTime(&global, TIC);
-
     bool busy = true;
 
     //Start collision detection
@@ -157,8 +147,8 @@ int main() {
     float scale = 1.0;
     char status = 'c';
 
-    //Start server/client response
-    ReqSubThread rsthread(&status, &window, &cthread, &busy, &cv, &RSTime);
+    //Start server/client req/rep
+    ReqSubThread rsthread(&stopped, &window, &cthread, &busy, &cv, &RSTime);
     std::thread second(run_rsthread, &rsthread);
 
     while (window.isOpen()) {
@@ -171,7 +161,6 @@ int main() {
             while (window.pollEvent(event)) {
                 if (event.type == sf::Event::Closed) {
                     stopped = true;
-                    status = 'd';
                     //Need to notify all so they can stop
                     cv.notify_all();
                     first.join();

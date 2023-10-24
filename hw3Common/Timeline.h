@@ -46,7 +46,7 @@ private:
     /**
     * Mutex for lock-guarding.
     */
-    std::recursive_mutex timeMutex;
+    std::recursive_mutex mutex;
 
     /**
     * The scale to which the timeline should alter itself to.

@@ -15,12 +15,12 @@ class CThread
     /**
     * Mutex for handling mutual exclusion. Have this be shared among CThread and MThread at the very least.
     */
-    std::mutex *_mutex1;
+    std::mutex *mutex;
 
     /**
     * The condition variable for handling waits and notifications.
     */
-    std::condition_variable *_condition_variable1;
+    std::condition_variable *cv;
 
     /**
     * Set *stop to true when you want this thread to stop. 
@@ -55,7 +55,7 @@ class CThread
         * Create a new CThread an d initialize all of the fields.
         */
         CThread(bool* upPressed, GameWindow* window, Timeline* timeline, bool* stopped,
-            std::mutex* _mutex, std::condition_variable* _condition_variable, bool *busy);
+            std::mutex* m, std::condition_variable* cv, bool *busy);
         /**
         * Run the thread
         */

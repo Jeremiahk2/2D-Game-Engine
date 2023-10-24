@@ -62,7 +62,7 @@ private:
     */
     sf::Texture charTexture;
 
-    std::mutex *windowMutex;
+    std::mutex *innerMutex;
 
 
 

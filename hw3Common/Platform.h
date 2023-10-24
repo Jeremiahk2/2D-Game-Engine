@@ -16,7 +16,7 @@ private:
     */
     bool passthrough;
 
-    std::mutex *platMutex;
+    std::mutex *mutex;
 
     
 public:

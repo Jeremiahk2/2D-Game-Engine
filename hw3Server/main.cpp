@@ -10,6 +10,7 @@
 #include "GameWindow.h"
 #include "MovingThread.h"
 #include "RepThread.h"
+#include "PubThread.h"
 
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
@@ -53,6 +54,10 @@ void run_moving(MovingThread* fe)
 void run_rep(RepThread* fe) {
     fe->run();
 }
+void run_pub(PubThread* fe) {
+    fe->run();
+}
+
 //Struct for other client's characters
 struct CharStruct {
     int id;
@@ -91,6 +96,7 @@ int main() {
     //most systems should really have the same tic rate as of now. 
     Timeline MPTime(&global, TIC);
     Timeline FrameTime(&global, TIC);
+
     MovingThread mthread(&MPTime, &stopped, 0, NULL, &m, &cv, &movings);
 
     std::thread first(run_moving, &mthread);
@@ -104,17 +110,19 @@ int main() {
     //Starting server processes...
     zmq::context_t context(2);
     zmq::socket_t repSocket(context, zmq::socket_type::rep);
-    zmq::socket_t pubSocket(context, zmq::socket_type::pub);
     repSocket.bind("tcp://localhost:5556");
-    pubSocket.bind("tcp://localhost:5555");
 
     //Creating server information structures...
-    CharStruct characters[10];
+    std::map<int, CharStruct> characters;
     int numClients = 0;
     int numCharacters = 0;
     int availPort = 5557;
 
     std::list<ClientStruct> clientThreads;
+
+    PubThread pubthread(&FrameTime, &movings, &characters);
+    std::thread second(run_pub, &pubthread);
+
 
     //Begin main game loop
     while (true) {
@@ -128,15 +136,20 @@ int main() {
             zmq::message_t request;
             zmq::recv_result_t received(repSocket.recv(request, zmq::recv_flags::none));
             
-            //Client received, create thread for client and store it.
+            //Client received, set up ID and port
             int newPort = availPort++;
             int id = numClients++;
 
+            //Add a new character to the character vector.
+            CharStruct newCharacter;
+            newCharacter.id = id;
+            characters.insert({ id, newCharacter });
+
             //Create client struct and thread
             ClientStruct newClient;
-            newClient.repThread = new RepThread(newPort, id);
+            newClient.repThread = new RepThread(newPort, id, &characters);
             newClient.thread = new std::thread(run_rep, newClient.repThread);
-            clientThreads.push_back(newClient); //Pushing back should guarantee that ID matches the position (until it's removed)
+            clientThreads.push_back(newClient);
 
             //Return the ID and port to the client.
             char rtnString[MESSAGE_LIMIT];
@@ -145,7 +158,7 @@ int main() {
             memcpy(reply.data(), rtnString, strlen(rtnString) + 1);
             repSocket.send(reply, zmq::send_flags::none);
 
-            //Done processing client.
+            //Done processing new client.
         }
     }
     return EXIT_SUCCESS;

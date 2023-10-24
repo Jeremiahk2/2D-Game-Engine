@@ -1,21 +1,5 @@
 #include "GameWindow.h"
 
-list<Platform*> platforms;
-list<CBox> collisions;
-list<MovingPlatform*> movings;
-
-Character allCharacters[10];
-Platform realPlatforms[10];
-
-Character* character;
-sf::Texture charTexture;
-
-bool isProportional = true;
-int numPlatforms = 0;
-int numCharacters = 0;
-
-std::mutex* windowMutex;
-
 
 
 
@@ -24,10 +8,10 @@ GameWindow::GameWindow() {
         std::cout << "Failed";
     }
 
-    windowMutex = (std::mutex*)malloc(sizeof(std::mutex));
+    innerMutex = (std::mutex*)malloc(sizeof(std::mutex));
     std::mutex tempMutex;
-    if (windowMutex != NULL) {
-        memcpy(windowMutex, &tempMutex, sizeof(std::mutex));
+    if (innerMutex != NULL) {
+        memcpy(innerMutex, &tempMutex, sizeof(std::mutex));
     }
     character = NULL;
 }
@@ -37,7 +21,7 @@ bool GameWindow::checkCollisions(CBox* collides) {
     CBox collidable = *collides;
     //Cycle through the list of collidables and check if they collide with the player.
     {
-        std::lock_guard<std::mutex> lock(*windowMutex);
+        std::lock_guard<std::mutex> lock(*innerMutex);
         for (CBox i : collisions) {
             if (character->getGlobalBounds().intersects(i.getCBox())) {
                 foundCollision = true;
@@ -61,17 +45,17 @@ bool GameWindow::checkCollisions(CBox* collides) {
 
 //Add this client's playable character.
 void GameWindow::addCharacter(Character* character) {
-    std::lock_guard<std::mutex> lock(*windowMutex);
+    std::lock_guard<std::mutex> lock(*innerMutex);
     this->character = character;
 }
 
 Character* GameWindow::getCharacter() {
-    std::lock_guard<std::mutex> lock(*windowMutex);
+    std::lock_guard<std::mutex> lock(*innerMutex);
     return character;
 }
 
 void GameWindow::addPlatform(Platform* platform, bool isMoving) {
-    std::lock_guard<std::mutex> lock(*windowMutex);
+    std::lock_guard<std::mutex> lock(*innerMutex);
     //Add the platform to the list of platforms
     platforms.push_front(platform);
     //Make a collision box for the platform and add it in.
@@ -84,7 +68,7 @@ void GameWindow::addPlatform(Platform* platform, bool isMoving) {
 }
 
 Platform* GameWindow::getPlatforms(int* n) {
-    std::lock_guard<std::mutex> lock(*windowMutex);
+    std::lock_guard<std::mutex> lock(*innerMutex);
     Platform rtnPlatforms[10];
     int count = 0;
     for (Platform* i : platforms) {
@@ -96,12 +80,12 @@ Platform* GameWindow::getPlatforms(int* n) {
 }
 
 list<MovingPlatform*>* GameWindow::getMovings() {
-    std::lock_guard<std::mutex> lock(*windowMutex);
+    std::lock_guard<std::mutex> lock(*innerMutex);
     return &movings;
 }
 
 void GameWindow::update() {
-    std::lock_guard<std::mutex> lock(*windowMutex);
+    std::lock_guard<std::mutex> lock(*innerMutex);
     clear();
     //Cycle through the list of platforms and draw them.
     for (Platform* i : platforms) {
@@ -130,7 +114,7 @@ void GameWindow::updateCharacters(char *newChars) {
         pos += newPos;
         //If it is one of the already registered characters, update it.
         if (count < numCharacters) {
-            std::lock_guard<std::mutex> lock(*windowMutex);
+            std::lock_guard<std::mutex> lock(*innerMutex);
             allCharacters[count].setID(currentId);
             allCharacters[count].setPosition(currentX, currentY);
         }
@@ -144,7 +128,7 @@ void GameWindow::updateCharacters(char *newChars) {
             newCharacter.setPosition(currentX, currentY);
             newCharacter.setTexture(&charTexture);
             {
-                std::lock_guard<std::mutex> lock(*windowMutex);
+                std::lock_guard<std::mutex> lock(*innerMutex);
                 allCharacters[count] = newCharacter;
                 numCharacters++;
             }

@@ -22,6 +22,8 @@ private:
     sf::Vector2f v_speed = sf::Vector2f(0, 0);
     sf::Vector2f h_speed = sf::Vector2f(0, 0);
 
+    sf::Vector2f startPos;
+
     /**
     * Right and left/Top and bottom bounds for movement.
     */

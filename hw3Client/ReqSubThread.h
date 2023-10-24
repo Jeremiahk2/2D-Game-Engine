@@ -14,7 +14,7 @@ class ReqSubThread
 
 private:
 
-    char* status;
+    bool* stopped;
     GameWindow* rswindow;
     CThread* other;
     bool* rsbusy;
@@ -27,7 +27,7 @@ public:
     /**
     * Create a new CThread an d initialize all of the fields.
     */
-    ReqSubThread(char* status, GameWindow* window, CThread* other, bool* busy, std::condition_variable* rscv,
+    ReqSubThread(bool* stopped, GameWindow* window, CThread* other, bool* busy, std::condition_variable* rscv,
                  Timeline *timeline);
     /**
     * Run the thread

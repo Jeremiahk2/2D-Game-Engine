@@ -1,19 +1,5 @@
 #include "MovingPlatform.h"
 
-    bool m_type;
-
-    sf::Vector2f startPos;
-
-    sf::Vector2f v_speed = sf::Vector2f(0, 0);
-    sf::Vector2f h_speed = sf::Vector2f(0, 0);
-
-    int bound1;
-    int bound2;
-
-    sf::Vector2f lastMove = sf::Vector2f(0, 0);
-
-    std::mutex *mpMutex;
-
     //Bound bound1 is the left/bottom bound. bound 2 is the right/top bound. Type is 0 for vertical, 1 for horizontal.
     MovingPlatform::MovingPlatform(float speed, bool type, float startx, float starty) : Platform()
     {

@@ -4,6 +4,7 @@
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
 #include <mutex>
+#define DEFAULT_SPEED 1.f
 
 /**
 * Class for Character objects, or the shape that is controlled by the player.
@@ -35,7 +36,7 @@ private:
     */
     int id = -1;
 
-    std::mutex *charMutex;
+    std::mutex *innerMutex;
 
 public:
     /**

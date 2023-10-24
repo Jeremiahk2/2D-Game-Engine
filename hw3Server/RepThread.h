@@ -2,6 +2,7 @@
 #define REPTHREAD_H
 #include <zmq.hpp>
 #include <thread>
+#include <map>
 #define MESSAGE_LIMIT 1024
 
 struct ClientStruct {
@@ -21,12 +22,13 @@ private:
 
     int port;
     int id;
+    std::map<int, CharStruct> *characters;
 
 public:
     /**
     * Constructor
     */
-    RepThread(int port, int id);
+    RepThread(int port, int id, std::map<int, CharStruct>* characters);
 
     /**
     * Not used. Possibly not needed.

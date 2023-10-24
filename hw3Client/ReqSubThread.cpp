@@ -1,17 +1,8 @@
 #include "ReqSubThread.h"
 
-char* status;
-GameWindow* rswindow;
-CThread* other;
-bool* rsbusy;
-std::condition_variable* rscv;
-Timeline* rstime;
-
-
-
-ReqSubThread::ReqSubThread(char *status, GameWindow *window, CThread *other, bool *busy, std::condition_variable *rscv,
+ReqSubThread::ReqSubThread(bool *stopped, GameWindow *window, CThread *other, bool *busy, std::condition_variable *rscv,
                            Timeline *timeline) {
-    this->status = status;
+    this->stopped = stopped;
     this->rswindow = window;
     this->other = other;
     this->rsbusy = busy;
@@ -36,9 +27,9 @@ void ReqSubThread::run() {
     //Send the request to the server.
     char characterString[MESSAGE_LIMIT];
     sprintf_s(characterString, "Connect");
-    zmq::message_t request(strlen(characterString) + 1);
-    memcpy(request.data(), characterString, strlen(characterString) + 1);
-    reqSocket.send(request, zmq::send_flags::none);
+    zmq::message_t initRequest(strlen(characterString) + 1);
+    memcpy(initRequest.data(), characterString, strlen(characterString) + 1);
+    reqSocket.send(initRequest, zmq::send_flags::none);
 
     //Receive the reply from the server, should contain our port and ID
     zmq::message_t initReply;
@@ -69,14 +60,14 @@ void ReqSubThread::run() {
     int64_t tic = 0;
     int64_t currentTic = 0;
     float ticLength;
-    while (*status == 'c') {
+    while (*stopped = false) {
         ticLength = rstime->getRealTicLength();
         currentTic = rstime->getTime();
 
         if (currentTic > tic) {
-            //Send updated character information to server or disconnect if status is 'd'
+            //Send updated character information to server
             char characterString[MESSAGE_LIMIT];
-            sprintf_s(characterString, "%d %f %f %c", character->getID(), character->getPosition().x, character->getPosition().y, *status);
+            sprintf_s(characterString, "%d %f %f %c", character->getID(), character->getPosition().x, character->getPosition().y, 'c');
             zmq::message_t request(strlen(characterString) + 1);
             memcpy(request.data(), &characterString, strlen(characterString) + 1);
             reqSocket.send(request, zmq::send_flags::none);
@@ -91,38 +82,47 @@ void ReqSubThread::run() {
             if (newID > 9) {
                 exit(1);
             }
-            if (*status != 'd') {
-                //Receive updated platforms
-                zmq::message_t newPlatforms;
-                subSocket.recv(newPlatforms, zmq::recv_flags::none);
 
-                char* platformsString = (char*)newPlatforms.data();
-                int pos = 0;
-                for (MovingPlatform* i : *movings) {
-                    float x = 0;
-                    float y = 0;
-                    int matches = sscanf_s(platformsString + pos, "%f %f %n", &x, &y, &pos);
+            //Receive updated platforms
+            zmq::message_t newPlatforms;
+            subSocket.recv(newPlatforms, zmq::recv_flags::none);
 
-                    i->move(x - i->getPosition().x, y - i->getPosition().y);
-                }
-                while (other->isBusy())
-                {
-                    rscv->notify_all();
-                }
-                *rsbusy = true;
+            char* platformsString = (char*)newPlatforms.data();
+            int pos = 0;
+            for (MovingPlatform* i : *movings) {
+                float x = 0;
+                float y = 0;
+                int matches = sscanf_s(platformsString + pos, "%f %f %n", &x, &y, &pos);
 
-                //Receive updated characters
-                zmq::message_t newCharacters;
-                subSocket.recv(newCharacters, zmq::recv_flags::none);
-
-                char* newCharString = (char*)newCharacters.data();
-                //Update the characters in the window with new ones
-                rswindow->updateCharacters(newCharString);
+                i->move(x - i->getPosition().x, y - i->getPosition().y);
             }
+            while (other->isBusy())
+            {
+                rscv->notify_all();
+            }
+            *rsbusy = true;
+
+            //Receive updated characters
+            zmq::message_t newCharacters;
+            subSocket.recv(newCharacters, zmq::recv_flags::none);
+
+            char* newCharString = (char*)newCharacters.data();
+            //Update the characters in the window with new ones
+            rswindow->updateCharacters(newCharString);
         }
         tic = currentTic;
     }
 
+    //Disconnect
+    char characterString[MESSAGE_LIMIT];
+    sprintf_s(characterString, "%d %f %f %c", character->getID(), character->getPosition().x, character->getPosition().y, 'd');
+    zmq::message_t request(strlen(characterString) + 1);
+    memcpy(request.data(), &characterString, strlen(characterString) + 1);
+    reqSocket.send(request, zmq::send_flags::none);
+
+    //Receive confirmation
+    zmq::message_t reply;
+    reqSocket.recv(reply, zmq::recv_flags::none);
 }
 
 bool ReqSubThread::isBusy() {

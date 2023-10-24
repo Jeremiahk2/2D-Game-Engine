@@ -1,9 +1,5 @@
 #include "CBox.h"
 
-
-bool movable = false;
-Platform *platform;
-
 CBox::CBox() {}
 
 CBox::CBox(bool movable, Platform *platform) {

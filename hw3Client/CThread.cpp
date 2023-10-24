@@ -1,31 +1,17 @@
 #include "CThread.h"
 //Correct version
 
-std::mutex *_mutex1;
-
-std::condition_variable *_condition_variable1;
-
-bool *stop;
-
-Timeline *line;
-
-GameWindow *window;
-
-bool *upPressed;
-
-bool* busy;
-
 bool CThread::isBusy()
 {
-    std::lock_guard<std::mutex> lock(*_mutex1);  // this locks the mutuex until the variable goes out of scope (i.e., when the function returns in this case)
+    std::lock_guard<std::mutex> lock(*mutex);  // this locks the mutuex until the variable goes out of scope (i.e., when the function returns in this case)
     return *busy;
 }
 
 CThread::CThread(bool* upPressed, GameWindow* window, Timeline* timeline, bool* stopped,
-    std::mutex* _mutex, std::condition_variable* _condition_variable, bool* busy)
+    std::mutex* m, std::condition_variable* cv, bool* busy)
 {
-    this->_mutex1 = _mutex;
-    this->_condition_variable1 = _condition_variable;
+    this->mutex = m;
+    this->cv = cv;
     this->stop = stopped;
     this->line = timeline;
     this->window = window;
@@ -46,8 +32,8 @@ void CThread::run() {
 
             { // anonymous inner block to manage scop of mutex lock 
                 //Take ownership of the lock and lock it
-                std::unique_lock<std::mutex> cv_lock(*this->_mutex1);
-                _condition_variable1->wait(cv_lock);
+                std::unique_lock<std::mutex> cv_lock(*this->mutex);
+                cv->wait(cv_lock);
                 *busy = false;
             }
             *upPressed = false;

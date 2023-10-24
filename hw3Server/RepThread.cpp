@@ -2,9 +2,10 @@
 
 
 
-RepThread::RepThread(int port, int id) {
+RepThread::RepThread(int port, int id, std::map<int, CharStruct> *characters) {
     this->port = port;
     this->id = id;
+    this->characters = characters;
 }
 
 bool RepThread::isBusy() {
@@ -18,13 +19,7 @@ void RepThread::run() {
 
     zmq::context_t context(2);
     zmq::socket_t repSocket(context, zmq::socket_type::rep);
-    repSocket.bind("tcp://localhost:5556");
-
-    char characterString[MESSAGE_LIMIT];
-    sprintf_s(characterString, "Connect");
-    zmq::message_t request(strlen(characterString) + 1);
-    memcpy(request.data(), characterString, strlen(characterString) + 1);
-    repSocket.send(request, zmq::send_flags::none);
+    repSocket.bind(portString);
 
     while (true) {
         //Receive message from client
@@ -37,14 +32,16 @@ void RepThread::run() {
         //Get client info
         int matches = sscanf_s(current, "%d %f %f %c", &(newCharacter.id), &(newCharacter.x), &(newCharacter.y), &status, 1);
 
-        //If it is a client that is disconnecting, set their ID as negative, so that other clients know not to render them
-        if (status == 'd' && numClients != 0 && newCharacter.id >= 0 && newCharacter.id < 10) {
-            characters[newCharacter.id].id = (characters[newCharacter.id].id + 1) * -1;
-            numClients--;
+        //If it is a client that is disconnecting, remove them from the map
+        if (status == 'd' && characters->size() != 0 && newCharacter.id >= 0 && newCharacter.id < 10) {
+            characters->erase(id);
+            /*characters[newCharacter.id].id = (characters[newCharacter.id].id + 1) * -1;
+            numClients--;*/
         }
-        else if (status == 'c') { //If it's a returning client, update it's position only.
-            characters[newCharacter.id].x = newCharacter.x;
-            characters[newCharacter.id].y = newCharacter.y;
+        else if (status == 'c') { //If it's a returning client, update it with the new information
+            characters->insert_or_assign(id, newCharacter);
+            /*characters[newCharacter.id].x = newCharacter.x;
+            characters[newCharacter.id].y = newCharacter.y;*/
         }
         //Send a response with the character's new ID
         char response[MESSAGE_LIMIT];
@@ -53,4 +50,3 @@ void RepThread::run() {
         memcpy(reply.data(), response, strlen(response) + 1);
         repSocket.send(reply, zmq::send_flags::none);
     }
-}
