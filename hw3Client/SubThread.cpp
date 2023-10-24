@@ -1,7 +1,7 @@
 #include "SubThread.h"
 
 SubThread::SubThread(bool* stopped, GameWindow* window, CThread* other, bool* busy, std::condition_variable* rscv,
-    Timeline* timeline, std::mutex *m) {
+    Timeline* timeline, std::mutex *m ) {
     this->stopped = stopped;
     this->rswindow = window;
     this->other = other;
@@ -36,13 +36,12 @@ void SubThread::run() {
             subSocket.recv(newPlatforms, zmq::recv_flags::none);
             char* platformsString = (char*)newPlatforms.data();
             int pos = 0;
+            std::unique_lock<std::mutex> lock(*mutex);
             {
-                std::lock_guard<std::mutex> lock(*mutex);
                 for (MovingPlatform* i : *movings) {
                     float x = 0;
                     float y = 0;
                     int matches = sscanf_s(platformsString + pos, "%f %f %n", &x, &y, &pos);
-
                     i->move(x - i->getPosition().x, y - i->getPosition().y);
                 }
             }

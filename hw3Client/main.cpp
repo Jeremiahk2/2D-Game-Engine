@@ -6,7 +6,6 @@
 #include "ReqThread.h"
 #include "SubThread.h"
 //Correct version
-using namespace std;
 
 /**
 * KNOWN BUGS
@@ -35,7 +34,7 @@ using namespace std;
 
 #define JUMP_TIME .5
 
-#define TIC 16 //Setting this to 8 seems to produce optimal behavior. At least on my machine. 16 and 32 both work but they don't look very good. 4 usually results in 8 behavior anyway.
+#define TIC 8 //Setting this to 8 seems to produce optimal behavior. At least on my machine. 16 and 32 both work but they don't look very good. 4 usually results in 8 behavior anyway.
 /**
 * Run the CThread
 */
@@ -140,11 +139,11 @@ int main() {
     std::thread first(run_cthread, &cthread);
 
     //Start server/client req/rep
-    ReqThread reqthread(&stopped, &window, &cthread, &busy, &cv, &RTime, &mutex);
+    ReqThread reqthread(&stopped, &window, &cthread, &busy, &cv, &CTime, &mutex);
     std::thread second(run_reqthread, &reqthread);
 
     //start server/client pub/sub
-    SubThread subthread(&stopped, &window, &cthread, &busy, &cv, &STime, &mutex);
+    SubThread subthread(&stopped, &window, &cthread, &busy, &cv, &CTime, &mutex);
     std::thread third(run_subthread, &subthread);
 
     while (window.isOpen()) {
@@ -202,7 +201,8 @@ int main() {
 
             //Update window visuals
             if (!stopped && !global.isPaused()) {
-                std::lock_guard<std::mutex> lock(mutex);
+                std::unique_lock<std::mutex> lock(mutex);
+                cv.wait(lock);
                 window.update();
             }
             //Handle left input

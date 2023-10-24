@@ -60,16 +60,17 @@ void ReqThread::run() {
         if (currentTic > tic) {
             //Send updated character information to server
             char characterString[MESSAGE_LIMIT];
+            zmq::message_t reply;
             {
                 std::lock_guard<std::mutex> lock(*mutex);
                 sprintf_s(characterString, "%d %f %f %c", character->getID(), character->getPosition().x, character->getPosition().y, 'c');
+
+                zmq::message_t request(strlen(characterString) + 1);
+                memcpy(request.data(), &characterString, strlen(characterString) + 1);
+                reqSocket.send(request, zmq::send_flags::none);
             }
-            zmq::message_t request(strlen(characterString) + 1);
-            memcpy(request.data(), &characterString, strlen(characterString) + 1);
-            reqSocket.send(request, zmq::send_flags::none);
 
             //Receive confirmation
-            zmq::message_t reply;
             reqSocket.recv(reply, zmq::recv_flags::none);
             char* replyString = (char*)reply.data();
             int newID;

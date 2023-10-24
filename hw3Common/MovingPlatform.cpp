@@ -51,8 +51,10 @@
         return sf::Vector2i(bound1, bound2);
     }
     void MovingPlatform::move(float x, float y) {
-        Platform::move(x, y);
-        lastMove = sf::Vector2f(x, y);
+        float roundedX = std::roundf(100 * x) / 100.f;
+        float roundedY = std::roundf(100 * y) / 100.f;
+        Platform::move(roundedX, roundedY);
+        lastMove = sf::Vector2f(roundedX, roundedY);
     }
 
     void MovingPlatform::move(sf::Vector2f v) {
