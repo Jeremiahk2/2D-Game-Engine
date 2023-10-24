@@ -30,10 +30,9 @@ void ReqSubThread::run() {
     zmq::message_t initRequest(strlen(initRecvString) + 1);
     memcpy(initRequest.data(), initRecvString, strlen(initRecvString) + 1);
     reqSocket.send(initRequest, zmq::send_flags::none);
-
     //Receive the reply from the server, should contain our port and ID
     zmq::message_t initReply;
-    reqSocket.recv(initReply, zmq::recv_flags::none);
+    reqSocket.recv(initReply, zmq::recv_flags::none);;
     char* initReplyString = (char*)initReply.data();
     int initId = -1;
     int port = -1;
@@ -60,7 +59,7 @@ void ReqSubThread::run() {
     int64_t tic = 0;
     int64_t currentTic = 0;
     float ticLength;
-    while (*stopped = false) {
+    while (*stopped == false) {
         ticLength = rstime->getRealTicLength();
         currentTic = rstime->getTime();
 

@@ -197,7 +197,6 @@ int main() {
             }
 
             //END EVENT CHECKS
-
             CBox collision;
             //Need to recalculate character speed in case scale changed.
             float charSpeed = (float)character.getSpeed().x * (float)ticLength * (float)(currentTic - tic);
