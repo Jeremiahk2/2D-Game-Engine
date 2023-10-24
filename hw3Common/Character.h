@@ -1,6 +1,6 @@
 #ifndef CHARACTER_H
 #define CHARACTER_H
-
+#include "GameObject.h"
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
 #include <mutex>
@@ -11,7 +11,7 @@
 * A character has speed, which is the amount of movement the character moves right or left per frame.
 * A character also has various states like jumping.
 */
-class Character : public sf::RectangleShape {
+class Character : public GameObject {
 
 private:
     /**
@@ -96,5 +96,9 @@ public:
     sf::Vector2f getPosition();
 
     sf::FloatRect getGlobalBounds();
+
+    void to_json(json& j, const GameObject& g);
+
+    void from_json(const json& j, GameObject& g);
 };
 #endif

@@ -77,3 +77,11 @@ sf::FloatRect Character::getGlobalBounds() {
     std::lock_guard<std::mutex> lock(*innerMutex);
     return sf::RectangleShape::getGlobalBounds();
 }
+
+void Character::to_json(json& j, const GameObject& g) {
+
+}
+
+void Character::from_json(const json& j, GameObject& g) {
+
+}

@@ -1,7 +1,7 @@
 KNOWN:
 - Pressing jump and then quickly resizing or moving the window causes the player's jump to last much longer than intended.
-- Character moves a bit extra while on a moving platform.
-- Character moves by double what it's supposed to when the platform changes direction.
+- Character jitters around on moving platforms, particularly vertical moving platforms. So many different things cause this.
+- Character moves by double what it's supposed to when the platform changes direction. Possibly related to the above.
 FIXED:
 - Character falls through floor while resizing or moving window.
 - Occasionally, the program appears to deadlock upon opening up the window.
