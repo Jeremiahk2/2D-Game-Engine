@@ -84,21 +84,5 @@ public:
     * Get the ID of the character.
     */
     int getID();
-
-    void move(float offsetX, float offsetY);
-
-    void move(const sf::Vector2f offset);
-
-    void setPosition(float x, float y);
-
-    void setPosition(const sf::Vector2f position);
-
-    sf::Vector2f getPosition();
-
-    sf::FloatRect getGlobalBounds();
-
-    void to_json(json& j, const GameObject& g);
-
-    void from_json(const json& j, GameObject& g);
 };
 #endif
