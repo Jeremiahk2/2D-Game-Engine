@@ -36,8 +36,6 @@ private:
     */
     int id = -1;
 
-    std::mutex *innerMutex;
-
 public:
     /**
     * Empty constructor
@@ -84,5 +82,7 @@ public:
     * Get the ID of the character.
     */
     int getID();
+
+    std::string toString();
 };
 #endif

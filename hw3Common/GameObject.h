@@ -10,8 +10,10 @@ class GameObject : public sf::RectangleShape {
 private:
     std::mutex *innerMutex;
 
+    bool updates = false;
+
 public:
-	GameObject();
+	GameObject(bool updates);
 
     void move(float offsetX, float offsetY);
 
@@ -26,4 +28,10 @@ public:
     sf::FloatRect getGlobalBounds();
 
 	virtual std::string toString();
+
+    bool doesUpdate();
+
+    std::mutex* getMutex();
+
+    void setUpdates(bool newValue);
 };

@@ -1,12 +1,13 @@
 #include "GameObject.h"
 
-GameObject::GameObject()
+GameObject::GameObject(bool updates)
 {
     innerMutex = (std::mutex*)malloc(sizeof(std::mutex));
     std::mutex tempMutex;
     if (innerMutex != NULL) {
         memcpy(innerMutex, &tempMutex, sizeof(std::mutex));
     }
+    this->updates = updates;
 }
 
 void GameObject::move(float offsetX, float offsetY) {
@@ -37,6 +38,18 @@ void GameObject::setPosition(const sf::Vector2f position) {
 sf::FloatRect GameObject::getGlobalBounds() {
     std::lock_guard<std::mutex> lock(*innerMutex);
     return sf::RectangleShape::getGlobalBounds();
+}
+
+bool GameObject::doesUpdate() {
+    return updates;
+}
+
+void GameObject::setUpdates(bool newValue) {
+    this->updates = newValue;
+}
+
+std::mutex* GameObject::getMutex() {
+    return innerMutex;
 }
 
 std::string GameObject::toString() {

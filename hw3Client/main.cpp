@@ -110,9 +110,8 @@ int main() {
     character.setTexture(&charTexture);
     character.setGravity(GRAV_SPEED);
     window.addCharacter(&character);
-    
-    std::cout << character.toString();
 
+    std::cout << character.toString();
 
     //END SETTING UP GAME OBJECTS
 
