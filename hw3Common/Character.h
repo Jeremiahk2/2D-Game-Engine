@@ -83,6 +83,6 @@ public:
     */
     int getID();
 
-    std::string toString();
+    std::string toString() override;
 };
 #endif

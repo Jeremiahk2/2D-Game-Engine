@@ -29,8 +29,6 @@ public:
 
     sf::FloatRect getGlobalBounds();
 
-	virtual std::string toString();
-
     bool isStatic();
 
     std::mutex* getMutex();
@@ -38,6 +36,8 @@ public:
     bool isCollidable();
 
     void setCollidable(bool collidable);
+
+    virtual std::string toString();
 
     virtual void constructSelf(std::string);
 };
