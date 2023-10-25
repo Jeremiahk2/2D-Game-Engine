@@ -63,7 +63,7 @@ int main() {
     startPlatform.setSize(sf::Vector2f(100.f, 15.f));
     startPlatform.setFillColor(sf::Color(100, 0, 0));
     startPlatform.setPosition(sf::Vector2f(50.f, 500.f));
-    window.addPlatform(&startPlatform, false);
+    window.addGameObject(&startPlatform);
 
     //Create endPlatform and add it to the window
     Platform endPlatform;
@@ -109,7 +109,7 @@ int main() {
     }
     character.setTexture(&charTexture);
     character.setGravity(GRAV_SPEED);
-    window.addCharacter(&character);
+    window.addPlayableObject(&character);
 
     std::cout << character.toString();
 

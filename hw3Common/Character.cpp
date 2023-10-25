@@ -1,6 +1,6 @@
 #include "Character.h"
 
-Character::Character() : GameObject(true) {
+Character::Character() : GameObject(true, true) {
     
 }
 

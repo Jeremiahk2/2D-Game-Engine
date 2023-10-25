@@ -1,7 +1,6 @@
 #ifndef CBOX_H
 #define CBOX_H
-
-#include "MovingPlatform.h"
+#include "GameObject.h"
 
 /**
 A CBox is a way to link collision boxes (Rects) with their Platforms. 
@@ -13,14 +12,9 @@ class CBox {
 private:
 
     /**
-    Whether or not the object that the CBox is attached to is movable.
+    This is the object that this CBox is attached to.
     */
-    bool movable = false;
-
-    /**
-    This is the platform that this CBox is attached to.
-    */
-    Platform *platform;
+    GameObject *object;
 
 public:
     /**
@@ -30,16 +24,15 @@ public:
 
     /**
     Construct a CBox based on Platforms specifically.
-    @param movable is the Platform a MovingPlatform (or does it change position ever)
     @param platform a pointer to the platform so that Boudns can be acquired
     */
-    CBox(bool movable, Platform *platform);
+    CBox(GameObject *object);
 
     /**
-    Return if the platform is moving.
+    Return if the object is static or not.
     @return isMoving
     */
-    bool isMoving();
+    bool isStatic();
 
     /**
     return the bounding box (as a float rect) for the platform.
@@ -51,6 +44,6 @@ public:
     Return the platform attached to the CBox
     @return the platform attached to the box
     */
-    Platform *getPlatform();
+    GameObject *getObject();
 };
 #endif

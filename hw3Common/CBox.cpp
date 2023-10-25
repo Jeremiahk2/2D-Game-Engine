@@ -1,20 +1,22 @@
 #include "CBox.h"
 
-CBox::CBox() {}
+CBox::CBox() {
+    object = NULL;
 
-CBox::CBox(bool movable, Platform *platform) {
-    this->movable = movable;
-    this->platform = platform;
 }
 
-bool CBox::isMoving() {
-    return movable;
+CBox::CBox(GameObject *object) {
+    this->object = object;
+}
+
+bool CBox::isStatic() {
+    return object->isStatic();
 }
 
 sf::FloatRect CBox::getCBox() {
-    return platform->getGlobalBounds();
+    return object->getGlobalBounds();
 }
 
-Platform *CBox::getPlatform() {
-    return platform;
+GameObject *CBox::getObject() {
+    return object;
 }

@@ -10,10 +10,12 @@ class GameObject : public sf::RectangleShape {
 private:
     std::mutex *innerMutex;
 
-    bool updates = false;
+    bool stationary = true;
+
+    bool collidable = false;
 
 public:
-	GameObject(bool updates);
+	GameObject(bool stationary, bool collidable);
 
     void move(float offsetX, float offsetY);
 
@@ -29,9 +31,13 @@ public:
 
 	virtual std::string toString();
 
-    bool doesUpdate();
+    bool isStatic();
 
     std::mutex* getMutex();
 
-    void setUpdates(bool newValue);
+    bool isCollidable();
+
+    void setCollidable(bool collidable);
+
+    virtual void constructSelf(std::string);
 };

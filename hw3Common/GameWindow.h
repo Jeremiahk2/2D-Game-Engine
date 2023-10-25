@@ -21,9 +21,9 @@ private:
     /**
     * The list of platform pointers that need to be drawn on screen.
     */
-    list<Platform*> platforms;
+    list<GameObject*> staticObjects;
 
-    list<MovingPlatform*> movings;
+    list<GameObject*> nonStaticObjects;
 
     /**
     * The list of platforms that need to be drawn on screen. These are the platforms that are continously updated from the server.
@@ -38,7 +38,7 @@ private:
     /**
     * The character that is being checked for collisions with the CBoxes
     */
-    Character* character;
+    GameObject* character;
 
     std::map<int, Character> characters;
 
@@ -50,11 +50,6 @@ private:
     * Whether or not the window uses proportional scaling.
     */
     bool isProportional = true;
-
-    /**
-    * The number of platforms in the realPlatforms array.
-    */
-    int numPlatforms = 0;
 
     /**
     * The texture used for all characters
@@ -83,12 +78,12 @@ public:
     /**
     * Add a platform to the window. By default it is added to the list of platforms and collidables.
     */
-    void addPlatform(Platform* drawing, bool isMoving);
+    void addGameObject(GameObject* object);
 
     /**
     * Add the playable character to the window. Only one character is supported.
     */
-    void addCharacter(Character* character);
+    void addPlayableObject(GameObject* character);
 
     /**
     * Update the window by clearing the window, drawing each object, and then displaying it.
@@ -110,23 +105,23 @@ public:
     */
     void handleResize(sf::Event event);
 
-    list<MovingPlatform*>* getMovings();
+    list<GameObject*>* getStaticObjects();
+
+    /**
+    * Return the list of platforms (realPlatforms) in the window.
+    * @param n the number of real platforms in the window.
+    */
+    list<GameObject*>* getNonstaticObjects();
 
     /**
     * return a pointer to the character.
     */
-    Character* getCharacter();
-
-    /**
-    * Return the list of platforms (realPlatforms) in the window. 
-    * @param n the number of real platforms in the window.
-    */
-    Platform* getPlatforms(int* n);
+    GameObject* getPlayableObject();
 
     /**
     * Update the characters using a string that contains information about all of the updated characters.
     */
-    void updateCharacters(char *newChars);
+    void updateNonStatic(char* newObjects);
 };
 
 #endif

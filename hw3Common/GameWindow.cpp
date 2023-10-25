@@ -48,60 +48,53 @@ bool GameWindow::checkCollisions(CBox* collides) {
 }
 
 //Add this client's playable character.
-void GameWindow::addCharacter(Character* character) {
+void GameWindow::addPlayableObject(GameObject* character) {
     std::lock_guard<std::mutex> lock(*innerMutex);
     this->character = character;
 }
 
-Character* GameWindow::getCharacter() {
+GameObject* GameWindow::getPlayableObject() {
     std::lock_guard<std::mutex> lock(*innerMutex);
     return character;
 }
 
-void GameWindow::addPlatform(Platform* platform, bool isMoving) {
+void GameWindow::addGameObject(GameObject *object) {
     std::lock_guard<std::mutex> lock(*innerMutex);
-    //Add the platform to the list of platforms
-    platforms.push_front(platform);
-    //Make a collision box for the platform and add it in.
-    collisions.push_front(CBox(isMoving, platform));
-    //If it is a moving platform, add it to the list of moving platforms.
-    if (isMoving) {
-        movings.push_front((MovingPlatform*)platform);
+    if (object->isStatic()) {
+        staticObjects.push_back(object);
     }
-    numPlatforms++;
+    else {
+        nonStaticObjects.push_back(object);
+    }
+    if (object->isCollidable()) {
+        collisions.push_front(CBox(object));
+    }
 }
 
-Platform* GameWindow::getPlatforms(int* n) {
+list<GameObject*>* GameWindow::getStaticObjects() {
     std::lock_guard<std::mutex> lock(*innerMutex);
-    Platform rtnPlatforms[10];
-    int count = 0;
-    for (Platform* i : platforms) {
-        rtnPlatforms[count] = *i;
-        count++;
-    }
-    *n = count;
-    return rtnPlatforms;
+    return &staticObjects;
 }
 
-list<MovingPlatform*>* GameWindow::getMovings() {
+list<GameObject*>* GameWindow::getNonstaticObjects() {
     std::lock_guard<std::mutex> lock(*innerMutex);
-    return &movings;
+    return &nonStaticObjects;
 }
 
 void GameWindow::update() {
     std::lock_guard<std::mutex> lock(*innerMutex);
     clear();
     //Cycle through the list of platforms and draw them.
-    for (Platform* i : platforms) {
+    for (GameObject* i : staticObjects) {
         draw(*i);
     }
-    for (auto iter = characters.begin(); iter != characters.end(); ++iter) {
-        draw(iter->second);
+    for (GameObject* i : nonStaticObjects) {
+        draw(*i);
     }
     display();
 }
 
-void GameWindow::updateCharacters(char *newChars) {
+void GameWindow::updateNonStatic(char *newObjects) {
     std::lock_guard<std::mutex> lock(*innerMutex);
     int currentId = 0;
     float currentX = 0.f;

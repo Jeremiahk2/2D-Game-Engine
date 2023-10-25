@@ -1,13 +1,14 @@
 #include "GameObject.h"
 
-GameObject::GameObject(bool updates)
+GameObject::GameObject(bool stationary, bool collidable)
 {
     innerMutex = (std::mutex*)malloc(sizeof(std::mutex));
     std::mutex tempMutex;
     if (innerMutex != NULL) {
         memcpy(innerMutex, &tempMutex, sizeof(std::mutex));
     }
-    this->updates = updates;
+    this->stationary = stationary;
+    this->collidable = collidable;
 }
 
 void GameObject::move(float offsetX, float offsetY) {
@@ -40,19 +41,29 @@ sf::FloatRect GameObject::getGlobalBounds() {
     return sf::RectangleShape::getGlobalBounds();
 }
 
-bool GameObject::doesUpdate() {
-    return updates;
-}
-
-void GameObject::setUpdates(bool newValue) {
-    this->updates = newValue;
+bool GameObject::isStatic() {
+    return stationary;
 }
 
 std::mutex* GameObject::getMutex() {
     return innerMutex;
 }
 
+bool GameObject::isCollidable()
+{
+    return collidable;
+}
+
+void GameObject::setCollidable(bool collidable)
+{
+    this->collidable = collidable;
+}
+
 std::string GameObject::toString() {
     std::string rtnString = "Object " + std::to_string(getPosition().x) + " " + std::to_string(getPosition().y);
     return rtnString;
+}
+
+void GameObject::constructSelf(std::string) {
+
 }
