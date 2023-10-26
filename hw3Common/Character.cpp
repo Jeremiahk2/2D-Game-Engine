@@ -53,30 +53,38 @@ int Character::getID() {
     return id;
 }
 
-GameObject::ObjectStruct *Character::toStruct() {
-    CharStruct *rtn = new CharStruct;
-    rtn->type = 1;
-    rtn->posX = getPosition().x;
-    rtn->posY = getPosition().y;
-    rtn->r = getFillColor().r;
-    rtn->g = getFillColor().g;
-    rtn->b = getFillColor().b;
-    return rtn;
+int Character::getType() {
+    return this->type;
 }
 
-GameObject *Character::constructSelf(GameObject::ObjectStruct *self) {
-    Character rtn;
-    CharStruct* realSelf = (CharStruct*)self;
-    if (self->type != 1) {
-        throw std::invalid_argument("ObjectStruct must be of type Character");
+GameObject::ObjectStruct Character::toStruct() {
+    Character::CharStruct character;
+    character.posX = getPosition().x;
+    character.posY = getPosition().y;
+    character.sizeX = getSize().x;
+    character.sizeY = getSize().y;
+    character.r = getFillColor().r;
+    character.g = getFillColor().g;
+    character.b = getFillColor().b;
+    character.type = getType();
+    //character.size? To tell it the size of the struct?
+    return character;
+    //Needs to be a pointer to a struct
+}
+
+std::shared_ptr<GameObject> Character::constructSelf(GameObject::ObjectStruct self) {
+    Character character;
+    if (type != getType()) {
+        throw std::invalid_argument("ObjectStruct must be a CharStruct");
     }
-    rtn.setPosition(realSelf->x, realSelf->y);
-    
+    CharStruct s = (CharStruct)self;
 
+    character.setPosition(self.posX);
+    //Needs to be a pointer to a struct.
 }
 
-GameObject *Character::makeTemplate() {
-    return new Character;
+std::shared_ptr<GameObject> Character::makeTemplate() {
+
 }
 
 

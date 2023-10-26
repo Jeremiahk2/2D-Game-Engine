@@ -49,8 +49,6 @@ public:
         int r;
         int g;
         int b;
-
-
     };
 
     /**
@@ -99,10 +97,12 @@ public:
     */
     int getID();
 
-    GameObject::ObjectStruct *toStruct() override;
+    int getType() override;
 
-    GameObject *constructSelf(GameObject::ObjectStruct *self) override;
+    GameObject::ObjectStruct toStruct() override;
 
-    GameObject *makeTemplate() override;
+    std::shared_ptr<GameObject> constructSelf(GameObject::ObjectStruct self) override;
+
+    std::shared_ptr<GameObject> makeTemplate() override;
 };
 #endif

@@ -1,9 +1,7 @@
 #include "SFML/Graphics.hpp"
 #include "SFML/OpenGL.hpp"
-#include <nlohmann/json.hpp>
 #include <mutex>
 #include <string>
-using json = nlohmann::json;
 
 class GameObject : public sf::RectangleShape {
 
