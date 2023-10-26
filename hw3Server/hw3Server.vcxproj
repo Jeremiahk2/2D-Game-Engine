@@ -133,6 +133,7 @@
     <ClInclude Include="..\hw3Common\Character.h" />
     <ClInclude Include="..\hw3Common\GameObject.h" />
     <ClInclude Include="..\hw3Common\GameWindow.h" />
+    <ClInclude Include="..\hw3Common\GOS.h" />
     <ClInclude Include="..\hw3Common\MovingPlatform.h" />
     <ClInclude Include="..\hw3Common\Platform.h" />
     <ClInclude Include="..\hw3Common\Timeline.h" />
@@ -146,6 +147,7 @@
     <ClCompile Include="..\hw3Common\Character.cpp" />
     <ClCompile Include="..\hw3Common\GameObject.cpp" />
     <ClCompile Include="..\hw3Common\GameWindow.cpp" />
+    <ClCompile Include="..\hw3Common\GOS.cpp" />
     <ClCompile Include="..\hw3Common\MovingPlatform.cpp" />
     <ClCompile Include="..\hw3Common\Platform.cpp" />
     <ClCompile Include="..\hw3Common\Timeline.cpp" />

@@ -59,11 +59,8 @@ void GameObject::setCollidable(bool collidable)
     this->collidable = collidable;
 }
 
-std::string GameObject::toString() {
-    std::string rtnString = "Object " + std::to_string(getPosition().x) + " " + std::to_string(getPosition().y);
-    return rtnString;
+int GameObject::getType()
+{
+    return type;
 }
 
-void GameObject::constructSelf(std::string) {
-
-}

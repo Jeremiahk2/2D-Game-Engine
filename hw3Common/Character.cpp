@@ -1,7 +1,16 @@
 #include "Character.h"
 
 Character::Character() : GameObject(true, true) {
-    
+    /**
+    ART FOR SANTA PROVIDED BY Marco Giorgini THROUGH OPENGAMEART.ORG
+    License: CC0 (Public Domain) @ 12/28/21
+    https://opengameart.org/content/santas-rats-issue-c64-sprites
+    */
+    sf::Texture charTexture;
+    if (!charTexture.loadFromFile("Santa_standing.png")) {
+        std::cout << "Failed";
+    }
+    setTexture(&charTexture);
 }
 
 sf::Vector2f Character::getSpeed() {
@@ -44,10 +53,30 @@ int Character::getID() {
     return id;
 }
 
-std::string Character::toString()
-{
-    std::string rtnString = "Character " + std::to_string(getID()) + " " + std::to_string(getPosition().x) + " " + std::to_string(getPosition().y);
-    return rtnString;
+GameObject::ObjectStruct *Character::toStruct() {
+    CharStruct *rtn = new CharStruct;
+    rtn->type = 1;
+    rtn->posX = getPosition().x;
+    rtn->posY = getPosition().y;
+    rtn->r = getFillColor().r;
+    rtn->g = getFillColor().g;
+    rtn->b = getFillColor().b;
+    return rtn;
+}
+
+GameObject *Character::constructSelf(GameObject::ObjectStruct *self) {
+    Character rtn;
+    CharStruct* realSelf = (CharStruct*)self;
+    if (self->type != 1) {
+        throw std::invalid_argument("ObjectStruct must be of type Character");
+    }
+    rtn.setPosition(realSelf->x, realSelf->y);
+    
+
+}
+
+GameObject *Character::makeTemplate() {
+    return new Character;
 }
 
 

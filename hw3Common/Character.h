@@ -4,6 +4,7 @@
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
 #include <mutex>
+#include <iostream>
 #define DEFAULT_SPEED 1.f
 
 /**
@@ -36,7 +37,22 @@ private:
     */
     int id = -1;
 
+    static const int type = 1;
+
 public:
+
+    struct CharStruct : public GameObject::ObjectStruct{
+        int posX;
+        int posY;
+        int sizeX;
+        int sizeY;
+        int r;
+        int g;
+        int b;
+
+
+    };
+
     /**
     * Empty constructor
     */
@@ -83,6 +99,10 @@ public:
     */
     int getID();
 
-    std::string toString() override;
+    GameObject::ObjectStruct *toStruct() override;
+
+    GameObject *constructSelf(GameObject::ObjectStruct *self) override;
+
+    GameObject *makeTemplate() override;
 };
 #endif

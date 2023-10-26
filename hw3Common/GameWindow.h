@@ -58,6 +58,8 @@ private:
 
     std::mutex *innerMutex;
 
+    std::map<int, std::shared_ptr<GameObject>> templates;
+
 
 
 
@@ -121,7 +123,9 @@ public:
     /**
     * Update the characters using a string that contains information about all of the updated characters.
     */
-    void updateNonStatic(char* newObjects);
+    void updateNonStatic(GameObject::ObjectStruct* objects);
+
+    void addTemplate(std::unique_ptr<GameObject> templateObject);
 };
 
 #endif

@@ -70,12 +70,12 @@ void GameWindow::addGameObject(GameObject *object) {
         collisions.push_front(CBox(object));
     }
 }
-
+//Contains client objects like death bounds and side bounds.
 list<GameObject*>* GameWindow::getStaticObjects() {
     std::lock_guard<std::mutex> lock(*innerMutex);
     return &staticObjects;
 }
-
+//Contains server objects like moving platforms and other characters.
 list<GameObject*>* GameWindow::getNonstaticObjects() {
     std::lock_guard<std::mutex> lock(*innerMutex);
     return &nonStaticObjects;
@@ -94,22 +94,14 @@ void GameWindow::update() {
     display();
 }
 
-void GameWindow::updateNonStatic(char *newObjects) {
-    std::lock_guard<std::mutex> lock(*innerMutex);
-    int currentId = 0;
-    float currentX = 0.f;
-    float currentY = 0.f;
+void GameWindow::addTemplate(std::unique_ptr<GameObject> templateObject) {
 
-    int pos = 0;
-    int newPos = 0;
-    //Parse the string to find the information about each character
-    characters.clear();
-    while (sscanf_s(newChars + pos, "%d %f %f %n", &currentId, &currentX, &currentY, &newPos) == 3) {
-        pos += newPos;
-        templateCharacter.setID(currentId);
-        templateCharacter.setPosition(currentX, currentY);
-        characters.insert_or_assign(currentId, templateCharacter);
-    }
+}
+
+void GameWindow::updateNonStatic(GameObject::ObjectStruct * objects) {
+    std::lock_guard<std::mutex> lock(*innerMutex);
+
+    
 }
 
 void GameWindow::changeScaling() {

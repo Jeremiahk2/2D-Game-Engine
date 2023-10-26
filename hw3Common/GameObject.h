@@ -14,7 +14,14 @@ private:
 
     bool collidable = false;
 
+    static const int type = 0;
+
 public:
+
+    struct ObjectStruct {
+        int type;
+    };
+
 	GameObject(bool stationary, bool collidable);
 
     void move(float offsetX, float offsetY);
@@ -37,7 +44,11 @@ public:
 
     void setCollidable(bool collidable);
 
-    virtual std::string toString();
+    virtual GameObject::ObjectStruct toStruct() = 0;
 
-    virtual void constructSelf(std::string);
+    virtual std::shared_ptr<GameObject> constructSelf(GameObject::ObjectStruct self) = 0;
+
+    virtual std::shared_ptr<GameObject> makeTemplate() = 0;
+
+    virtual int getType();
 };
