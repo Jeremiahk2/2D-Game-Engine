@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <list>
+#include "common.h"
 #define MESSAGE_LIMIT 1024
 
 #ifndef _WIN32
@@ -12,11 +13,6 @@
 #define sleep(n)	Sleep(n)
 #endif
 
-struct Client{
-    int offset = 1;
-    int id = -1;
-};
-
 
 int main() {
     //  Prepare our context and socket
@@ -26,9 +22,10 @@ int main() {
     repSocket.bind("tcp://localhost:5555");
     pubSocket.bind("tcp://localhost:5556");
 
-    int iterations = 0;
-    int numClients = 0;
-    std::list<Client> clients;
+    std::vector<Client> clients;
+    Client sentinel;
+    sentinel.id = -1;
+    clients.push_back(sentinel);
     while (true) { 
         //  Wait for next request from client
         zmq::message_t reply;
@@ -39,26 +36,20 @@ int main() {
             repSocket.send(reply, zmq::send_flags::none);
 
             Client newClient;
-            newClient.id = ++numClients;
-            newClient.offset = iterations - 1;
-            clients.push_front(newClient);
+            newClient.id = (int)clients.size();
+            std::cout << newClient.id;
+            newClient.iterations = 0;
+            clients.insert(clients.end() - 1, newClient);
         }
         sleep(500);
-        char rtnString[MESSAGE_LIMIT] = "";
-        for (Client i : clients) {
-            char clientString[MESSAGE_LIMIT];
-            sprintf_s(clientString, "Client %d: Iteration %d\n", i.id, iterations - i.offset);
-            strcat_s(rtnString, clientString);
+        for (int i = 0; i < clients.size() - 1; i++) {
+            clients.at(i).iterations++;
         }
-        strcat_s(rtnString, "\n");
         //Slow down for readability
-        //  Send reply back to client
-        if (numClients > 0) {
-            zmq::message_t message(MESSAGE_LIMIT);
-            memcpy(message.data(), rtnString, strlen(rtnString) + 1);
-            pubSocket.send(message, zmq::send_flags::none);
-        }
-        iterations++;
+        //Send reply back to client
+        zmq::message_t message(MESSAGE_LIMIT);
+        memcpy(message.data(), clients.data(), clients.size() * sizeof(Client));
+        pubSocket.send(message, zmq::send_flags::none);
     }
     return 0;
 }
