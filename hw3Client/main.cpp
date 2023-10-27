@@ -19,12 +19,6 @@
 * Very difficult to replicate (Random occurrence)
 */
 
-//Test settings. Feel free to change these.
-#define CHAR_SPEED 100.f
-
-// #define GRAV_SPEED 160.f
-#define GRAV_SPEED 160
-
 //Speed is calculated in pixels per second.
 #define PLAT_SPEED 100.f
 
@@ -70,25 +64,25 @@ int main() {
     endPlatform.setSize(sf::Vector2f(100.f, 15.f));
     endPlatform.setFillColor(sf::Color(218, 165, 32));
     endPlatform.setPosition(sf::Vector2f(500.f, 500.f));
-    window.addPlatform(&endPlatform, false);
+    window.addGameObject(&endPlatform);
 
     //Create headBonk platform (for testing jump) and add it to the window
     Platform headBonk;
     headBonk.setSize(sf::Vector2f(100.f, 15.f));
     headBonk.setFillColor(sf::Color::Blue);
     headBonk.setPosition(500.f, 440.f);
-    window.addPlatform(&headBonk, false);
+    window.addGameObject(&headBonk);
 
     //Create MovingPlatform and add it to the window
     MovingPlatform moving(PLAT_SPEED, 1, 150.f, 500.f);
     moving.setSize(sf::Vector2f(100.f, 15.f));
     moving.setFillColor(sf::Color(100, 250, 50));
-    window.addPlatform(&moving, true);
+    window.addGameObject(&moving);
 
     MovingPlatform vertMoving(PLAT_SPEED, false, 600.f, 500.f);
     vertMoving.setSize(sf::Vector2f(50.f, 15.f));
     vertMoving.setFillColor(sf::Color::Magenta);
-    window.addPlatform(&vertMoving, true);
+    window.addGameObject(&vertMoving);
 
     //Create playable character and add it to the window as the playable object
     Character character;

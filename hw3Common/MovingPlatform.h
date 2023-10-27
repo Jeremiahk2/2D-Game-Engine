@@ -36,8 +36,6 @@ private:
     */
     sf::Vector2f lastMove = sf::Vector2f(0, 0);
 
-    std::mutex* mpMutex;
-
 
 public:
     /**
@@ -61,7 +59,7 @@ public:
     * TODO: Rename to isHorizontal()?
     * @return the type of movement. True for horizontal, false for vertical.
     */
-    bool getType();
+    bool getMovementType();
 
     /**
     * Return the position that the moving platform started at.

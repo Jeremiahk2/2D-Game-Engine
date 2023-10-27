@@ -4,21 +4,23 @@
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
 #include <mutex>
-#include <iostream>
-#define DEFAULT_SPEED 1.f
+#define CHAR_SPEED 100.f
+#define GRAV_SPEED 160
 
 /**
 * Class for Character objects, or the shape that is controlled by the player.
 * A character has speed, which is the amount of movement the character moves right or left per frame.
 * A character also has various states like jumping.
 */
-class Character : public GameObject {
+class Character : public GameObject, public sf::RectangleShape {
 
 private:
     /**
     * Movement per frame of the character
     */
     sf::Vector2f speed;
+
+    std::mutex innerMutex;
 
     /**
     * Is the character jumping right now.
@@ -37,30 +39,52 @@ private:
     */
     int id = -1;
 
-    static const int type = 1;
+    static const int objectType = 1;
 
 public:
 
-    struct CharStruct : public GameObject::ObjectStruct{
-        int posX;
-        int posY;
-        int sizeX;
-        int sizeY;
-        int r;
-        int g;
-        int b;
-    };
-
     /**
-    * Empty constructor
+    * Empty constructor, sets GameObject fields to false
     */
     Character();
+
+    Character(bool stationary, bool collidable, bool drawable);
 
     /**
     * Returns the speed of the character.
     * @return the speed of the character
     */
     sf::Vector2f getSpeed();
+
+    /**
+    * Move the character. Protected by a lock guard.
+    */
+    void move(float offsetX, float offsetY);
+
+    /**
+    * Move the character. Protected by a lock guard.
+    */
+    void move(const sf::Vector2f offset);
+
+    /**
+    * Set the position of the character. Protected by a lock guard.
+    */
+    void setPosition(float x, float y);
+
+    /**
+    * Set the position of the character. Protected by a lock guard.
+    */
+    void setPosition(const sf::Vector2f position);
+
+    /**
+    * Return the position of the character. Protected by a lock guard
+    */
+    sf::Vector2f getPosition();
+
+    /**
+    * Return the float rect containing the global bounds. Protected by a lock guard.
+    */
+    sf::FloatRect getGlobalBounds();
 
     /**
     * set the speed of the character
@@ -97,12 +121,27 @@ public:
     */
     int getID();
 
-    int getType() override;
+    /**
+    * Return the Character class' ID.
+    */
+    int getObjectType() override;
 
-    GameObject::ObjectStruct toStruct() override;
+    /**
+    * Gets a string representation of this chracter. Matches constructSelf
+    * Formats as follows: 
+    * type posX posY sizeX sizeY r g b
+    * int float float float float int int int
+    */
+    std::string toString() override;
 
-    std::shared_ptr<GameObject> constructSelf(GameObject::ObjectStruct self) override;
+    /**
+    * Create a new Character based on a string. Matches toString().
+    */
+    std::shared_ptr<GameObject> constructSelf(std::string self) override;
 
+    /**
+    * Create a new empty character for GameWindow use
+    */
     std::shared_ptr<GameObject> makeTemplate() override;
 };
 #endif

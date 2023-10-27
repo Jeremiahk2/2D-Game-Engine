@@ -4,11 +4,12 @@
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
 #include <mutex>
+#include "GameObject.h"
 
 /**
 * A class for platforms, a type of RectangleShape.
 */
-class Platform : public sf::RectangleShape
+class Platform : public GameObject, public sf::RectangleShape
 {
 private:
     /**
@@ -16,7 +17,9 @@ private:
     */
     bool passthrough;
 
-    std::mutex *mutex;
+    std::mutex innerMutex;
+
+    static const int objectType = 2;
 
     
 public:
@@ -24,7 +27,6 @@ public:
     * Constructs a new platform (empty RectangleShape)
     */
     Platform();
-
     /**
     * Set the passthrough setting on this platform.
     */
@@ -43,6 +45,27 @@ public:
     sf::FloatRect getGlobalBounds();
 
     std::mutex* getMutex();
+
+    /**
+    * Create a string representation of the class. To work with GameWindow, this should match with constructSelf
+    */
+    std::string toString() override;
+
+    /**
+    * Creates a new object using the string provided. To work with GameWindow, this should match toString.
+    */
+    std::shared_ptr<GameObject> constructSelf(std::string self) override;
+
+    /**
+    * Creates a blank GameObject. Useful for when you need a copy of the object without knowing what type it is.
+    */
+    std::shared_ptr<GameObject> makeTemplate() override;
+
+    /**
+    * Return the type of the class. Type should be a static const variable so that it is constant across all versions.
+    * type should be unique for each version of GameObject that you use with GameWindow.
+    */
+    int getObjectType() override;
 };
 
 #endif

@@ -25,6 +25,8 @@ private:
 
     list<GameObject*> nonStaticObjects;
 
+    /*list<GameObject*> collidables;*/
+
     /**
     * The list of platforms that need to be drawn on screen. These are the platforms that are continously updated from the server.
     */

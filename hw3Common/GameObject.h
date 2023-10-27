@@ -2,51 +2,58 @@
 #include "SFML/OpenGL.hpp"
 #include <mutex>
 #include <string>
+#include <sstream>
+#include <iostream>
+#include <iomanip>
 
-class GameObject : public sf::RectangleShape {
+class GameObject {
 
 private:
-    std::mutex *innerMutex;
-
     bool stationary = true;
 
     bool collidable = false;
 
-    static const int type = 0;
+    bool drawable = false;
+
+    static const int objectType = 0;
 
 public:
 
-    struct ObjectStruct {
-        int type;
-    };
+	GameObject(bool stationary, bool collidable, bool drawable);
 
-	GameObject(bool stationary, bool collidable);
-
-    void move(float offsetX, float offsetY);
-
-    void move(const sf::Vector2f offset);
-
-    void setPosition(float x, float y);
-
-    void setPosition(const sf::Vector2f position);
-
-    sf::Vector2f getPosition();
-
-    sf::FloatRect getGlobalBounds();
-
+    /**
+    * Check if the object is static
+    */
     bool isStatic();
 
-    std::mutex* getMutex();
-
+    /**
+    * Check if the object is collidable.
+    */
     bool isCollidable();
 
+    /**
+    * Set the collidable status of the object. 
+    */
     void setCollidable(bool collidable);
 
-    virtual GameObject::ObjectStruct toStruct() = 0;
+    /**
+    * Create a string representation of the class. To work with GameWindow, this should match with constructSelf
+    */
+    virtual std::string toString() = 0;
 
-    virtual std::shared_ptr<GameObject> constructSelf(GameObject::ObjectStruct self) = 0;
+    /**
+    * Creates a new object using the string provided. To work with GameWindow, this should match toString.
+    */
+    virtual std::shared_ptr<GameObject> constructSelf(std::string self) = 0;
 
+    /**
+    * Creates a blank GameObject. Useful for when you need a copy of the object without knowing what type it is.
+    */
     virtual std::shared_ptr<GameObject> makeTemplate() = 0;
 
-    virtual int getType();
+    /**
+    * Return the type of the class. Type should be a static const variable so that it is constant across all versions.
+    * type should be unique for each version of GameObject that you use with GameWindow.
+    */
+    virtual int getObjectType() = 0;
 };
