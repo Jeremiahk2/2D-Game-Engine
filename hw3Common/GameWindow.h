@@ -23,44 +23,22 @@ private:
     */
     list<GameObject*> staticObjects;
 
-    list<GameObject*> nonStaticObjects;
+    list<std::shared_ptr<GameObject>> nonStaticObjects;
 
-    /*list<GameObject*> collidables;*/
+    list<GameObject*> collidables;
 
-    /**
-    * The list of platforms that need to be drawn on screen. These are the platforms that are continously updated from the server.
-    */
-    Platform realPlatforms[10];
+    list<GameObject*> drawables;
 
-    /**
-    * The list of CBoxes that need to be checked each cycle for collisions
-    */
-    list<CBox> collisions;
+    map<int, std::unique_ptr<GameObject>> templates;
 
-    /**
-    * The character that is being checked for collisions with the CBoxes
-    */
     GameObject* character;
-
-    std::map<int, Character> characters;
-
-    Character templateCharacter;
-
-    int numCharacters = 0;
 
     /**
     * Whether or not the window uses proportional scaling.
     */
     bool isProportional = true;
 
-    /**
-    * The texture used for all characters
-    */
-    sf::Texture charTexture;
-
     std::mutex *innerMutex;
-
-    std::map<int, std::shared_ptr<GameObject>> templates;
 
 
 
@@ -77,7 +55,7 @@ public:
     I.E if a player is colliding with both a moving platform and a stationary platform, the stationary platform will be returned here.
     @return boolean value for if a collision was found.
     */
-    bool checkCollisions(CBox* collides);
+    bool checkCollisions(GameObject* collides);
 
     /**
     * Add a platform to the window. By default it is added to the list of platforms and collidables.
@@ -115,7 +93,7 @@ public:
     * Return the list of platforms (realPlatforms) in the window.
     * @param n the number of real platforms in the window.
     */
-    list<GameObject*>* getNonstaticObjects();
+    list<std::shared_ptr<GameObject>>* getNonstaticObjects();
 
     /**
     * return a pointer to the character.
@@ -125,7 +103,7 @@ public:
     /**
     * Update the characters using a string that contains information about all of the updated characters.
     */
-    void updateNonStatic(GameObject::ObjectStruct* objects);
+    void updateNonStatic(std::string updates);
 
     void addTemplate(std::unique_ptr<GameObject> templateObject);
 };

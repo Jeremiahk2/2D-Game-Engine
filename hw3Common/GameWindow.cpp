@@ -1,9 +1,6 @@
 #include "GameWindow.h"
 
 GameWindow::GameWindow() {
-    if (!charTexture.loadFromFile("Santa_standing.png")) {
-        std::cout << "Failed";
-    }
 
     innerMutex = (std::mutex*)malloc(sizeof(std::mutex));
     std::mutex tempMutex;
@@ -11,37 +8,33 @@ GameWindow::GameWindow() {
         memcpy(innerMutex, &tempMutex, sizeof(std::mutex));
     }
 
-    templateCharacter.setSize(sf::Vector2f(30.f, 30.f));
-    templateCharacter.setFillColor(sf::Color::White);
-    templateCharacter.setOrigin(0.f, 30.f);
-    templateCharacter.setPosition(0, 0);
-    templateCharacter.setTexture(&charTexture);
-
     character = NULL;
 }
 
-bool GameWindow::checkCollisions(CBox* collides) {
+bool GameWindow::checkCollisions(GameObject* collides) {
     bool foundCollision = false;
-    CBox collidable = *collides;
+    GameObject *collided;
     //Cycle through the list of collidables and check if they collide with the player.
     {
         std::lock_guard<std::mutex> lock(*innerMutex);
-        for (CBox i : collisions) {
-            if (character->getGlobalBounds().intersects(i.getCBox())) {
-                foundCollision = true;
-                collidable = i;
+        for (GameObject *i : collidables) {
+
+            if (((sf::Sprite *)character)->getGlobalBounds().intersects(((sf::Shape *)i)->getGlobalBounds())) {
                 // If the found collision is not moving, return it immediately
-                if (!i.isMoving()) {
-                    *collides = i;
+                collides = i;
+                return true;
+            }
+        }
+        for (std::shared_ptr<GameObject> i : nonStaticObjects) {
+            if (i->isCollidable() && ((sf::Sprite*)character)->getGlobalBounds().intersects(((sf::Shape*)i.get())->getGlobalBounds())) {
+                // If the found collision is not moving, return it immediately
+                if (i->isStatic()) {
+                    collides = i.get();
                     return true;
                 }
             }
         }
-    }
-    // If the only found collision was moving, return it.
-    if (foundCollision) {
-        *collides = collidable;
-        return true;
+
     }
     // No collision found.
     return false;
@@ -63,11 +56,11 @@ void GameWindow::addGameObject(GameObject *object) {
     if (object->isStatic()) {
         staticObjects.push_back(object);
     }
-    else {
-        nonStaticObjects.push_back(object);
-    }
     if (object->isCollidable()) {
-        collisions.push_front(CBox(object));
+        collidables.push_front(object);
+    }
+    if (object->isDrawable()) {
+        drawables.push_front(object);
     }
 }
 //Contains client objects like death bounds and side bounds.
@@ -76,7 +69,7 @@ list<GameObject*>* GameWindow::getStaticObjects() {
     return &staticObjects;
 }
 //Contains server objects like moving platforms and other characters.
-list<GameObject*>* GameWindow::getNonstaticObjects() {
+list<std::shared_ptr<GameObject>>* GameWindow::getNonstaticObjects() {
     std::lock_guard<std::mutex> lock(*innerMutex);
     return &nonStaticObjects;
 }
@@ -85,23 +78,33 @@ void GameWindow::update() {
     std::lock_guard<std::mutex> lock(*innerMutex);
     clear();
     //Cycle through the list of platforms and draw them.
-    for (GameObject* i : staticObjects) {
-        draw(*i);
+    for (GameObject* i : drawables) {
+        draw(*((sf::Drawable*)i));
     }
-    for (GameObject* i : nonStaticObjects) {
-        draw(*i);
+    for (std::shared_ptr<GameObject> i : nonStaticObjects) {
+        if (i->isDrawable()) {
+            draw(*((sf::Drawable*)i.get()));
+        }
     }
     display();
 }
 
 void GameWindow::addTemplate(std::unique_ptr<GameObject> templateObject) {
-
+    templates.insert_or_assign(templateObject->getObjectType(), templateObject);
 }
 
-void GameWindow::updateNonStatic(GameObject::ObjectStruct * objects) {
+void GameWindow::updateNonStatic(std::string updates) {
     std::lock_guard<std::mutex> lock(*innerMutex);
-
-    
+    nonStaticObjects.clear();
+    char* current = (char*)malloc(updates.size() + 1);
+    while (sscanf(updates.data(), "%s\n")) {
+        int type;
+        int matches = sscanf(current, "%d", &type);
+        if (matches != 1) {
+            throw std::invalid_argument("Failed to read string");
+        }
+        nonStaticObjects.push_back(templates.at(type)->constructSelf(current));
+    }
 }
 
 void GameWindow::changeScaling() {

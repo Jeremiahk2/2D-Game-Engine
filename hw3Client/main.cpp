@@ -86,23 +86,9 @@ int main() {
 
     //Create playable character and add it to the window as the playable object
     Character character;
-    character.setSize(sf::Vector2f(30.f, 30.f));
-    character.setFillColor(sf::Color::White);
-    character.setOrigin(0.f, 30.f);
+    /*character.setSize(sf::Vector2f(30.f, 30.f));
+    character.setFillColor(sf::Color::White);*/
     character.setPosition(100.f, 100.f);
-    character.setSpeed(CHAR_SPEED);
-
-    /**
-    ART FOR SANTA PROVIDED BY Marco Giorgini THROUGH OPENGAMEART.ORG
-    License: CC0 (Public Domain) @ 12/28/21
-    https://opengameart.org/content/santas-rats-issue-c64-sprites
-    */
-    sf::Texture charTexture;
-    if (!charTexture.loadFromFile("Santa_standing.png")) {
-        std::cout << "Failed";
-    }
-    character.setTexture(&charTexture);
-    character.setGravity(GRAV_SPEED);
     window.addPlayableObject(&character);
 
     std::cout << character.toString();
@@ -191,7 +177,7 @@ int main() {
             }
 
             //END EVENT CHECKS
-            CBox collision;
+            GameObject* collision;
             //Need to recalculate character speed in case scale changed.
             float charSpeed = (float)character.getSpeed().x * (float)ticLength * (float)(currentTic - tic);
 
@@ -208,15 +194,15 @@ int main() {
                 character.move(-1 * charSpeed, 0.f);
 
                 //Check for collisions
-                if (window.checkCollisions(&collision)) {
+                if (window.checkCollisions(collision)) {
                     //If the collided platform is not moving, just correct the position of Character back.
-                    if (!collision.isMoving()) {
+                    if (collision->getObjectType() != MovingPlatform::objectType) {
                         character.move(charSpeed, 0.f);
                     }
                     //if the collided platform is moving, move the character back AND move them along with the platform.
                     else {
-                        MovingPlatform *temp = (MovingPlatform *)collision.getPlatform();
-                        if (temp->getType()) {
+                        MovingPlatform *temp = (MovingPlatform *)collision;
+                        if (temp->getMovementType()) {
                             character.move(charSpeed + temp->getLastMove().x, 0);
                         }
                         else {
@@ -233,15 +219,15 @@ int main() {
                 character.move(charSpeed, 0.f);
 
                 //Check collisions.
-                if (window.checkCollisions(&collision)) {
+                if (window.checkCollisions(collision)) {
                     //If the collided object is not moving, just correct the position of the character back.
-                    if (!collision.isMoving()) {
+                    if (collision->getObjectType() != MovingPlatform::objectType) {
                         character.move(-1 * charSpeed, 0.f);
                     }
                     //If it was moving, the move it back AND along with the platform's speed.
                     else {
-                        MovingPlatform *temp = (MovingPlatform *)collision.getPlatform();
-                        if (temp->getType()) {
+                        MovingPlatform *temp = (MovingPlatform*)collision;
+                        if (temp->getMovementType()) {
                             character.move(-1 * charSpeed + temp->getLastMove().x, 0);
                         }
                         else {
@@ -265,7 +251,7 @@ int main() {
             if (character.isJumping()) {
                 character.move(0, -1 * frameJump);
                 jumpTime -= (float)ticLength * (float)(currentTic - tic);
-                bool jumpCollides = window.checkCollisions(&collision);
+                bool jumpCollides = window.checkCollisions(collision);
                 //Exit jumping if there are no more jump frames or if we collided with something.
                 if (jumpTime <= 0 || jumpCollides) {
                     if (jumpCollides) {

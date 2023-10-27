@@ -1,18 +1,17 @@
 #include "Character.h"
 
-Character::Character() : GameObject(false, false, true), RectangleShape() {
+Character::Character() : GameObject(false, false, true), Sprite() {
     /**
     ART FOR SANTA PROVIDED BY Marco Giorgini THROUGH OPENGAMEART.ORG
     License: CC0 (Public Domain) @ 12/28/21
     https://opengameart.org/content/santas-rats-issue-c64-sprites
     */
-    setFillColor(sf::Color::White);
     sf::Texture charTexture;
     if (!charTexture.loadFromFile("Santa_standing.png")) {
         std::cout << "Failed";
     }
-    setTexture(&charTexture);
-    setSize(sf::Vector2f(30.f, 30.f));
+    setTexture(charTexture);
+    /*setSize(sf::Vector2f(30.f, 30.f));*/
     setOrigin(0.f, 30.f);
     setSpeed(CHAR_SPEED);
     setGravity(GRAV_SPEED);
@@ -24,13 +23,12 @@ Character::Character(bool stationary, bool collidable, bool drawable) : GameObje
     License: CC0 (Public Domain) @ 12/28/21
     https://opengameart.org/content/santas-rats-issue-c64-sprites
     */
-    setFillColor(sf::Color::White);
     sf::Texture charTexture;
     if (!charTexture.loadFromFile("Santa_standing.png")) {
         std::cout << "Failed";
     }
-    setTexture(&charTexture);
-    setSize(sf::Vector2f(30.f, 30.f));
+    setTexture(charTexture);
+    /*setSize(sf::Vector2f(30.f, 30.f));*/
     setOrigin(0.f, 30.f);
     setSpeed(CHAR_SPEED);
     setGravity(GRAV_SPEED);
@@ -38,32 +36,32 @@ Character::Character(bool stationary, bool collidable, bool drawable) : GameObje
 
 void Character::move(float offsetX, float offsetY) {
     std::lock_guard<std::mutex> lock(innerMutex);
-    sf::RectangleShape::move(offsetX, offsetY);
+    sf::Sprite::move(offsetX, offsetY);
 }
 
 void Character::move(const sf::Vector2f offset) {
     std::lock_guard<std::mutex> lock(innerMutex);
-    sf::RectangleShape::move(offset);
+    sf::Sprite::move(offset);
 }
 
 void Character::setPosition(float x, float y) {
     std::lock_guard<std::mutex> lock(innerMutex);
-    sf::RectangleShape::setPosition(x, y);
+    sf::Sprite::setPosition(x, y);
 }
 
 void Character::setPosition(const sf::Vector2f position) {
     std::lock_guard<std::mutex> lock(innerMutex);
-    sf::RectangleShape::setPosition(position);
+    sf::Sprite::setPosition(position);
 }
 
 sf::Vector2f Character::getPosition() {
     std::lock_guard<std::mutex> lock(innerMutex);
-    return sf::RectangleShape::getPosition();
+    return sf::Sprite::getPosition();
 }
 
 sf::FloatRect Character::getGlobalBounds() {
     std::lock_guard<std::mutex> lock(innerMutex);
-    return sf::RectangleShape::getGlobalBounds();
+    return sf::Sprite::getGlobalBounds();
 }
 
 sf::Vector2f Character::getSpeed() {

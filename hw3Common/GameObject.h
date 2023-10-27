@@ -5,6 +5,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#define OBJECT 0
 
 class GameObject {
 
@@ -15,9 +16,9 @@ private:
 
     bool drawable = false;
 
-    static const int objectType = 0;
-
 public:
+
+    static const int objectType = 0;
 
 	GameObject(bool stationary, bool collidable, bool drawable);
 
@@ -25,6 +26,8 @@ public:
     * Check if the object is static
     */
     bool isStatic();
+
+    bool isDrawable();
 
     /**
     * Check if the object is collidable.

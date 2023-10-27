@@ -34,10 +34,12 @@ private:
     * The last recorded move that the moving platform made.
     * TODO: Make thread safe. Add mutex to move?
     */
-    sf::Vector2f lastMove = sf::Vector2f(0, 0);
+    sf::Vector2f lastMove = sf::Vector2f(0, 0); 
 
 
 public:
+
+    static const int objectType = 3;
     /**
     * Constructs a moving platform with the given values.
     * @param speed the speed of the platform per frame.

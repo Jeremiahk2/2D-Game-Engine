@@ -19,10 +19,11 @@ private:
 
     std::mutex innerMutex;
 
-    static const int objectType = 2;
-
     
 public:
+
+    static const int objectType = 2;
+
     /**
     * Constructs a new platform (empty RectangleShape)
     */

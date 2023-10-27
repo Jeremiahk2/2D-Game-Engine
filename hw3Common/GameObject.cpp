@@ -16,6 +16,10 @@ bool GameObject::isCollidable()
     return collidable;
 }
 
+bool GameObject::isDrawable() {
+    return drawable;
+}
+
 void GameObject::setCollidable(bool collidable)
 {
     this->collidable = collidable;

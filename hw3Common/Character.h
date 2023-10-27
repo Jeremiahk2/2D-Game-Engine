@@ -6,13 +6,14 @@
 #include <mutex>
 #define CHAR_SPEED 100.f
 #define GRAV_SPEED 160
+#define CHARACTER 1
 
 /**
 * Class for Character objects, or the shape that is controlled by the player.
 * A character has speed, which is the amount of movement the character moves right or left per frame.
 * A character also has various states like jumping.
 */
-class Character : public GameObject, public sf::RectangleShape {
+class Character : public GameObject, public sf::Sprite {
 
 private:
     /**
@@ -39,9 +40,9 @@ private:
     */
     int id = -1;
 
-    static const int objectType = 1;
-
 public:
+
+    static const int objectType = 1;
 
     /**
     * Empty constructor, sets GameObject fields to false
