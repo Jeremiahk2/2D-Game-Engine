@@ -17,7 +17,7 @@ void ReqThread::run() {
     zmq::context_t context(2);
     zmq::socket_t reqSocket(context, zmq::socket_type::req);
 
-    Character* character = rswindow->getCharacter();
+    Character* character = (Character*)rswindow->getPlayableObject();
 
     //Connect and get your own port.
     reqSocket.connect("tcp://localhost:5556");
@@ -59,14 +59,13 @@ void ReqThread::run() {
 
         if (currentTic > tic) {
             //Send updated character information to server
-            char characterString[MESSAGE_LIMIT];
             zmq::message_t reply;
             {
                 std::lock_guard<std::mutex> lock(*mutex);
-                sprintf_s(characterString, "%d %f %f %c", character->getID(), character->getPosition().x, character->getPosition().y, 'c');
+                std::string charString = character->toString();
 
-                zmq::message_t request(strlen(characterString) + 1);
-                memcpy(request.data(), &characterString, strlen(characterString) + 1);
+                zmq::message_t request(charString.data() + 1);
+                memcpy(request.data(), charString.data(), charString.size() + 1);
                 reqSocket.send(request, zmq::send_flags::none);
             }
 
@@ -81,13 +80,14 @@ void ReqThread::run() {
     }
 
     //Disconnect
-    char characterString[MESSAGE_LIMIT];
+    std:string charString;
     {
         std::lock_guard<std::mutex> lock(*mutex);
-        sprintf_s(characterString, "%d %f %f %c", character->getID(), character->getPosition().x, character->getPosition().y, 'd');
+        character->setConnecting(false);
+        charString = character->toString();
     }
-    zmq::message_t request(strlen(characterString) + 1);
-    memcpy(request.data(), &characterString, strlen(characterString) + 1);
+    zmq::message_t request(charString.size() + 1);
+    memcpy(request.data(), charString.data(), charString.size() + 1);
     reqSocket.send(request, zmq::send_flags::none);
 
     //Receive confirmation

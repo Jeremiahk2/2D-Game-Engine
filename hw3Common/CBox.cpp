@@ -13,9 +13,9 @@ bool CBox::isStatic() {
     return object->isStatic();
 }
 
-sf::FloatRect CBox::getCBox() {
-    return object->getGlobalBounds();
-}
+//sf::FloatRect CBox::getCBox() {
+//    return object->getGlobalBounds();
+//}
 
 GameObject *CBox::getObject() {
     return object;

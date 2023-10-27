@@ -40,6 +40,8 @@ private:
     */
     int id = -1;
 
+    bool connecting;
+
 public:
 
     static const int objectType = 1;
@@ -50,6 +52,10 @@ public:
     Character();
 
     Character(bool stationary, bool collidable, bool drawable);
+
+    bool isConnecting();
+
+    void setConnecting(bool connecting);
 
     /**
     * Returns the speed of the character.

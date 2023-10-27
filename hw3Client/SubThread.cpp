@@ -17,9 +17,9 @@ void SubThread::run() {
     zmq::context_t context(2);
     zmq::socket_t subSocket(context, zmq::socket_type::sub);
 
-    Character* character = rswindow->getCharacter();
+    Character* character = (Character *)rswindow->getPlayableObject();
 
-    list<MovingPlatform*>* movings = rswindow->getMovings();
+    list<GameObject*>* movings = rswindow->getMovings();
 
     int64_t tic = 0;
     int64_t currentTic = 0;

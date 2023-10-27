@@ -34,6 +34,14 @@ Character::Character(bool stationary, bool collidable, bool drawable) : GameObje
     setGravity(GRAV_SPEED);
 }
 
+bool Character::isConnecting() {
+    return connecting;
+}
+
+void Character::setConnecting(bool connecting) {
+    this->connecting = connecting;
+}
+
 void Character::move(float offsetX, float offsetY) {
     std::lock_guard<std::mutex> lock(innerMutex);
     sf::Sprite::move(offsetX, offsetY);
@@ -113,8 +121,7 @@ std::string Character::toString()
     std::stringstream stream;
     char space = ' ';
 
-    stream << getObjectType() << space << getID() << space << getPosition().x << space << getPosition().y /*<< space << getSize().x << space << getSize().y
-        << space << getFillColor().r << space << getFillColor().g << space << getFillColor().b*/;
+    stream << getObjectType() << space << isConnecting() << space << getID() << space << getPosition().x << space << getPosition().y;
     std::string line;
     std::getline(stream, line);
     return line;
@@ -125,29 +132,20 @@ std::shared_ptr<GameObject> Character::constructSelf(std::string self)
 
     Character *c = new Character;
     int type;
+    bool connecting;
     int id;
     float x;
     float y;
-    /*float sizeX;
-    float sizeY;
-    int r;
-    int g;
-    int b;*/
-    /*int matches = sscanf(self.data(), "%d %f %f %f %f %d %d %d", &type, &x, &y, &sizeX, &sizeY, &r, &g, &b);
-    if (matches != 8 || type != getType()) {
-        throw std::invalid_argument("Type was not correct for character or string was formatted wrong.");
-    }*/
-    int matches = sscanf(self.data(), "%d %d %f %f", &type, &id, &x, &y);
-    if (matches != 3 || type != getObjectType()) {
+
+    int matches = sscanf(self.data(), "%d, %c %d %f %f", &type, &connecting, &id, &x, &y);
+    if (matches != 5 || type != getObjectType()) {
         throw std::invalid_argument("Type was not correct for character or string was formatted wrong.");
     }
 
 
     c->setPosition(x, y);
-    /*sf::Vector2f size(sizeX, sizeY);
-    c->setSize(size);
-    sf::Color color(r, g, b);
-    c->setFillColor(color);*/
+    c->setConnecting(connecting);
+    c->setID(id);
 
     GameObject* go = (GameObject*)c;
     std::shared_ptr<GameObject> ptr(go);
