@@ -1,3 +1,6 @@
+#ifndef GAMEOBJECT_H
+#define GAMEOBJECT_H
+
 #include "SFML/Graphics.hpp"
 #include "SFML/OpenGL.hpp"
 #include <mutex>
@@ -60,3 +63,5 @@ public:
     */
     virtual int getObjectType() = 0;
 };
+
+#endif

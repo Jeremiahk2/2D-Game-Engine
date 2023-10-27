@@ -106,7 +106,7 @@ int main() {
     repSocket.bind("tcp://localhost:5556");
 
     //Creating server information structures...
-    std::map<int, CharStruct> characters;
+    std::map<int, std::shared_ptr<GameObject>> characters;
     std::list<ClientStruct> clientThreads;
     int numClients = 0;
     int numCharacters = 0;
@@ -138,8 +138,8 @@ int main() {
             int id = numClients++;
 
             //Add the new character to the character map
-            CharStruct newCharacter;
-            newCharacter.id = id;
+            std::shared_ptr<GameObject> newCharacter(new Character);
+            ((Character *)newCharacter.get())->setID(id);
             {
                 std::lock_guard<std::mutex> lock(mutex);
                 characters.insert({ id, newCharacter });
@@ -152,12 +152,14 @@ int main() {
             clientThreads.push_back(newClient);
 
             //Return the ID and port to the client.
-            char rtnString[MESSAGE_LIMIT];
-            sprintf_s(rtnString, "%d %d", id, newPort);
-            zmq::message_t reply(strlen(rtnString) + 1);
-            memcpy(reply.data(), rtnString, strlen(rtnString) + 1);
-            repSocket.send(reply, zmq::send_flags::none);
+            std::stringstream stream;
+            stream << id << ' ' << newPort;
+            std::string rtnString;
+            std::getline(stream, rtnString);
 
+            zmq::message_t reply(rtnString.size() + 1);
+            memcpy(reply.data(), rtnString.data(), rtnString.size() + 1);
+            repSocket.send(reply, zmq::send_flags::none);
             //Done processing new client.
         }
     }

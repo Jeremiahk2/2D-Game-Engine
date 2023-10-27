@@ -177,7 +177,6 @@ int main() {
             }
 
             //END EVENT CHECKS
-            GameObject* collision;
             //Need to recalculate character speed in case scale changed.
             float charSpeed = (float)character.getSpeed().x * (float)ticLength * (float)(currentTic - tic);
 
@@ -187,6 +186,7 @@ int main() {
                 cv.wait(lock);
                 window.update();
             }
+            GameObject* collision = nullptr;
             //Handle left input
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && window.hasFocus())
             {
@@ -202,8 +202,11 @@ int main() {
                     //if the collided platform is moving, move the character back AND move them along with the platform.
                     else {
                         MovingPlatform *temp = (MovingPlatform *)collision;
+                        //Convert plat's speed to pixels per tic
+                        float platSpeed = (float)temp->getSpeedValue() * (float)ticLength * (float)(currentTic - tic);
+
                         if (temp->getMovementType()) {
-                            character.move(charSpeed + temp->getLastMove().x, 0);
+                            character.move(charSpeed + platSpeed, 0);
                         }
                         else {
                             character.move(charSpeed, 0);
@@ -227,8 +230,9 @@ int main() {
                     //If it was moving, the move it back AND along with the platform's speed.
                     else {
                         MovingPlatform *temp = (MovingPlatform*)collision;
+                        float platSpeed = (float)temp->getSpeedValue() * (float)ticLength * (float)(currentTic - tic);
                         if (temp->getMovementType()) {
-                            character.move(-1 * charSpeed + temp->getLastMove().x, 0);
+                            character.move(-1 * charSpeed + platSpeed, 0);
                         }
                         else {
                             character.move(-1 * charSpeed, 0);

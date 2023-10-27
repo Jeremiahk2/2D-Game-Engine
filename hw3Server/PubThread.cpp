@@ -1,7 +1,7 @@
 #include "PubThread.h"
 
 
-PubThread::PubThread(Timeline *time, std::list<MovingPlatform*> *movings, std::map<int, CharStruct>* characters, std::mutex *m) {
+PubThread::PubThread(Timeline *time, std::list<MovingPlatform*> *movings, std::map<int, std::shared_ptr<GameObject>>* characters, std::mutex* m) {
     this->time = time;
     this->movings = movings;
     this->characters = characters;
@@ -25,31 +25,22 @@ void PubThread::run() {
         currentTic = time->getTime();
 
         if (currentTic > tic) {
-            //Construct platform position string
-            char platRtnString[MESSAGE_LIMIT] = "";
+            //Construct return string
+            std::string rtnString;
+            std::stringstream stream;
             for (MovingPlatform* i : *movings) {
-                char platString[MESSAGE_LIMIT];
-                sprintf_s(platString, "%f %f ", i->getPosition().x, i->getPosition().y);
-                strcat_s(platRtnString, platString);
+                stream << rtnString << ',';
             }
-            //Send platform information
-            zmq::message_t sendPlatforms(strlen(platRtnString) + 1);
-            memcpy(sendPlatforms.data(), platRtnString, strlen(platRtnString) + 1);
-            pubSocket.send(sendPlatforms, zmq::send_flags::none);
-            //Construct character position string
-            char charRtnString[MESSAGE_LIMIT] = "";
             {
                 std::lock_guard<std::mutex> lock(*mutex);
                 for (auto iter = characters->begin(); iter != characters->end(); ++iter) {
-                    char charString[MESSAGE_LIMIT];
-                    sprintf_s(charString, "%d %f %f ", iter->second.id, iter->second.x, iter->second.y);
-                    strcat_s(charRtnString, charString);
+                    stream << iter->second->toString() << ',';
                 }
             }
-            //Send character information
-            zmq::message_t sendCharacters(strlen(charRtnString) + 1);
-            memcpy(sendCharacters.data(), charRtnString, strlen(charRtnString) + 1);
-            pubSocket.send(sendCharacters, zmq::send_flags::none);
+            getline(stream, rtnString);
+            zmq::message_t rtnMessage(rtnString.size() + 1);
+            memcpy(rtnMessage.data(), rtnString.data(), rtnString.size() + 1);
+            pubSocket.send(rtnMessage, zmq::send_flags::none);
         }
         tic = currentTic;
     }

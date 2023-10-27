@@ -81,11 +81,10 @@ void ReqThread::run() {
 
     //Disconnect
     std:string charString;
-    {
-        std::lock_guard<std::mutex> lock(*mutex);
-        character->setConnecting(false);
-        charString = character->toString();
-    }
+    character->setConnecting(false);
+    charString = character->toString();
+
+
     zmq::message_t request(charString.size() + 1);
     memcpy(request.data(), charString.data(), charString.size() + 1);
     reqSocket.send(request, zmq::send_flags::none);

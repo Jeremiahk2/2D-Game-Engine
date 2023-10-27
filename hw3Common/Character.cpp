@@ -17,7 +17,7 @@ Character::Character() : GameObject(false, false, true), Sprite() {
     setGravity(GRAV_SPEED);
 }
 
-Character::Character(bool stationary, bool collidable, bool drawable) : GameObject(stationary, collidable, drawable) {
+Character::Character(bool stationary, bool collidable, bool drawable) : GameObject(stationary, collidable, drawable), Sprite(){
     /**
     ART FOR SANTA PROVIDED BY Marco Giorgini THROUGH OPENGAMEART.ORG
     License: CC0 (Public Domain) @ 12/28/21
@@ -35,29 +35,37 @@ Character::Character(bool stationary, bool collidable, bool drawable) : GameObje
 }
 
 bool Character::isConnecting() {
-    return connecting;
+    return connecting != 0;
 }
 
-void Character::setConnecting(bool connecting) {
+void Character::setConnecting(int connecting) {
     this->connecting = connecting;
 }
 
 void Character::move(float offsetX, float offsetY) {
+    float roundedX = std::roundf(100 * offsetX) / 100.f;
+    float roundedY = std::roundf(100 * offsetY) / 100.f;
     std::lock_guard<std::mutex> lock(innerMutex);
     sf::Sprite::move(offsetX, offsetY);
 }
 
 void Character::move(const sf::Vector2f offset) {
+    float roundedX = std::roundf(100 * offset.x) / 100.f;
+    float roundedY = std::roundf(100 * offset.y) / 100.f;
     std::lock_guard<std::mutex> lock(innerMutex);
     sf::Sprite::move(offset);
 }
 
 void Character::setPosition(float x, float y) {
+    float roundedX = std::roundf(100 * x) / 100.f;
+    float roundedY = std::roundf(100 * y) / 100.f;
     std::lock_guard<std::mutex> lock(innerMutex);
     sf::Sprite::setPosition(x, y);
 }
 
 void Character::setPosition(const sf::Vector2f position) {
+    float roundedX = std::roundf(100 * position.x) / 100.f;
+    float roundedY = std::roundf(100 * position.y) / 100.f;
     std::lock_guard<std::mutex> lock(innerMutex);
     sf::Sprite::setPosition(position);
 }
@@ -132,12 +140,12 @@ std::shared_ptr<GameObject> Character::constructSelf(std::string self)
 
     Character *c = new Character;
     int type;
-    bool connecting;
+    int connecting;
     int id;
     float x;
     float y;
 
-    int matches = sscanf(self.data(), "%d, %c %d %f %f", &type, &connecting, &id, &x, &y);
+    int matches = sscanf_s(self.data(), "%d %d %d %f %f", &type, &connecting, &id, &x, &y);
     if (matches != 5 || type != getObjectType()) {
         throw std::invalid_argument("Type was not correct for character or string was formatted wrong.");
     }

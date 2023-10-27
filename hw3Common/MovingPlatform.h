@@ -19,8 +19,7 @@ private:
     /**
     * The speed vectors for vertical and horizontal speed.
     */
-    sf::Vector2f v_speed = sf::Vector2f(0, 0);
-    sf::Vector2f h_speed = sf::Vector2f(0, 0);
+    sf::Vector2f speed = sf::Vector2f(0, 0);
 
     sf::Vector2f startPos;
 
@@ -49,6 +48,8 @@ public:
     */
     MovingPlatform(float speed, bool type, float startx, float starty);
 
+    MovingPlatform();
+
     /**
     * Set the bounds for movement.
     * @param bound1 left/bottom bound
@@ -63,26 +64,18 @@ public:
     */
     bool getMovementType();
 
+    void setMovementType(int movementType);
+
     /**
     * Return the position that the moving platform started at.
     */
     sf::Vector2f getStartPos();
 
-    /**
-    * Return the current speed (As pixels/second)
-    */
-    sf::Vector2f getSpeed();
+    sf::Vector2f getSpeedVector();
 
-    /**
-    * Set the speed of the vertical movement
-    */
-    void setVSpeed(sf::Vector2f speed);
+    float getSpeedValue();
 
-    /**
-    * TODO: Combine these No need to split them up anymore.
-    * Set the speed of the horizontal movement
-    */
-    void setHSpeed(sf::Vector2f speed);
+    void setSpeed(sf::Vector2f speed);
 
     /**
     * return bound1 and bound2 as a vector
@@ -101,6 +94,9 @@ public:
     */
     sf::Vector2f getLastMove(); 
 
+    std::string toString() override;
+
+    std::shared_ptr<GameObject> constructSelf(std::string self) override;
 
 };
 

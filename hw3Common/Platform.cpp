@@ -4,28 +4,41 @@ Platform::Platform() : sf::RectangleShape(), GameObject(true, true, true) {
     passthrough = false;
 }
 
+Platform::Platform(bool stationary, bool collidable, bool drawable) : GameObject(stationary, collidable, drawable)
+{
+    passthrough = false;
+}
+
 void Platform::setPassthrough(bool passthrough) {
     this->passthrough = passthrough;
 }
 
 void Platform::move(float offsetX, float offsetY) {
+    float roundedX = std::roundf(100 * offsetX) / 100.f;
+    float roundedY = std::roundf(100 * offsetY) / 100.f;
     std::lock_guard<std::mutex> lock(innerMutex);
-    sf::RectangleShape::move(offsetX, offsetY);
+    sf::RectangleShape::move(roundedX, roundedY);
 }
 
 void Platform::move(const sf::Vector2f offset) {
+    float roundedX = std::roundf(100 * offset.x) / 100.f;
+    float roundedY = std::roundf(100 * offset.y) / 100.f;
     std::lock_guard<std::mutex> lock(innerMutex);
-    sf::RectangleShape::move(offset);
+    sf::RectangleShape::move(roundedX, roundedY);
 }
 
 void Platform::setPosition(float x, float y) {
+    float roundedX = std::roundf(100 * x) / 100.f;
+    float roundedY = std::roundf(100 * y) / 100.f;
     std::lock_guard<std::mutex> lock(innerMutex);
-    sf::RectangleShape::setPosition(x, y);
+    sf::RectangleShape::setPosition(roundedX, roundedY);
 }
 
 void Platform::setPosition(const sf::Vector2f position) {
+    float roundedX = std::roundf(100 * position.x) / 100.f;
+    float roundedY = std::roundf(100 * position.y) / 100.f;
     std::lock_guard<std::mutex> lock(innerMutex);
-    sf::RectangleShape::setPosition(position);
+    sf::RectangleShape::setPosition(roundedX, roundedY);
 }
 
 sf::Vector2f Platform::getPosition() {
@@ -69,7 +82,7 @@ std::shared_ptr<GameObject> Platform::constructSelf(std::string self) {
     int r;
     int g;
     int b;
-    int matches = sscanf(self.data(), "%d %f %f %f %f %d %d %d", &type, &x, &y, &sizeX, &sizeY, &r, &g, &b);
+    int matches = sscanf_s(self.data(), "%d %f %f %f %f %d %d %d", &type, &x, &y, &sizeX, &sizeY, &r, &g, &b);
     if (matches != 8 || type != getObjectType()) {
         throw std::invalid_argument("Type was not correct for character or string was formatted wrong.");
     }

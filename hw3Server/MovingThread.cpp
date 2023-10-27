@@ -27,7 +27,7 @@ void MovingThread::run() {
         if (currentTic > tic) { //It has, move platforms
             for (MovingPlatform *i : *movingPlatforms) {
                 sf::Vector2i bounds = i->getBounds();
-                if (!(i->getType())) {
+                if (!(i->getMovementType())) {
                     //Move the platform by the current tic difference. Ideally currentTic - tic should be 1.
                     //TODO: Reexamine this later. Might just want to move it by 1 tic even if it misses it's mark. Moving average?
                     i->move(0, i->getSpeed().y * ticLength * (currentTic - tic));
@@ -37,7 +37,7 @@ void MovingThread::run() {
                 }
 
                 //If we intersected the bounds, switch direction
-                if (!(i->getType())) {
+                if (!(i->getMovementType())) {
                     //Check the bounds. Round to the nearest 2 decimal places to avoid floating point errors.
                     if ((int)i->getGlobalBounds().top < bounds.y || (int)i->getGlobalBounds().top > bounds.x ) {
                         i->setVSpeed(sf::Vector2f(0, i->getSpeed().y * -1.f));

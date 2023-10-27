@@ -28,6 +28,9 @@ public:
     * Constructs a new platform (empty RectangleShape)
     */
     Platform();
+
+    Platform(bool stationary, bool collidable, bool drawable);
+
     /**
     * Set the passthrough setting on this platform.
     */

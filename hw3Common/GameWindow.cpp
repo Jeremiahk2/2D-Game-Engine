@@ -13,7 +13,6 @@ GameWindow::GameWindow() {
 
 bool GameWindow::checkCollisions(GameObject* collides) {
     bool foundCollision = false;
-    GameObject *collided;
     //Cycle through the list of collidables and check if they collide with the player.
     {
         std::lock_guard<std::mutex> lock(*innerMutex);
@@ -89,21 +88,34 @@ void GameWindow::update() {
     display();
 }
 
-void GameWindow::addTemplate(std::unique_ptr<GameObject> templateObject) {
+void GameWindow::addTemplate(std::shared_ptr<GameObject> templateObject) {
     templates.insert_or_assign(templateObject->getObjectType(), templateObject);
 }
 
 void GameWindow::updateNonStatic(std::string updates) {
     std::lock_guard<std::mutex> lock(*innerMutex);
+    //Clear the list
     nonStaticObjects.clear();
-    char* current = (char*)malloc(updates.size() + 1);
-    while (sscanf(updates.data(), "%s\n")) {
+    char* currentObject = (char*)malloc(updates.size() + 1);
+    if (currentObject == NULL) {
+        throw std::runtime_error("Memory error while updating static objects");
+    }
+    int pos = 0;
+    int newPos = 0;
+
+    //Scan through each object
+    while (sscanf_s(updates.data() + pos, "%[^,]%n", currentObject,(unsigned int)(updates.size() + 1), &newPos) == 1) {
+        //Get the type of the current object.
         int type;
-        int matches = sscanf(current, "%d", &type);
+        int matches = sscanf_s(currentObject, "%d", &type);
         if (matches != 1) {
-            throw std::invalid_argument("Failed to read string");
+            throw std::invalid_argument("Failed to read string. Type must be the first value.");
         }
-        nonStaticObjects.push_back(templates.at(type)->constructSelf(current));
+        //Push the newly created object into the array.
+        nonStaticObjects.push_back(templates.at(type)->constructSelf(currentObject));
+        //update position and skip past comma
+        pos += newPos + 1;
+
     }
 }
 

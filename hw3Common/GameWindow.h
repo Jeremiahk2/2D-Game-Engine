@@ -29,7 +29,7 @@ private:
 
     list<GameObject*> drawables;
 
-    map<int, std::unique_ptr<GameObject>> templates;
+    map<int, std::shared_ptr<GameObject>> templates;
 
     GameObject* character;
 
@@ -105,7 +105,7 @@ public:
     */
     void updateNonStatic(std::string updates);
 
-    void addTemplate(std::unique_ptr<GameObject> templateObject);
+    void addTemplate(std::shared_ptr<GameObject> templateObject);
 };
 
 #endif

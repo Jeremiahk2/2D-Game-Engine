@@ -7,6 +7,7 @@
 #include <iostream> //TODO: Remove
 #include "CommonTypes.h"
 #include "Timeline.h"
+#include "Character.h"
 #define MESSAGE_LIMIT 1024
 
 class RepThread
@@ -15,7 +16,7 @@ private:
 
     int port;
     int id;
-    std::map<int, CharStruct> *characters;
+    std::map<int, std::shared_ptr<GameObject>> *characters;
     std::mutex* mutex;
     Timeline* time;
 
@@ -23,7 +24,7 @@ public:
     /**
     * Constructor
     */
-    RepThread(int port, int id, std::map<int, CharStruct>* characters, std::mutex *m, Timeline *time);
+    RepThread(int port, int id, std::map<int, std::shared_ptr<GameObject>>* characters, std::mutex *m, Timeline *time);
 
     /**
     * Not used. Possibly not needed.

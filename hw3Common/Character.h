@@ -40,7 +40,7 @@ private:
     */
     int id = -1;
 
-    bool connecting;
+    int connecting;
 
 public:
 
@@ -55,7 +55,7 @@ public:
 
     bool isConnecting();
 
-    void setConnecting(bool connecting);
+    void setConnecting(int connecting);
 
     /**
     * Returns the speed of the character.

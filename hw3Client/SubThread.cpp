@@ -19,8 +19,6 @@ void SubThread::run() {
 
     Character* character = (Character *)rswindow->getPlayableObject();
 
-    list<GameObject*>* movings = rswindow->getMovings();
-
     int64_t tic = 0;
     int64_t currentTic = 0;
     float ticLength;
@@ -31,28 +29,13 @@ void SubThread::run() {
         currentTic = rstime->getTime();
         if (currentTic > tic) {
 
-            //Receive updated platforms
+            //Receive updates to nonstatic objects. Should be comma separated string.
             zmq::message_t newPlatforms;
             subSocket.recv(newPlatforms, zmq::recv_flags::none);
-            char* platformsString = (char*)newPlatforms.data();
-            int pos = 0;
-            std::unique_lock<std::mutex> lock(*mutex);
-            {
-                for (MovingPlatform* i : *movings) {
-                    float x = 0;
-                    float y = 0;
-                    int matches = sscanf_s(platformsString + pos, "%f %f %n", &x, &y, &pos);
-                    i->move(x - i->getPosition().x, y - i->getPosition().y);
-                }
-            }
-            *rsbusy = true;
+            std::string objectsString((char *)newPlatforms.data());
 
-            //Receive updated characters
-            zmq::message_t newCharacters;
-            subSocket.recv(newCharacters, zmq::recv_flags::none);
-            char* newCharString = (char*)newCharacters.data();
-            //Update the characters in the window with new ones
-            rswindow->updateCharacters(newCharString);
+            //Update window with new objects.
+            rswindow->updateNonStatic(objectsString);
         }
         tic = currentTic;
     }

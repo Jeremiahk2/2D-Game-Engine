@@ -2,7 +2,7 @@
 
 
 
-RepThread::RepThread(int port, int id, std::map<int, CharStruct> *characters, std::mutex *m, Timeline *time) {
+RepThread::RepThread(int port, int id, std::map<int, std::shared_ptr<GameObject>> *characters, std::mutex *m, Timeline *time) {
     this->port = port;
     this->id = id;
     this->characters = characters;
@@ -34,27 +34,31 @@ void RepThread::run() {
             //Receive message from client
             zmq::message_t update;
             zmq::recv_result_t received(repSocket.recv(update, zmq::recv_flags::none));
-            char* current = (char*)update.data();
+            std::string updateString((char *)update.data());
 
-            CharStruct newCharacter;
-            char status; // 'd' for disconnect, 'c' for connect
-            //Get client info
-            int matches = sscanf_s(current, "%d %f %f %c", &(newCharacter.id), &(newCharacter.x), &(newCharacter.y), &status, 1);
+            //Make the character from the string we were given.
+            std::shared_ptr<GameObject> character(new Character);
+            *character = *(character->constructSelf(updateString));
+            Character* charPtr = (Character*)character.get();
 
             //If it is a client that is disconnecting, remove them from the map
-            if (status == 'd' && characters->size() != 0 && newCharacter.id >= 0 && newCharacter.id < 10) {
+            if (!(charPtr->isConnecting())) {
                 std::lock_guard<std::mutex> lock(*mutex);
                 characters->erase(id);
             }
-            else if (status == 'c') { //If it's a returning client, update it with the new information
+            else if (charPtr->isConnecting()) { //If it's a returning client, update it with the new information
                 std::lock_guard<std::mutex> lock(*mutex);
-                characters->insert_or_assign(id, newCharacter);
+                characters->insert_or_assign(id, character);
             }
             //Send a response with the character's new ID
-            char response[MESSAGE_LIMIT];
-            sprintf_s(response, "%d", newCharacter.id);
-            zmq::message_t reply(strlen(response) + 1);
-            memcpy(reply.data(), response, strlen(response) + 1);
+
+            std::stringstream stream;
+            stream << id;
+            std::string rtnString;
+            getline(stream, rtnString);
+
+            zmq::message_t reply(rtnString.size() + 1);
+            memcpy(reply.data(), rtnString.data(), rtnString.size() + 1);
             repSocket.send(reply, zmq::send_flags::none);
         }
         tic = currentTic;

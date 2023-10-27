@@ -14,7 +14,7 @@ private:
 
     Timeline* time;
     std::list<MovingPlatform*>* movings;
-    std::map<int, CharStruct>* characters;
+    std::map<int, std::shared_ptr<GameObject>>* characters;
     std::mutex* mutex;
 
 
@@ -22,7 +22,7 @@ public:
     /**
     * Constructor
     */
-    PubThread(Timeline* time, std::list<MovingPlatform*>* movings, std::map<int, CharStruct>* characters, std::mutex *m);
+    PubThread(Timeline* time, std::list<MovingPlatform*>* movings, std::map<int, std::shared_ptr<GameObject>>* characters, std::mutex *m);
 
     /**
     * Not used. Possibly not needed.
