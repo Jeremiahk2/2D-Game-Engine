@@ -42,6 +42,8 @@ private:
 
     int connecting;
 
+    sf::Texture texture;
+
 public:
 
     static const int objectType = 1;

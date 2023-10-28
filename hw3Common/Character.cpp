@@ -6,11 +6,11 @@ Character::Character() : GameObject(false, false, true), Sprite() {
     License: CC0 (Public Domain) @ 12/28/21
     https://opengameart.org/content/santas-rats-issue-c64-sprites
     */
-    sf::Texture charTexture;
-    if (!charTexture.loadFromFile("Santa_standing.png")) {
+    if (!texture.loadFromFile("Santa_standing.png")) {
         std::cout << "Failed";
     }
-    setTexture(charTexture);
+    setTexture(texture);
+    setScale(.1f, .1f);
     /*setSize(sf::Vector2f(30.f, 30.f));*/
     setOrigin(0.f, 30.f);
     setSpeed(CHAR_SPEED);
@@ -155,8 +155,7 @@ std::shared_ptr<GameObject> Character::constructSelf(std::string self)
     c->setConnecting(connecting);
     c->setID(id);
 
-    GameObject* go = (GameObject*)c;
-    std::shared_ptr<GameObject> ptr(go);
+    std::shared_ptr<GameObject> ptr(c);
     return ptr;
 }
 

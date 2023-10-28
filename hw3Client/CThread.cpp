@@ -23,6 +23,7 @@ void CThread::run() {
     int64_t tic = 0;
     int64_t currentTic;
     float ticLength;
+    window->setActive(true);
 
     Character *character = (Character *)window->getPlayableObject();
 
@@ -73,6 +74,8 @@ void CThread::run() {
         currentTic = line->getTime();
         if (currentTic > tic) {
 
+            std::cout << currentTic - tic << std::endl;
+
             //Get information from server
 
             //Receive updates to nonstatic objects. Should be comma separated string.
@@ -107,15 +110,13 @@ void CThread::run() {
             std::string charStrings;
             std::getline(stream, charStrings);
 
+
             //Update window with new characters
             window->updateNonStatic(charStrings);
 
             //Sync with visuals
-            std::cout << "Made it here" << std::endl;
-            while (busy) {
-                cv->notify_all();
-            }
-            std::cout << "Made it here too" << std::endl;
+            window->update();
+
             //Update the rest
             std::string otherStuff(updates.data() + pos);
             window->updateNonStatic(otherStuff);
@@ -223,8 +224,7 @@ void CThread::run() {
             {
                 std::lock_guard<std::mutex> lock(*mutex);
                 std::string charString = character->toString();
-
-                zmq::message_t request(charString.data() + 1);
+                zmq::message_t request(charString.size() + 1);
                 memcpy(request.data(), charString.data(), charString.size() + 1);
                 reqSocket.send(request, zmq::send_flags::none);
             }

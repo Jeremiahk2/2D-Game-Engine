@@ -35,13 +35,11 @@ void RepThread::run() {
             zmq::message_t update;
             zmq::recv_result_t received(repSocket.recv(update, zmq::recv_flags::none));
             std::string updateString((char *)update.data());
-
-            std::cout << "Init Ran" << std::endl;
+            Character c;
 
             //Make the character from the string we were given.
-            std::shared_ptr<GameObject> character(new Character);
-            *character = *(character->constructSelf(updateString));
-            Character* charPtr = (Character*)character.get();
+            std::shared_ptr<GameObject> character = c.constructSelf(updateString);
+            Character* charPtr = dynamic_cast<Character*>(character.get());
 
             //If it is a client that is disconnecting, remove them from the map
             if (!(charPtr->isConnecting())) {

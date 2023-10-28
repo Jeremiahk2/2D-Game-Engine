@@ -51,6 +51,7 @@ int main() {
 
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
     window.create(sf::VideoMode(800, 600, desktop.bitsPerPixel), "Window", sf::Style::Default);
+    window.setActive(false);
 
     //Create StartPlatform and add it to the window
     Platform startPlatform;
@@ -126,10 +127,11 @@ int main() {
 
         sf::Event event;
         if (currentTic > tic) {
+
             int polls = 0;
             while (window.pollEvent(event)) {
                 if (polls > 2) {
-                    busy = false; //We've been in the event loop for too long, probably due to a resize or something similar. Allow our thread to continue.
+                    //busy = false; //We've been in the event loop for too long, probably due to a resize or something similar. Allow our thread to continue.
                 }
                 if (event.type == sf::Event::Closed) {
                     stopped = true;
@@ -163,7 +165,6 @@ int main() {
                 polls++;
             }
             //Out of the event loop, need to sync up with thread again.
-            busy = true;
 
             //END EVENT CHECKS
             //Need to recalculate character speed in case scale changed.
@@ -251,14 +252,6 @@ int main() {
                     character.setJumping(false);
                     jumpTime = JUMP_TIME;
                 }
-            }
-
-            //Update window visuals
-            if (!stopped && !global.isPaused()) {
-                std::unique_lock<std::mutex> lock(mutex);
-                cv.wait(lock);
-                window.update();
-                busy = true;
             }
         }
         tic = currentTic;

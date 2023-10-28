@@ -82,9 +82,6 @@ std::shared_ptr<GameObject> Platform::constructSelf(std::string self) {
     int r;
     int g;
     int b;
-    /*std::cout << "Here";*/
-    /*std::cout << self.data() << std::endl;*/
-
     int matches = sscanf_s(self.data(), "%d %f %f %f %f %d %d %d", &type, &x, &y, &sizeX, &sizeY, &r, &g, &b);
     if (matches != 8 || type != getObjectType()) {
         throw std::invalid_argument("Type was not correct for character or string was formatted wrong.");
