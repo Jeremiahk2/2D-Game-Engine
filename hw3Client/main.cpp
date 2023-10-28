@@ -35,13 +35,13 @@
 void run_cthread(CThread *fe) {
     fe->run();
 }
-
-void run_reqthread(ReqThread* fe) {
-    fe->run();
-}
-void run_subthread(SubThread* fe) {
-    fe->run();
-}
+//
+//void run_reqthread(ReqThread* fe) {
+//    fe->run();
+//}
+//void run_subthread(SubThread* fe) {
+//    fe->run();
+//}
 
 
 int main() {
@@ -73,17 +73,6 @@ int main() {
     headBonk.setPosition(500.f, 440.f);
     window.addGameObject(&headBonk);
 
-    //Create MovingPlatform and add it to the window
-    MovingPlatform moving(PLAT_SPEED, 1, 150.f, 500.f);
-    moving.setSize(sf::Vector2f(100.f, 15.f));
-    moving.setFillColor(sf::Color(100, 250, 50));
-    window.addGameObject(&moving);
-
-    MovingPlatform vertMoving(PLAT_SPEED, false, 600.f, 500.f);
-    vertMoving.setSize(sf::Vector2f(50.f, 15.f));
-    vertMoving.setFillColor(sf::Color::Magenta);
-    window.addGameObject(&vertMoving);
-
     //Create playable character and add it to the window as the playable object
     Character character;
     /*character.setSize(sf::Vector2f(30.f, 30.f));
@@ -91,7 +80,9 @@ int main() {
     character.setPosition(100.f, 100.f);
     window.addPlayableObject(&character);
 
-    std::cout << character.toString();
+    window.addTemplate(headBonk.makeTemplate());
+    window.addTemplate(character.makeTemplate());
+    window.addTemplate(std::shared_ptr<MovingPlatform>(new MovingPlatform));
 
     //END SETTING UP GAME OBJECTS
 
@@ -113,20 +104,20 @@ int main() {
     Timeline global;
     Timeline FrameTime(&global, TIC);
     Timeline CTime(&global, TIC);
-    Timeline RTime(&global, TIC);
-    Timeline STime(&global, TIC);
+    //Timeline RTime(&global, TIC);
+    //Timeline STime(&global, TIC);
 
     //Start collision detection thread
     CThread cthread(&upPressed, &window, &CTime, &stopped, &mutex, &cv, &busy);
     std::thread first(run_cthread, &cthread);
 
-    //Start server/client req/rep
-    ReqThread reqthread(&stopped, &window, &cthread, &busy, &cv, &CTime, &mutex);
-    std::thread second(run_reqthread, &reqthread);
+    ////Start server/client req/rep
+    //ReqThread reqthread(&stopped, &window, &cthread, &busy, &cv, &CTime, &mutex);
+    //std::thread second(run_reqthread, &reqthread);
 
-    //start server/client pub/sub
-    SubThread subthread(&stopped, &window, &cthread, &busy, &cv, &CTime, &mutex);
-    std::thread third(run_subthread, &subthread);
+    ////start server/client pub/sub
+    //SubThread subthread(&stopped, &window, &cthread, &busy, &cv, &CTime, &mutex);
+    //std::thread third(run_subthread, &subthread);
 
     while (window.isOpen()) {
 
@@ -135,29 +126,24 @@ int main() {
 
         sf::Event event;
         if (currentTic > tic) {
+            int polls = 0;
             while (window.pollEvent(event)) {
+                if (polls > 2) {
+                    busy = false; //We've been in the event loop for too long, probably due to a resize or something similar. Allow our thread to continue.
+                }
                 if (event.type == sf::Event::Closed) {
                     stopped = true;
                     //Need to notify all so they can stop
                     cv.notify_all();
                     first.join();
-                    second.join();
-                    third.join();
+                    //second.join();
+                    //third.join();
                     window.close();
 
                 }
                 if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Q)) {
                     window.changeScaling();
                 }
-                //Uncomment below to enable pausing
-                /*if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::P)) {
-                    if (global.isPaused()) {
-                        global.unpause();
-                    }
-                    else {
-                        global.pause();
-                    }
-                }*/
                 if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Left)) {
                     if (scale != .5) {
                         scale *= .5;
@@ -174,7 +160,10 @@ int main() {
                 {
                     window.handleResize(event);
                 }
+                polls++;
             }
+            //Out of the event loop, need to sync up with thread again.
+            busy = true;
 
             //END EVENT CHECKS
             //Need to recalculate character speed in case scale changed.
@@ -185,6 +174,7 @@ int main() {
                 std::unique_lock<std::mutex> lock(mutex);
                 cv.wait(lock);
                 window.update();
+                busy = true;
             }
             GameObject* collision = nullptr;
             //Handle left input

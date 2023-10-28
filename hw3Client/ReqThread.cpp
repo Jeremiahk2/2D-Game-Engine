@@ -25,9 +25,11 @@ void ReqThread::run() {
     //Send the request to the server.
     char initRecvString[MESSAGE_LIMIT];
     sprintf_s(initRecvString, "Connect");
+
     zmq::message_t initRequest(strlen(initRecvString) + 1);
     memcpy(initRequest.data(), initRecvString, strlen(initRecvString) + 1);
     reqSocket.send(initRequest, zmq::send_flags::none);
+
     //Receive the reply from the server, should contain our port and ID
     zmq::message_t initReply;
     reqSocket.recv(initReply, zmq::recv_flags::none);;

@@ -109,6 +109,7 @@ void GameWindow::updateNonStatic(std::string updates) {
         int type;
         int matches = sscanf_s(currentObject, "%d", &type);
         if (matches != 1) {
+            free(currentObject);
             throw std::invalid_argument("Failed to read string. Type must be the first value.");
         }
         //Push the newly created object into the array.
@@ -117,6 +118,7 @@ void GameWindow::updateNonStatic(std::string updates) {
         pos += newPos + 1;
 
     }
+    free(currentObject);
 }
 
 void GameWindow::changeScaling() {

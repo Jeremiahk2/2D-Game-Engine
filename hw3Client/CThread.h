@@ -3,10 +3,13 @@
 //Correct version
 #include <thread>
 #include <condition_variable>
+#include <zmq.hpp>
 
 #include "MovingPlatform.h"
 #include "Timeline.h"
 #include "GameWindow.h"
+#define MESSAGE_LIMIT 1024
+
 
 class CThread
 {
