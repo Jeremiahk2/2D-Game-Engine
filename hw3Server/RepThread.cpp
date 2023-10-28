@@ -14,14 +14,13 @@ bool RepThread::isBusy() {
 }
 
 void RepThread::run() {
-
     //Bind ourself to the port.
     char portString[21];
     sprintf_s(portString, "%s%d", "tcp://localhost:", port);
 
     zmq::context_t context(2);
     zmq::socket_t repSocket(context, zmq::socket_type::rep);
-    repSocket.bind(portString);
+    repSocket.connect(portString);
 
     int64_t tic = 0;
     int64_t currentTic = 0;
@@ -33,7 +32,7 @@ void RepThread::run() {
         if (currentTic > tic) {
             //Receive message from client
             zmq::message_t update;
-            zmq::recv_result_t received(repSocket.recv(update, zmq::recv_flags::none));
+            repSocket.recv(update, zmq::recv_flags::none);
             std::string updateString((char *)update.data());
             Character c;
 

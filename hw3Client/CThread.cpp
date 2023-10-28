@@ -64,7 +64,7 @@ void CThread::run() {
     //Disconnect from main server process.
     reqSocket.disconnect("tcp://localhost:5556");
     //Connect to your unique port provided by the server.
-    reqSocket.connect(portString);
+    reqSocket.bind(portString);
 
     subSocket.set(zmq::sockopt::conflate, "");
     subSocket.connect("tcp://localhost:5555");
@@ -73,8 +73,6 @@ void CThread::run() {
     while (!(*stop)) {
         currentTic = line->getTime();
         if (currentTic > tic) {
-
-            std::cout << currentTic - tic << std::endl;
 
             //Get information from server
 
@@ -131,12 +129,12 @@ void CThread::run() {
                 std::lock_guard<std::mutex> lock(*mutex);
                 GameObject* collision = nullptr;
                 bool doGravity = true;
-                if (window->checkCollisions(collision)) {
+                if (window->checkCollisions(&collision)) {
                     //If the collided object is not moving, correct the position by moving up one.
                     //NOTE: This should be impossible unless a platform was generated at the player's location (Since it's not a moving platform).
                     if (collision->getObjectType() == Platform::objectType) {
                         Platform* temp = (Platform*)collision;
-                        character->setPosition(character->getPosition().x, temp->getGlobalBounds().top + character->getGlobalBounds().height + 1.f);
+                        character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - 1.f);
                         //Enable jumping. TODO: Rename variable to better fit. canJump? canJump(bool)?
                         *upPressed = true;
                         //We just teleported up to the top of a stationary platform, no need for gravity.
@@ -151,7 +149,7 @@ void CThread::run() {
                             //Since gravity hasn't happened yet, this must be a collision where it hit us from the x-axis, so put the character to the side of it.
                             if (platSpeed < 0.f) {
                                 //If the platform is moving left, set us to the left of it.
-                                character->setPosition(temp->getGlobalBounds().left - character->getGlobalBounds().left - 1.f, character->getPosition().y);
+                                character->setPosition(temp->getGlobalBounds().left - character->getGlobalBounds().width - 1.f, character->getPosition().y);
                             }
                             else {
                                 //If the platform is moving right, set us to the right of it
@@ -163,7 +161,7 @@ void CThread::run() {
                             //If the platform is currently moving upwards
                             if (platSpeed < 0.f) {
                                 //At this point, we know that we have been hit by a platform moving upwards, so correct our position upwards.
-                                character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().top - 1.f);
+                                character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - 1.f);
                                 //We are above a platform, we can jump.
                                 *upPressed = true;
                                 //We just got placed above a platform, no need to do gravity.
@@ -181,11 +179,11 @@ void CThread::run() {
                 if (doGravity) {
                     character->move(0.f, gravity);
                     //Check collisions after gravity movement.
-                    if (window->checkCollisions(collision)) {
+                    if (window->checkCollisions(&collision)) {
                         //If the collided object is a stationary platform, correct the position to be on top of the platform.
                         if (collision->getObjectType() == Platform::objectType) {
                             Platform* temp = (Platform*)collision;
-                            character->setPosition(character->getPosition().x, temp->getGlobalBounds().top + character->getGlobalBounds().height + 1.f);
+                            character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - 1.f);
                             //Enable jumping. TODO: Rename variable to better fit. canJump? canJump(bool)?
                             *upPressed = true;
                         }
@@ -195,15 +193,17 @@ void CThread::run() {
 
                             //If the platform is moving horizontally.
                             if (temp->getMovementType()) {
-                                //Gravity has happened, which means we moved down into a platform that was already there. Move along with it.
+                                //Gravity has happened, which means we moved down into a platform that was already there. Move along with it AND correct pos to the top of it.
+                                character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - 1.f);
                                 character->move(platSpeed, 0);
+                                *upPressed = true;
                             }
                             //If the platform is moving vertically
                             else {
                                 //If the platform is currently moving upwards
                                 if (platSpeed < 0.f) {
                                     //At this point, we know that we have been hit by a platform moving upwards, so correct our position upwards.
-                                    character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().top - 1.f);
+                                    character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - 1.f);
                                     //We are above a platform, we can jump.
                                     *upPressed = true;
                                     //We just got placed above a platform, no need to do gravity.
@@ -212,7 +212,7 @@ void CThread::run() {
                                 //If the platform is moving downwards
                                 else {
                                     //Just moved down into a downward moving platform. Correct us to be on top of it.
-                                    character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().top - 1.f);
+                                    character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - 1.f);
                                 }
                             }
                         }
@@ -228,7 +228,6 @@ void CThread::run() {
                 memcpy(request.data(), charString.data(), charString.size() + 1);
                 reqSocket.send(request, zmq::send_flags::none);
             }
-
             //Receive confirmation
             reqSocket.recv(reply, zmq::recv_flags::none);
             char* replyString = (char*)reply.data();
@@ -239,4 +238,16 @@ void CThread::run() {
         }
         tic = currentTic;
     }
+
+    character->setConnecting(false);
+    std::string charString = character->toString();
+
+
+    zmq::message_t request(charString.size() + 1);
+    memcpy(request.data(), charString.data(), charString.size() + 1);
+    reqSocket.send(request, zmq::send_flags::none);
+
+    //Receive confirmation
+    zmq::message_t reply;
+    reqSocket.recv(reply, zmq::recv_flags::none);
 }

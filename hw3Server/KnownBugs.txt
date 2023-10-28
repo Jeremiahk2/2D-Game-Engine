@@ -1,12 +1,11 @@
 KNOWN:
-- Pressing jump and then quickly resizing or moving the window causes the player's jump to last much longer than intended.
-- Character jitters around on moving platforms, particularly vertical moving platforms. So many different things cause this.
-- Character moves by double what it's supposed to when the platform changes direction. Possibly related to the above.
 FIXED:
 - Character falls through floor while resizing or moving window.
 - Occasionally, the program appears to deadlock upon opening up the window.
 - Player experiences noticable delay. The server is receiving information in realtime and sending out out just as fast.
 So the problem lies in the fact that the client thread takes too long to receive information at startup.
 > This turned out to be caused by the fact that initial req/rep was too slow, and slowed down the pub/sub, causing the delay.
--
-
+- Pressing jump and then quickly resizing or moving the window causes the player's jump to last much longer than intended.
+- Character jitters around on moving platforms, particularly vertical moving platforms. So many different things cause this.
+- Character moves by double what it's supposed to when the platform changes direction. Possibly related to the above.
+> The three above were all fixed by reorganizing my threads and the flow of the game. 

@@ -11,26 +11,25 @@ GameWindow::GameWindow() {
     character = NULL;
 }
 
-bool GameWindow::checkCollisions(GameObject* collides) {
+bool GameWindow::checkCollisions(GameObject** collides) {
     bool foundCollision = false;
     //Cycle through the list of collidables and check if they collide with the player.
     {
         std::lock_guard<std::mutex> lock(*innerMutex);
         for (GameObject *i : collidables) {
 
-            if (((sf::Sprite *)character)->getGlobalBounds().intersects(((sf::Shape *)i)->getGlobalBounds())) {
+            if ((dynamic_cast<sf::Sprite *>(character))->getGlobalBounds().intersects((dynamic_cast<sf::Shape *>(i))->getGlobalBounds())) {
                 // If the found collision is not moving, return it immediately
-                collides = i;
+                *collides = i;
                 return true;
             }
         }
         for (std::shared_ptr<GameObject> i : nonStaticObjects) {
-            if (i->isCollidable() && ((sf::Sprite*)character)->getGlobalBounds().intersects(((sf::Shape*)i.get())->getGlobalBounds())) {
+            if (i->isCollidable() && ( dynamic_cast<sf::Sprite*>(character) )->getGlobalBounds().intersects( dynamic_cast<sf::Shape*>( i.get() )->getGlobalBounds() ) ) {
                 // If the found collision is not moving, return it immediately
-                if (i->isStatic()) {
-                    collides = i.get();
-                    return true;
-                }
+                *collides = i.get();
+                return true;
+
             }
         }
 

@@ -76,9 +76,8 @@ int main() {
 
     //Create playable character and add it to the window as the playable object
     Character character;
-    /*character.setSize(sf::Vector2f(30.f, 30.f));
-    character.setFillColor(sf::Color::White);*/
-    character.setPosition(100.f, 100.f);
+    character.setPosition(100.f, startPlatform.getPosition().y - character.getGlobalBounds().height - 1.f);
+    /*character.setPosition(100.f, 100.f);*/
     window.addPlayableObject(&character);
 
     window.addTemplate(headBonk.makeTemplate());
@@ -179,7 +178,7 @@ int main() {
                 character.move(-1 * charSpeed, 0.f);
 
                 //Check for collisions
-                if (window.checkCollisions(collision)) {
+                if (window.checkCollisions(&collision)) {
                     //If the collided platform is not moving, just correct the position of Character back.
                     if (collision->getObjectType() != MovingPlatform::objectType) {
                         character.move(charSpeed, 0.f);
@@ -208,7 +207,7 @@ int main() {
                 character.move(charSpeed, 0.f);
 
                 //Check collisions.
-                if (window.checkCollisions(collision)) {
+                if (window.checkCollisions(&collision)) {
                     //If the collided object is not moving, just correct the position of the character back.
                     if (collision->getObjectType() != MovingPlatform::objectType) {
                         character.move(-1 * charSpeed, 0.f);
@@ -243,7 +242,7 @@ int main() {
                 std::lock_guard<std::mutex> lock(mutex);
                 character.move(0, -1 * frameJump);
                 jumpTime -= (float)ticLength * (float)(currentTic - tic);
-                bool jumpCollides = window.checkCollisions(collision);
+                bool jumpCollides = window.checkCollisions(&collision);
                 //Exit jumping if there are no more jump frames or if we collided with something.
                 if (jumpTime <= 0 || jumpCollides) {
                     if (jumpCollides) {

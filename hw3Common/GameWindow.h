@@ -52,7 +52,7 @@ public:
     I.E if a player is colliding with both a moving platform and a stationary platform, the stationary platform will be returned here.
     @return boolean value for if a collision was found.
     */
-    bool checkCollisions(GameObject* collides);
+    bool checkCollisions(GameObject** collides);
 
     /**
     * Add a platform to the window. By default it is added to the list of platforms and collidables.
