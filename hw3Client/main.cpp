@@ -104,20 +104,10 @@ int main() {
     Timeline global;
     Timeline FrameTime(&global, TIC);
     Timeline CTime(&global, TIC);
-    //Timeline RTime(&global, TIC);
-    //Timeline STime(&global, TIC);
 
     //Start collision detection thread
     CThread cthread(&upPressed, &window, &CTime, &stopped, &mutex, &cv, &busy);
     std::thread first(run_cthread, &cthread);
-
-    ////Start server/client req/rep
-    //ReqThread reqthread(&stopped, &window, &cthread, &busy, &cv, &CTime, &mutex);
-    //std::thread second(run_reqthread, &reqthread);
-
-    ////start server/client pub/sub
-    //SubThread subthread(&stopped, &window, &cthread, &busy, &cv, &CTime, &mutex);
-    //std::thread third(run_subthread, &subthread);
 
     while (window.isOpen()) {
 

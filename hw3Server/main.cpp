@@ -37,7 +37,7 @@
 
 #define JUMP_TIME .5
 
-#define TIC 8 //Change this to try out different tic rates
+#define TIC 4 //Change this to try out different tic rates
 
 #define MESSAGE_LIMIT 1024 //Limit on string length for network messages
 
