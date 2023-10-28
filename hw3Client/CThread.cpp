@@ -24,7 +24,7 @@ void CThread::run() {
     int64_t currentTic;
     float ticLength;
 
-    Character *character = window->getCharacter();
+    Character *character = (Character *)window->getPlayableObject();
     while (!(*stop)) {
         currentTic = line->getTime();
         if (currentTic > tic) {
@@ -36,83 +36,96 @@ void CThread::run() {
             {
                 //Character is entering an inconsistent state, lock it.
                 std::lock_guard<std::mutex> lock(*mutex);
-                CBox collision;
-                if (window->checkCollisions(&collision)) {
+                GameObject* collision = nullptr;
+                bool doGravity = true;
+                if (window->checkCollisions(collision)) {
                     //If the collided object is not moving, correct the position by moving up one.
-                    if (!collision.isMoving()) {
-                        character->setPosition(character->getPosition().x, collision.getCBox().top);
-                        /*character->move(0.f, -1.f * gravity);*/ //Comment this and enable the above line for not getting stuck between moving platform and stationary.
-
+                    //NOTE: This should be impossible unless a platform was generated at the player's location (Since it's not a moving platform).
+                    if (collision->getObjectType() == Platform::objectType) {
+                        Platform* temp = (Platform*)collision;
+                        character->setPosition(character->getPosition().x, temp->getGlobalBounds().top + character->getGlobalBounds().height + 1.f);
                         //Enable jumping. TODO: Rename variable to better fit. canJump? canJump(bool)?
                         *upPressed = true;
+                        //We just teleported up to the top of a stationary platform, no need for gravity.
+                        doGravity = false;
                     }
-                    else {
-                        //If the collision IS moving, AND the character is above the platform, correct the position upwards.
-                        //This helps prevent the character from getting stuck on the platform after jumping off.
-                        MovingPlatform* temp = (MovingPlatform*)collision.getPlatform();
-                        if (temp->getType()) {
-                            //Round to 2 decimal places to avoid floating point errors.
-                            if ((int)((collision.getCBox().top + abs(temp->getLastMove().y))  * 100) >= (int)((character->getPosition().y) * 100)) {
-                                character->setPosition(character->getPosition().x, collision.getCBox().top);
-                                *upPressed = true;
+                    else if (collision->getObjectType() == MovingPlatform::objectType){
+                        MovingPlatform* temp = (MovingPlatform*)collision;
+                        float platSpeed = (float)temp->getSpeedValue() * (float)ticLength * (float)(currentTic - tic);
+
+                        //If the platform is moving horizontally.
+                        if (temp->getMovementType()) {
+                            //Since gravity hasn't happened yet, this must be a collision where it hit us from the x-axis, so put the character to the side of it.
+                            if (platSpeed < 0.f) {
+                                //If the platform is moving left, set us to the left of it.
+                                character->setPosition(temp->getGlobalBounds().left - character->getGlobalBounds().left - 1.f, character->getPosition().y);
                             }
-                            character->move(temp->getLastMove());
+                            else {
+                                //If the platform is moving right, set us to the right of it
+                                character->setPosition(temp->getGlobalBounds().left + temp->getGlobalBounds().width + 1.f, character->getPosition().y);
+                            }
                         }
+                        //If the platform is moving vertically
                         else {
-                            if ((int)((collision.getCBox().top + abs(temp->getLastMove().y)) * 100) >= (int)(character->getPosition().y * 100)) {
-                                character->setPosition(character->getPosition().x, collision.getCBox().top /*+ temp->getLastMove().y*/);
+                            //If the platform is currently moving upwards
+                            if (platSpeed < 0.f) {
+                                //At this point, we know that we have been hit by a platform moving upwards, so correct our position upwards.
+                                character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().top - 1.f);
+                                //We are above a platform, we can jump.
                                 *upPressed = true;
+                                //We just got placed above a platform, no need to do gravity.
+                                doGravity = false;
+                            }
+                            //If the platform is moving downwards
+                            else {
+                                //Gravity will (probably) take care of it, but just in case, correct our movement to the bottom of the platform.
+                                character->setPosition(character->getPosition().x, temp->getGlobalBounds().top + temp->getGlobalBounds().height + 1.f);
                             }
                         }
                     }
                 }
-                else {
+                //At this point, character shouldn't be colliding with anything at all.
+                if (doGravity) {
                     character->move(0.f, gravity);
-
-                    //Collision box for all collisions
                     //Check collisions after gravity movement.
-                    if (window->checkCollisions(&collision)) {
-                        //If the collided object is not moving, correct the position by moving up one.
-                        if (!collision.isMoving()) {
-                            character->setPosition(character->getPosition().x, collision.getCBox().top - 1.f);
-                            /*character->move(0.f, -1.f * gravity);*/ //Comment this and enable the above line for not getting stuck between moving platform and stationary.
-
+                    if (window->checkCollisions(collision)) {
+                        //If the collided object is a stationary platform, correct the position to be on top of the platform.
+                        if (collision->getObjectType() == Platform::objectType) {
+                            Platform* temp = (Platform*)collision;
+                            character->setPosition(character->getPosition().x, temp->getGlobalBounds().top + character->getGlobalBounds().height + 1.f);
                             //Enable jumping. TODO: Rename variable to better fit. canJump? canJump(bool)?
                             *upPressed = true;
                         }
-                        else {
-                            MovingPlatform* temp = (MovingPlatform*)collision.getPlatform();
-                            //If the platform is moving horizontally
-                            if (temp->getType()) {
-                                //Round to 2 decimal places to avoid floating point errors.
-                                if ((int)((collision.getCBox().top + gravity) * 100) >= (int)((character->getPosition().y) * 100)) {
-                                    character->setPosition(character->getPosition().x, collision.getCBox().top - 1.f);
-                                    *upPressed = true;
-                                }
-                                character->move(temp->getLastMove());
+                        else if (collision->getObjectType() == MovingPlatform::objectType) {
+                            MovingPlatform* temp = (MovingPlatform*)collision;
+                            float platSpeed = (float)temp->getSpeedValue() * (float)ticLength * (float)(currentTic - tic);
+
+                            //If the platform is moving horizontally.
+                            if (temp->getMovementType()) {
+                                //Gravity has happened, which means we moved down into a platform that was already there. Move along with it.
+                                character->move(platSpeed, 0);
                             }
                             //If the platform is moving vertically
                             else {
-                                if ((int)((collision.getCBox().top + gravity) * 100) >= (int)(character->getPosition().y * 100)) {
-                                    //If the platform is moving downward
-                                    if (temp->getLastMove().y >= 0) {
-                                        //Set it's position to the top of the platform
-                                        character->setPosition(character->getPosition().x, collision.getCBox().top - 1.f);
-                                    }
-                                    //If the platform is moving upwards
-                                    else {
-                                        //Set the position as one move above the next potential move from MThread. This is a reason why they need to be the same tic.
-                                        character->setPosition(character->getPosition().x, collision.getCBox().top - 1.f/*+ temp->getLastMove().y*/);
-                                    }
+                                //If the platform is currently moving upwards
+                                if (platSpeed < 0.f) {
+                                    //At this point, we know that we have been hit by a platform moving upwards, so correct our position upwards.
+                                    character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().top - 1.f);
+                                    //We are above a platform, we can jump.
                                     *upPressed = true;
+                                    //We just got placed above a platform, no need to do gravity.
+                                    doGravity = false;
+                                }
+                                //If the platform is moving downwards
+                                else {
+                                    //Gravity will (probably) take care of it, but just in case, correct our movement to the bottom of the platform.
+                                    character->setPosition(character->getPosition().x, temp->getGlobalBounds().top + temp->getGlobalBounds().height + 1.f);
                                 }
                             }
                         }
                     }
                 }
             }
-            cv->notify_one();
-            //Character is no longer in an inconsistent state, notify other threads
             tic = currentTic;
             
         }

@@ -85,6 +85,7 @@ void GameWindow::update() {
             draw(*((sf::Drawable*)i.get()));
         }
     }
+    nonStaticObjects.clear();
     display();
 }
 
@@ -94,8 +95,7 @@ void GameWindow::addTemplate(std::shared_ptr<GameObject> templateObject) {
 
 void GameWindow::updateNonStatic(std::string updates) {
     std::lock_guard<std::mutex> lock(*innerMutex);
-    //Clear the list
-    nonStaticObjects.clear();
+
     char* currentObject = (char*)malloc(updates.size() + 1);
     if (currentObject == NULL) {
         throw std::runtime_error("Memory error while updating static objects");

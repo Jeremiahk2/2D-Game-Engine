@@ -80,9 +80,8 @@ void ReqThread::run() {
     }
 
     //Disconnect
-    std:string charString;
     character->setConnecting(false);
-    charString = character->toString();
+    std::string charString = character->toString();
 
 
     zmq::message_t request(charString.size() + 1);

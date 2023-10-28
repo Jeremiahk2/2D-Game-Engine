@@ -7,7 +7,6 @@
 #include "MovingPlatform.h"
 #include "Timeline.h"
 #include "GameWindow.h"
-using namespace std;
 
 class CThread
 {
