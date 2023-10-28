@@ -4,10 +4,7 @@
 #include <list>
 #include <iostream>
 #include "Character.h"
-#include "CBox.h"
 #include "Platform.h"
-
-using namespace std;
 
 /**
 * GameWindow is a class that handles collisions and rendering the window.
@@ -21,15 +18,15 @@ private:
     /**
     * The list of platform pointers that need to be drawn on screen.
     */
-    list<GameObject*> staticObjects;
+    std::list<GameObject*> staticObjects;
 
-    list<std::shared_ptr<GameObject>> nonStaticObjects;
+    std::list<std::shared_ptr<GameObject>> nonStaticObjects;
 
-    list<GameObject*> collidables;
+    std::list<GameObject*> collidables;
 
-    list<GameObject*> drawables;
+    std::list<GameObject*> drawables;
 
-    map<int, std::shared_ptr<GameObject>> templates;
+    std::map<int, std::shared_ptr<GameObject>> templates;
 
     GameObject* character;
 
@@ -87,13 +84,13 @@ public:
     */
     void handleResize(sf::Event event);
 
-    list<GameObject*>* getStaticObjects();
+    std::list<GameObject*>* getStaticObjects();
 
     /**
     * Return the list of platforms (realPlatforms) in the window.
     * @param n the number of real platforms in the window.
     */
-    list<std::shared_ptr<GameObject>>* getNonstaticObjects();
+    std::list<std::shared_ptr<GameObject>>* getNonstaticObjects();
 
     /**
     * return a pointer to the character.

@@ -131,24 +131,19 @@
   <ItemGroup>
     <ClInclude Include="..\hw3Common\Character.h" />
     <ClInclude Include="..\hw3Common\GameObject.h" />
-    <ClInclude Include="..\hw3Common\GameWindow.h" />
     <ClInclude Include="..\hw3Common\MovingPlatform.h" />
     <ClInclude Include="..\hw3Common\Platform.h" />
     <ClInclude Include="..\hw3Common\Timeline.h" />
-    <ClInclude Include="CommonTypes.h" />
-    <ClInclude Include="MovingThread.h" />
     <ClInclude Include="PubThread.h" />
     <ClInclude Include="RepThread.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\hw3Common\Character.cpp" />
     <ClCompile Include="..\hw3Common\GameObject.cpp" />
-    <ClCompile Include="..\hw3Common\GameWindow.cpp" />
     <ClCompile Include="..\hw3Common\MovingPlatform.cpp" />
     <ClCompile Include="..\hw3Common\Platform.cpp" />
     <ClCompile Include="..\hw3Common\Timeline.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MovingThread.cpp" />
     <ClCompile Include="PubThread.cpp" />
     <ClCompile Include="RepThread.cpp" />
   </ItemGroup>

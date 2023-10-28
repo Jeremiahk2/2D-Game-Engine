@@ -6,9 +6,6 @@
 #include "MovingPlatform.h"
 #include "Character.h"
 #include "Platform.h"
-#include "CBox.h"
-#include "GameWindow.h"
-#include "MovingThread.h"
 #include "RepThread.h"
 #include "PubThread.h"
 
@@ -16,6 +13,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <thread>
+#include <list>
 
 #define MESSAGE_LIMIT 1024
 
@@ -77,7 +75,7 @@ int main() {
     vertMoving.setBounds(500, 200);
 
     //Add Moving Platforms to the list.
-    list<MovingPlatform*> movings;
+    std::list<MovingPlatform*> movings;
     movings.push_front(&moving);
     movings.push_front(&vertMoving);
     
@@ -137,13 +135,13 @@ int main() {
             int newPort = availPort++;
             int id = numClients++;
 
-            //Add the new character to the character map
-            std::shared_ptr<GameObject> newCharacter(new Character);
-            ((Character *)newCharacter.get())->setID(id);
-            {
-                std::lock_guard<std::mutex> lock(mutex);
-                characters.insert({ id, newCharacter });
-            }
+            ////Add the new character to the character map
+            //std::shared_ptr<GameObject> newCharacter(new Character);
+            //((Character *)newCharacter.get())->setID(id);
+            //{
+            //    std::lock_guard<std::mutex> lock(mutex);
+            //    characters.insert({ id, newCharacter });
+            //}
 
             //Create client struct and thread
             ClientStruct newClient;

@@ -83,15 +83,15 @@
 
     std::string MovingPlatform::toString()
     {
-        std::lock_guard<std::mutex> lock(*getMutex());
         std::stringstream stream;
         char space = ' ';
 
         stream << getObjectType() << space << getPosition().x << space << getPosition().y << space << getSize().x << space << getSize().y
-            << space << getFillColor().r << space << getFillColor().g << space << getFillColor().b << space << getMovementType() 
+            << space << (int)getFillColor().r << space << (int)getFillColor().g << space << (int)getFillColor().b << space << getMovementType() 
             << space << getSpeedValue();
         std::string line;
-        std::getline(stream, line);
+        getline(stream, line);
+
         return line;
     }
 
@@ -129,6 +129,10 @@
         GameObject* go = (GameObject*)c;
         std::shared_ptr<GameObject> ptr(go);
         return ptr;
+    }
+
+    int MovingPlatform::getObjectType() {
+        return MovingPlatform::objectType;
     }
 
 

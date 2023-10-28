@@ -5,7 +5,6 @@
 #include <iostream> //Remove later. Testing purposes only
 #include "Timeline.h"
 #include "MovingPlatform.h"
-#include "CommonTypes.h"
 #define MESSAGE_LIMIT 1024
 
 class PubThread

@@ -5,7 +5,6 @@
 #include <map>
 #include <mutex>
 #include <iostream> //TODO: Remove
-#include "CommonTypes.h"
 #include "Timeline.h"
 #include "Character.h"
 #define MESSAGE_LIMIT 1024

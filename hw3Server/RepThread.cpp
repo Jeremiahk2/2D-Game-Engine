@@ -36,6 +36,8 @@ void RepThread::run() {
             zmq::recv_result_t received(repSocket.recv(update, zmq::recv_flags::none));
             std::string updateString((char *)update.data());
 
+            std::cout << "Init Ran" << std::endl;
+
             //Make the character from the string we were given.
             std::shared_ptr<GameObject> character(new Character);
             *character = *(character->constructSelf(updateString));
@@ -55,7 +57,7 @@ void RepThread::run() {
             std::stringstream stream;
             stream << id;
             std::string rtnString;
-            getline(stream, rtnString);
+            std::getline(stream, rtnString);
 
             zmq::message_t reply(rtnString.size() + 1);
             memcpy(reply.data(), rtnString.data(), rtnString.size() + 1);

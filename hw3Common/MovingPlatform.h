@@ -98,6 +98,8 @@ public:
 
     std::shared_ptr<GameObject> constructSelf(std::string self) override;
 
+    int getObjectType() override;
+
 };
 
 #endif

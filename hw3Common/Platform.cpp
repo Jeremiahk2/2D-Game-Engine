@@ -4,7 +4,7 @@ Platform::Platform() : sf::RectangleShape(), GameObject(true, true, true) {
     passthrough = false;
 }
 
-Platform::Platform(bool stationary, bool collidable, bool drawable) : GameObject(stationary, collidable, drawable)
+Platform::Platform(bool stationary, bool collidable, bool drawable) : sf::RectangleShape(), GameObject(stationary, collidable, drawable)
 {
     passthrough = false;
 }
@@ -63,7 +63,7 @@ std::string Platform::toString() {
     char space = ' ';
 
     stream << getObjectType() << space << getPosition().x << space << getPosition().y << space << getSize().x << space << getSize().y
-        << space << getFillColor().r << space << getFillColor().g << space << getFillColor().b;
+        << space << (int)getFillColor().r << space << (int)getFillColor().g << space << (int)getFillColor().b;
     std::string line;
     std::getline(stream, line);
     return line;
@@ -82,6 +82,9 @@ std::shared_ptr<GameObject> Platform::constructSelf(std::string self) {
     int r;
     int g;
     int b;
+    /*std::cout << "Here";*/
+    /*std::cout << self.data() << std::endl;*/
+
     int matches = sscanf_s(self.data(), "%d %f %f %f %f %d %d %d", &type, &x, &y, &sizeX, &sizeY, &r, &g, &b);
     if (matches != 8 || type != getObjectType()) {
         throw std::invalid_argument("Type was not correct for character or string was formatted wrong.");

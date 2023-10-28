@@ -63,12 +63,12 @@ void GameWindow::addGameObject(GameObject *object) {
     }
 }
 //Contains client objects like death bounds and side bounds.
-list<GameObject*>* GameWindow::getStaticObjects() {
+std::list<GameObject*>* GameWindow::getStaticObjects() {
     std::lock_guard<std::mutex> lock(*innerMutex);
     return &staticObjects;
 }
 //Contains server objects like moving platforms and other characters.
-list<std::shared_ptr<GameObject>>* GameWindow::getNonstaticObjects() {
+std::list<std::shared_ptr<GameObject>>* GameWindow::getNonstaticObjects() {
     std::lock_guard<std::mutex> lock(*innerMutex);
     return &nonStaticObjects;
 }
@@ -78,7 +78,8 @@ void GameWindow::update() {
     clear();
     //Cycle through the list of platforms and draw them.
     for (GameObject* i : drawables) {
-        draw(*((sf::Drawable*)i));
+        std::cout << "Drawing..." << std::endl;
+        draw(*(dynamic_cast<sf::Drawable*>(i))); //FUCK YES
     }
     for (std::shared_ptr<GameObject> i : nonStaticObjects) {
         if (i->isDrawable()) {
@@ -113,6 +114,8 @@ void GameWindow::updateNonStatic(std::string updates) {
             throw std::invalid_argument("Failed to read string. Type must be the first value.");
         }
         //Push the newly created object into the array.
+        std::cout << "Ran" << std::endl;
+        std::cout << currentObject << std::endl;
         nonStaticObjects.push_back(templates.at(type)->constructSelf(currentObject));
         //update position and skip past comma
         pos += newPos + 1;

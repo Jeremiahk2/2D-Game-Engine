@@ -68,6 +68,7 @@ void CThread::run() {
     subSocket.set(zmq::sockopt::conflate, "");
     subSocket.connect("tcp://localhost:5555");
     subSocket.set(zmq::sockopt::subscribe, "");
+
     while (!(*stop)) {
         currentTic = line->getTime();
         if (currentTic > tic) {
@@ -104,16 +105,17 @@ void CThread::run() {
             }
 
             std::string charStrings;
-            getline(stream, charStrings);
+            std::getline(stream, charStrings);
 
             //Update window with new characters
             window->updateNonStatic(charStrings);
 
             //Sync with visuals
+            std::cout << "Made it here" << std::endl;
             while (busy) {
                 cv->notify_all();
             }
-
+            std::cout << "Made it here too" << std::endl;
             //Update the rest
             std::string otherStuff(updates.data() + pos);
             window->updateNonStatic(otherStuff);
