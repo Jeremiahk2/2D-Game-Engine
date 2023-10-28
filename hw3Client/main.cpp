@@ -169,17 +169,11 @@ int main() {
             //Need to recalculate character speed in case scale changed.
             float charSpeed = (float)character.getSpeed().x * (float)ticLength * (float)(currentTic - tic);
 
-            //Update window visuals
-            if (!stopped && !global.isPaused()) {
-                std::unique_lock<std::mutex> lock(mutex);
-                cv.wait(lock);
-                window.update();
-                busy = true;
-            }
             GameObject* collision = nullptr;
             //Handle left input
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && window.hasFocus())
             {
+                std::lock_guard<std::mutex> lock(mutex);
                 //Move left
                 character.move(-1 * charSpeed, 0.f);
 
@@ -208,6 +202,7 @@ int main() {
             //Handle right input
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && window.hasFocus())
             {
+                std::lock_guard<std::mutex> lock(mutex);
                 // Move Right
                 character.move(charSpeed, 0.f);
 
@@ -233,6 +228,7 @@ int main() {
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && window.hasFocus())
             {
+                std::lock_guard<std::mutex> lock(mutex);
                 if (upPressed) {
                     upPressed = false;
                     character.setJumping(true);
@@ -243,6 +239,7 @@ int main() {
             float frameJump = JUMP_SPEED * (float)ticLength * (float)(currentTic - tic);
             
             if (character.isJumping()) {
+                std::lock_guard<std::mutex> lock(mutex);
                 character.move(0, -1 * frameJump);
                 jumpTime -= (float)ticLength * (float)(currentTic - tic);
                 bool jumpCollides = window.checkCollisions(collision);
@@ -254,6 +251,14 @@ int main() {
                     character.setJumping(false);
                     jumpTime = JUMP_TIME;
                 }
+            }
+
+            //Update window visuals
+            if (!stopped && !global.isPaused()) {
+                std::unique_lock<std::mutex> lock(mutex);
+                cv.wait(lock);
+                window.update();
+                busy = true;
             }
         }
         tic = currentTic;

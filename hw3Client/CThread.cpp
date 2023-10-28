@@ -139,7 +139,7 @@ void CThread::run() {
                         //We just teleported up to the top of a stationary platform, no need for gravity.
                         doGravity = false;
                     }
-                    else if (collision->getObjectType() == MovingPlatform::objectType){
+                    else if (collision->getObjectType() == MovingPlatform::objectType) {
                         MovingPlatform* temp = (MovingPlatform*)collision;
                         float platSpeed = (float)temp->getSpeedValue() * (float)ticLength * (float)(currentTic - tic);
 
@@ -215,27 +215,26 @@ void CThread::run() {
                         }
                     }
                 }
-
-                //Send updated character information to server
-                zmq::message_t reply;
-                {
-                    std::lock_guard<std::mutex> lock(*mutex);
-                    std::string charString = character->toString();
-
-                    zmq::message_t request(charString.data() + 1);
-                    memcpy(request.data(), charString.data(), charString.size() + 1);
-                    reqSocket.send(request, zmq::send_flags::none);
-                }
-
-                //Receive confirmation
-                reqSocket.recv(reply, zmq::recv_flags::none);
-                char* replyString = (char*)reply.data();
-                int newID;
-                int matches = sscanf_s(replyString, "%d", &newID);
-                character->setID(newID);
             }
-            tic = currentTic;
+            //Send updated character information to server
+            zmq::message_t reply;
+            {
+                std::lock_guard<std::mutex> lock(*mutex);
+                std::string charString = character->toString();
+
+                zmq::message_t request(charString.data() + 1);
+                memcpy(request.data(), charString.data(), charString.size() + 1);
+                reqSocket.send(request, zmq::send_flags::none);
+            }
+
+            //Receive confirmation
+            reqSocket.recv(reply, zmq::recv_flags::none);
+            char* replyString = (char*)reply.data();
+            int newID;
+            int matches = sscanf_s(replyString, "%d", &newID);
+            character->setID(newID);
             
         }
+        tic = currentTic;
     }
 }

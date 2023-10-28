@@ -46,10 +46,10 @@
 /**
  * Wrapper function because threads can't take pointers to member functions.
  */
-void run_moving(MovingThread* fe)
-{
-    fe->run();
-}
+//void run_moving(MovingThread* fe)
+//{
+//    fe->run();
+//}
 
 void run_rep(RepThread* fe) {
     fe->run();
@@ -112,9 +112,9 @@ int main() {
     int numCharacters = 0;
     int availPort = 5557;
 
-    //Create and run moving platform thread
-    MovingThread mthread(&MPTime, &stopped, 0, NULL, &mutex, &cv, &movings);
-    std::thread first(run_moving, &mthread);
+    ////Create and run moving platform thread
+    //MovingThread mthread(&MPTime, &stopped, 0, NULL, &mutex, &cv, &movings);
+    //std::thread first(run_moving, &mthread);
 
     //Create and run publisher thread
     PubThread pubthread(&FrameTime, &movings, &characters, &mutex);

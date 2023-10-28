@@ -29,6 +29,7 @@
 
     void MovingPlatform::setMovementType(int movementType)
     {
+        std::lock_guard<std::mutex> lock(*getMutex());
         this->m_type = movementType;
     }
 
@@ -38,6 +39,7 @@
     }
 
     float MovingPlatform::getSpeedValue() {
+        std::lock_guard<std::mutex> lock(*getMutex());
         if (getMovementType()) {
             return speed.x;
         }
@@ -81,6 +83,7 @@
 
     std::string MovingPlatform::toString()
     {
+        std::lock_guard<std::mutex> lock(*getMutex());
         std::stringstream stream;
         char space = ' ';
 
