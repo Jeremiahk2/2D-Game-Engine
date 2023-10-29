@@ -134,6 +134,7 @@
     <ClInclude Include="..\hw3Common\GameWindow.h" />
     <ClInclude Include="..\hw3Common\MovingPlatform.h" />
     <ClInclude Include="..\hw3Common\Platform.h" />
+    <ClInclude Include="..\hw3Common\SpawnPoint.h" />
     <ClInclude Include="..\hw3Common\Timeline.h" />
     <ClInclude Include="CThread.h" />
   </ItemGroup>
@@ -143,6 +144,7 @@
     <ClCompile Include="..\hw3Common\GameWindow.cpp" />
     <ClCompile Include="..\hw3Common\MovingPlatform.cpp" />
     <ClCompile Include="..\hw3Common\Platform.cpp" />
+    <ClCompile Include="..\hw3Common\SpawnPoint.cpp" />
     <ClCompile Include="..\hw3Common\Timeline.cpp" />
     <ClCompile Include="CThread.cpp" />
     <ClCompile Include="main.cpp" />

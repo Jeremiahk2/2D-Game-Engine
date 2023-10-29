@@ -1,6 +1,7 @@
 #ifndef CHARACTER_H
 #define CHARACTER_H
 #include "GameObject.h"
+#include "SpawnPoint.h"
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
 #include <mutex>
@@ -44,6 +45,8 @@ private:
 
     sf::Texture texture;
 
+    SpawnPoint spawn;
+
 public:
 
     static const int objectType = 1;
@@ -64,6 +67,8 @@ public:
     * @return the speed of the character
     */
     sf::Vector2f getSpeed();
+
+    void respawn();
 
     /**
     * Move the character. Protected by a lock guard.
@@ -130,6 +135,8 @@ public:
     */
     int getID();
 
+    void setSpawnPoint(SpawnPoint spawn);
+
     /**
     * Return the Character class' ID.
     */
@@ -154,3 +161,25 @@ public:
     std::shared_ptr<GameObject> makeTemplate() override;
 };
 #endif
+
+//#ifndef SPAWNPOINT_H
+//#define SPAWNPOINT_H
+//#include "GameObject.h"
+//#include <SFML/Graphics.hpp>
+//#include <SFML/OpenGL.hpp>
+//
+//class SpawnPoint : public GameObject, public sf::RectangleShape {
+//private:
+//
+//
+//public:
+//
+//    const static int objectType = 4;
+//
+//    SpawnPoint(float x, float y);
+//
+//    int getObjectType() override;
+//
+//
+//};
+//#endif

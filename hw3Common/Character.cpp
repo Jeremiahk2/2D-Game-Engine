@@ -116,6 +116,15 @@ int Character::getID() {
     return id;
 }
 
+void Character::setSpawnPoint(SpawnPoint spawn)
+{
+    this->spawn = spawn;
+}
+
+void Character::respawn() {
+    setPosition(spawn.getPosition());
+}
+
 int Character::getObjectType() {
     return this->objectType;
 }

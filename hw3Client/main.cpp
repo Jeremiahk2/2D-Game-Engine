@@ -70,7 +70,7 @@ int main() {
     //Create playable character and add it to the window as the playable object
     Character character;
     character.setPosition(100.f, startPlatform.getPosition().y - character.getGlobalBounds().height - 1.f);
-    /*character.setPosition(100.f, 100.f);*/
+    character.setSpawnPoint(SpawnPoint(character.getPosition()));
     window.addPlayableObject(&character);
 
     window.addTemplate(headBonk.makeTemplate());
