@@ -8,6 +8,7 @@
 #include "MovingPlatform.h"
 #include "Timeline.h"
 #include "GameWindow.h"
+#include "DeathZone.h"
 #define MESSAGE_LIMIT 1024
 
 

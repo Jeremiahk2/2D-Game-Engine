@@ -137,6 +137,7 @@
     <ClInclude Include="..\hw3Common\SpawnPoint.h" />
     <ClInclude Include="..\hw3Common\Timeline.h" />
     <ClInclude Include="CThread.h" />
+    <ClInclude Include="DeathZone.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\hw3Common\Character.cpp" />
@@ -147,6 +148,7 @@
     <ClCompile Include="..\hw3Common\SpawnPoint.cpp" />
     <ClCompile Include="..\hw3Common\Timeline.cpp" />
     <ClCompile Include="CThread.cpp" />
+    <ClCompile Include="DeathZone.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

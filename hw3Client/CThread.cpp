@@ -178,6 +178,9 @@ void CThread::run() {
                             }
                         }
                     }
+                    else if (collision->getObjectType() == DeathZone::objectType) {
+                        character->respawn();
+                    }
                 }
                 //At this point, character shouldn't be colliding with anything at all.
                 if (doGravity) {
@@ -220,6 +223,9 @@ void CThread::run() {
                                     character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - oneHalfTicGrav);
                                 }
                             }
+                        }
+                        else if (collision->getObjectType() == DeathZone::objectType) {
+                            character->respawn();
                         }
                     }
                 }

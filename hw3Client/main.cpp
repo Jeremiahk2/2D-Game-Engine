@@ -5,6 +5,7 @@
 #include "CThread.h"
 #include "ReqThread.h"
 #include "SubThread.h"
+#include "DeathZone.h"
 //Correct version
 
 /**
@@ -73,9 +74,16 @@ int main() {
     character.setSpawnPoint(SpawnPoint(character.getPosition()));
     window.addPlayableObject(&character);
 
+    //Make a deadzone of height 30 that stretches across the bottom of the view.
+    DeathZone dead(sf::Vector2f(window.getView().getSize().x, 30.f), sf::Vector2f(0.f, window.getView().getSize().y - 30.f));
+    window.addGameObject(&dead);
+
+
     window.addTemplate(headBonk.makeTemplate());
     window.addTemplate(character.makeTemplate());
+    window.addTemplate(dead.makeTemplate());
     window.addTemplate(std::shared_ptr<MovingPlatform>(new MovingPlatform));
+
 
     //END SETTING UP GAME OBJECTS
 
