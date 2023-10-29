@@ -27,8 +27,6 @@ Character::Character(bool stationary, bool collidable, bool drawable) : GameObje
         std::cout << "Failed";
     }
     setTexture(charTexture);
-    /*setSize(sf::Vector2f(30.f, 30.f));*/
-    setOrigin(0.f, 30.f);
     setSpeed(CHAR_SPEED);
     setGravity(GRAV_SPEED);
 }

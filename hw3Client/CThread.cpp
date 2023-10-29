@@ -70,10 +70,12 @@ void CThread::run() {
     subSocket.connect("tcp://localhost:5555");
     subSocket.set(zmq::sockopt::subscribe, "");
 
+    int moves = 0;
+    bool direction = false;
+
     while (!(*stop)) {
         currentTic = line->getTime();
         if (currentTic > tic) {
-
             //Get information from server
 
             //Receive updates to nonstatic objects. Should be comma separated string.
@@ -124,6 +126,7 @@ void CThread::run() {
             *upPressed = false;
             //Get gravity as a function of time
             float gravity = character->getGravity() * ticLength * (currentTic - tic);
+            float oneHalfTicGrav = (character->getGravity() * ticLength) / 2;
             {
                 //Character is entering an inconsistent state, lock it.
                 std::lock_guard<std::mutex> lock(*mutex);
@@ -134,7 +137,7 @@ void CThread::run() {
                     //NOTE: This should be impossible unless a platform was generated at the player's location (Since it's not a moving platform).
                     if (collision->getObjectType() == Platform::objectType) {
                         Platform* temp = (Platform*)collision;
-                        character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - 1.f);
+                        character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - oneHalfTicGrav);
                         //Enable jumping. TODO: Rename variable to better fit. canJump? canJump(bool)?
                         *upPressed = true;
                         //We just teleported up to the top of a stationary platform, no need for gravity.
@@ -143,17 +146,18 @@ void CThread::run() {
                     else if (collision->getObjectType() == MovingPlatform::objectType) {
                         MovingPlatform* temp = (MovingPlatform*)collision;
                         float platSpeed = (float)temp->getSpeedValue() * (float)ticLength * (float)(currentTic - tic);
+                        float oneHalfTicPlat = (float)temp->getSpeedValue() * (float)ticLength;
 
                         //If the platform is moving horizontally.
                         if (temp->getMovementType()) {
                             //Since gravity hasn't happened yet, this must be a collision where it hit us from the x-axis, so put the character to the side of it.
                             if (platSpeed < 0.f) {
                                 //If the platform is moving left, set us to the left of it.
-                                character->setPosition(temp->getGlobalBounds().left - character->getGlobalBounds().width - 1.f, character->getPosition().y);
+                                character->setPosition(temp->getGlobalBounds().left - character->getGlobalBounds().width - abs(oneHalfTicPlat), character->getPosition().y);
                             }
                             else {
                                 //If the platform is moving right, set us to the right of it
-                                character->setPosition(temp->getGlobalBounds().left + temp->getGlobalBounds().width + 1.f, character->getPosition().y);
+                                character->setPosition(temp->getGlobalBounds().left + temp->getGlobalBounds().width + abs(oneHalfTicPlat), character->getPosition().y);
                             }
                         }
                         //If the platform is moving vertically
@@ -161,7 +165,7 @@ void CThread::run() {
                             //If the platform is currently moving upwards
                             if (platSpeed < 0.f) {
                                 //At this point, we know that we have been hit by a platform moving upwards, so correct our position upwards.
-                                character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - 1.f);
+                                character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - abs(oneHalfTicPlat));
                                 //We are above a platform, we can jump.
                                 *upPressed = true;
                                 //We just got placed above a platform, no need to do gravity.
@@ -170,7 +174,7 @@ void CThread::run() {
                             //If the platform is moving downwards
                             else {
                                 //Gravity will (probably) take care of it, but just in case, correct our movement to the bottom of the platform.
-                                character->setPosition(character->getPosition().x, temp->getGlobalBounds().top + temp->getGlobalBounds().height + 1.f);
+                                character->setPosition(character->getPosition().x, temp->getGlobalBounds().top + temp->getGlobalBounds().height + oneHalfTicPlat);
                             }
                         }
                     }
@@ -180,10 +184,11 @@ void CThread::run() {
                     character->move(0.f, gravity);
                     //Check collisions after gravity movement.
                     if (window->checkCollisions(&collision)) {
+
                         //If the collided object is a stationary platform, correct the position to be on top of the platform.
                         if (collision->getObjectType() == Platform::objectType) {
                             Platform* temp = (Platform*)collision;
-                            character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - 1.f);
+                            character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - oneHalfTicGrav);
                             //Enable jumping. TODO: Rename variable to better fit. canJump? canJump(bool)?
                             *upPressed = true;
                         }
@@ -194,7 +199,7 @@ void CThread::run() {
                             //If the platform is moving horizontally.
                             if (temp->getMovementType()) {
                                 //Gravity has happened, which means we moved down into a platform that was already there. Move along with it AND correct pos to the top of it.
-                                character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - 1.f);
+                                character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - oneHalfTicGrav);
                                 character->move(platSpeed, 0);
                                 *upPressed = true;
                             }
@@ -203,7 +208,7 @@ void CThread::run() {
                                 //If the platform is currently moving upwards
                                 if (platSpeed < 0.f) {
                                     //At this point, we know that we have been hit by a platform moving upwards, so correct our position upwards.
-                                    character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - 1.f);
+                                    character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - oneHalfTicGrav);
                                     //We are above a platform, we can jump.
                                     *upPressed = true;
                                     //We just got placed above a platform, no need to do gravity.
@@ -212,7 +217,7 @@ void CThread::run() {
                                 //If the platform is moving downwards
                                 else {
                                     //Just moved down into a downward moving platform. Correct us to be on top of it.
-                                    character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - 1.f);
+                                    character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - oneHalfTicGrav);
                                 }
                             }
                         }
@@ -234,9 +239,9 @@ void CThread::run() {
             int newID;
             int matches = sscanf_s(replyString, "%d", &newID);
             character->setID(newID);
-            
+            tic = currentTic;
         }
-        tic = currentTic;
+       /* tic = currentTic;*/
     }
 
     character->setConnecting(false);

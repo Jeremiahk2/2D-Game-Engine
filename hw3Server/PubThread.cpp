@@ -20,6 +20,7 @@ void PubThread::run() {
     int64_t tic = 0;
     int64_t currentTic = 0;
     float ticLength;
+    int moves = 0;
     while (true) {
         ticLength = time->getRealTicLength();
         currentTic = time->getTime();
@@ -49,12 +50,11 @@ void PubThread::run() {
             for (MovingPlatform* i : *movings) {
 
                 sf::Vector2i bounds = i->getBounds();
-                float platSpeed = (float)i->getSpeedValue() * (float)ticLength * (float)(currentTic - tic);
                 //boundx is left or bottom bound
                 //If the movement is horizontal
                 if ((i->getMovementType())) {
                     //If we are moving to the right
-                    if (platSpeed > 0) {
+                    if (i->getSpeedValue() > 0) {
                         //Then we only care about our right bound.
                         if ((int)i->getGlobalBounds().left > bounds.y) {
                             i->setSpeed(sf::Vector2f(i->getSpeedValue() * -1.f, 0));
@@ -68,7 +68,7 @@ void PubThread::run() {
                 //If movement is vertical
                 else {
                     //If we are going up
-                    if (platSpeed < 0) {
+                    if (i->getSpeedValue() < 0) {
                         //Then we only care about or top bound.
                         if ((int)i->getGlobalBounds().top < bounds.y) {
                             i->setSpeed(sf::Vector2f(0, i->getSpeedValue() * -1.f));
@@ -79,6 +79,7 @@ void PubThread::run() {
                         i->setSpeed(sf::Vector2f(0, i->getSpeedValue() * -1.f));
                     }
                 }
+                float platSpeed = (float)i->getSpeedValue() * (float)ticLength * (float)(currentTic - tic);
                 //TODO: I swapped the order. Check back later
 
                 //If the platform is moving horizontally
@@ -89,7 +90,8 @@ void PubThread::run() {
                     i->move(0, platSpeed);
                 }
             }
+            tic = currentTic;
         }
-        tic = currentTic;
+        //tic = currentTic;
     }
 }

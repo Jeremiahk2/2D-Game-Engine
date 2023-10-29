@@ -29,7 +29,8 @@ void RepThread::run() {
 
         ticLength = time->getRealTicLength();
         currentTic = time->getTime();
-        if (currentTic > tic) {
+        //if (currentTic > tic) {
+
             //Receive message from client
             zmq::message_t update;
             repSocket.recv(update, zmq::recv_flags::none);
@@ -59,7 +60,7 @@ void RepThread::run() {
             zmq::message_t reply(rtnString.size() + 1);
             memcpy(reply.data(), rtnString.data(), rtnString.size() + 1);
             repSocket.send(reply, zmq::send_flags::none);
-        }
-        tic = currentTic;
+        //}
+        //tic = currentTic;
     }
 }

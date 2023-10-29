@@ -37,7 +37,7 @@
 
 #define JUMP_TIME .5
 
-#define TIC 4 //Change this to try out different tic rates
+#define TIC 8 //Change this to try out different tic rates
 
 #define MESSAGE_LIMIT 1024 //Limit on string length for network messages
 
@@ -134,14 +134,6 @@ int main() {
             //Client received, set up ID and port
             int newPort = availPort++;
             int id = numClients++;
-
-            ////Add the new character to the character map
-            //std::shared_ptr<GameObject> newCharacter(new Character);
-            //((Character *)newCharacter.get())->setID(id);
-            //{
-            //    std::lock_guard<std::mutex> lock(mutex);
-            //    characters.insert({ id, newCharacter });
-            //}
 
             //Create client struct and thread
             ClientStruct newClient;

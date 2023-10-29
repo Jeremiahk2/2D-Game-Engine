@@ -242,8 +242,9 @@ int main() {
                     jumpTime = JUMP_TIME;
                 }
             }
+            tic = currentTic;
         }
-        tic = currentTic;
+        /*tic = currentTic;*/
     }
 
     return EXIT_SUCCESS;
