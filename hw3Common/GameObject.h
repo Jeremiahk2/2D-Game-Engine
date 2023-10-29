@@ -1,6 +1,8 @@
 #ifndef GAMEOBJECT_H
 #define GAMEOBJECT_H
 
+#include <SFML/Graphics.hpp>
+#include <SFML/OpenGL.hpp>
 #include <mutex>
 #include <string>
 #include <sstream>

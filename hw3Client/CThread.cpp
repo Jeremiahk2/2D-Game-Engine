@@ -116,7 +116,6 @@ void CThread::run() {
 
             //Sync with visuals
             window->update();
-
             //Update the rest
             std::string otherStuff(updates.data() + pos);
             window->updateNonStatic(otherStuff);
@@ -231,7 +230,6 @@ void CThread::run() {
                 }
             }
             //Send updated character information to server
-            zmq::message_t reply;
             {
                 std::lock_guard<std::mutex> lock(*mutex);
                 std::string charString = character->toString();
@@ -240,6 +238,7 @@ void CThread::run() {
                 reqSocket.send(request, zmq::send_flags::none);
             }
             //Receive confirmation
+            zmq::message_t reply;
             reqSocket.recv(reply, zmq::recv_flags::none);
             char* replyString = (char*)reply.data();
             int newID;
@@ -247,7 +246,6 @@ void CThread::run() {
             character->setID(newID);
             tic = currentTic;
         }
-       /* tic = currentTic;*/
     }
 
     character->setConnecting(false);

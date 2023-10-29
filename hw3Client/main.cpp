@@ -72,6 +72,7 @@ int main() {
     Character character;
     character.setPosition(100.f, startPlatform.getPosition().y - character.getGlobalBounds().height - 1.f);
     character.setSpawnPoint(SpawnPoint(character.getPosition()));
+    character.setConnecting(1);
     window.addPlayableObject(&character);
 
     //Make a deadzone of height 30 that stretches across the bottom of the view.
