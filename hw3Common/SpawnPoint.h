@@ -9,17 +9,28 @@ private:
 
 
 public:
-
+    /**
+    * object type of SpawnPoints
+    */
     const static int objectType = 4;
 
+    /**
+    * create a new spawn point at this position
+    */
     SpawnPoint(float x, float y);
-
+    /**
+    * create a new spawn point at this position
+    */
     SpawnPoint(sf::Vector2f pos);
-
+    /**
+    * create a new spawn pointat 0,0.
+    */
     SpawnPoint();
 
 
-
+    /**
+    * Return the type of object
+    */
     int getObjectType() override;
 
     /**

@@ -53,6 +53,9 @@ class CThread
     */
     bool *upPressed;
 
+    /**
+    * boolean for synchronization
+    */
     bool* busy;
 
 
@@ -69,6 +72,9 @@ class CThread
         */
         void run();
 
+        /**
+        * Check for synchronization
+        */
         bool isBusy();
 };
 #endif

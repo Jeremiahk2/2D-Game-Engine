@@ -17,18 +17,25 @@ private:
     */
     bool passthrough;
 
+    /**
+    * Inner mutex for making inner-object actions thread safe
+    */
     std::mutex innerMutex;
 
     
 public:
-
+    /**
+    * object type of Platform
+    */
     static const int objectType = 2;
 
     /**
     * Constructs a new platform (empty RectangleShape)
     */
     Platform();
-
+    /**
+    * Constructs a new platform, setting GameObject appropriately.
+    */
     Platform(bool stationary, bool collidable, bool drawable);
 
     /**
@@ -36,18 +43,33 @@ public:
     */
     void setPassthrough(bool passthrough);
 
+    /**
+    * Move the platform (thread safe)
+    */
     void move(float offsetX, float offsetY);
-
+    /**
+    * Move the platform (thread safe)
+    */
     void move(const sf::Vector2f offset);
-
+    /**
+    * set the position of the platform (thread safe);
+    */
     void setPosition(float x, float y);
-
+    /**
+    * set the position of the platform (thread safe);
+    */
     void setPosition(const sf::Vector2f position);
-
+    /**
+    * Return the position of the platform (thread safe)
+    */
     sf::Vector2f getPosition();
-
+    /**
+    * Return the bounding box of the platform (thread safe)
+    */
     sf::FloatRect getGlobalBounds();
-
+    /**
+    *Return the pointer to the inner mutex. Useful for sublasses.
+    */
     std::mutex* getMutex();
 
     /**

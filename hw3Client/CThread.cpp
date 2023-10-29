@@ -63,9 +63,9 @@ void CThread::run() {
 
     //Disconnect from main server process.
     reqSocket.disconnect("tcp://localhost:5556");
-    //Connect to your unique port provided by the server.
+    //Bind to your unique port provided by the server.
     reqSocket.bind(portString);
-
+    //Conflate messages to avoid getting behind.
     subSocket.set(zmq::sockopt::conflate, "");
     subSocket.connect("tcp://localhost:5555");
     subSocket.set(zmq::sockopt::subscribe, "");
@@ -73,7 +73,7 @@ void CThread::run() {
     int moves = 0;
     bool direction = false;
     float jumpTime = JUMP_TIME;
-
+    //For movement on top of horizontal platforms.
     float nonScalableTicLength = line->getNonScalableTicLength();
 
     while (!(*stop)) {
@@ -92,7 +92,7 @@ void CThread::run() {
 
             std::stringstream stream;
 
-            //Scan through each object
+            //Scan through each object looking for just characters
             while (sscanf_s(updates.data() + pos, "%[^,]%n", currentObject, (unsigned int)(updates.size() + 1), &newPos) == 1) {
                 //Get the type of the current object.
                 int type;
@@ -230,10 +230,6 @@ void CThread::run() {
                         else if (collision->getObjectType() == DeathZone::objectType) {
                             character->respawn();
                         }
-                        /*else if (collision->getObjectType() == SideBound::objectType) {
-                            SideBound* s = (SideBound*)collision;
-                            s->onCollision();
-                        }*/
                     }
                 }
                 float frameJump = JUMP_SPEED * (float)ticLength * (float)(currentTic - tic);
@@ -275,7 +271,7 @@ void CThread::run() {
             tic = currentTic;
         }
     }
-
+    //Tell the server we are disconnecting
     character->setConnecting(false);
     std::string charString = character->toString();
 

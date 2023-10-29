@@ -8,21 +8,38 @@
 
 class SideBound : public GameObject, public sf::RectangleShape {
 private:
+    /**
+    * The view that is displayed on collision.
+    */
 	sf::View view;
-
+    /**
+    * The window that it is displayed to.
+    */
 	GameWindow* window;
 public:
-
+    /**
+    * The type of object 
+    */
 	const static int objectType = 6;
-
+    /**
+    * Empty constructor for sidebound.
+    */
 	SideBound();
-
+    /**
+    * Constructs sidebound using a window pointer
+    */
 	SideBound(GameWindow *window);
-
+    /**
+    * Constructs sidebound using a window pointer and a view
+    */
 	SideBound(GameWindow *window, sf::View view);
-
+    /**
+    * Set the view to something different.
+    */
 	void setView(sf::View view);
-
+    /**
+    * onCollision method. Sets the window's view to the view stored in this object.
+    */
     void onCollision();
 
     /**

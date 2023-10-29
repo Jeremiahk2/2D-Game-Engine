@@ -19,7 +19,7 @@ bool GameWindow::checkCollisions(GameObject** collides) {
         for (GameObject *i : collidables) {
 
             if ((dynamic_cast<sf::Sprite *>(character))->getGlobalBounds().intersects((dynamic_cast<sf::Shape *>(i))->getGlobalBounds())) {
-                // If the found collision is not moving, return it immediately
+                // Return static collisions first.
                 *collides = i;
                 return true;
             }

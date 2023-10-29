@@ -11,9 +11,21 @@ class PubThread
 {
 private:
 
+    /**
+    * The timneline associated with this thread
+    */
     Timeline* time;
+    /**
+    * The list of moving platforms to move and publish
+    */
     std::list<MovingPlatform*>* movings;
+    /**
+    * The list of characters to publish
+    */
     std::map<int, std::shared_ptr<GameObject>>* characters;
+    /**
+    * The mutex for mutual exclusion
+    */
     std::mutex* mutex;
 
 

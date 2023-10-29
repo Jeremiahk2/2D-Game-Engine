@@ -22,6 +22,9 @@ private:
     */
     sf::Vector2f speed;
 
+    /**
+    * Mutex for blocking inner processes
+    */
     std::mutex innerMutex;
 
     /**
@@ -41,25 +44,42 @@ private:
     */
     int id = -1;
 
+    /**
+    * True if connecting, false if disconnecting,
+    */
     int connecting;
-
+    /**
+    * The texture for the character
+    */
     sf::Texture texture;
 
+    /**
+    * The spawnpoint for the character
+    */
     SpawnPoint spawn;
 
 public:
-
+    /**
+    * Character's object type
+    */
     static const int objectType = 1;
 
     /**
-    * Empty constructor, sets GameObject fields to false
+    * Empty constructor, sets appropriate game object fields
     */
     Character();
-
+    /**
+    * Sets custom GameObject fields.
+    */
     Character(bool stationary, bool collidable, bool drawable);
 
+    /**
+    * True if connecting, false if disconnecting.
+    */
     bool isConnecting();
-
+    /**
+    * Set the connecting status of the character
+    */
     void setConnecting(int connecting);
 
     /**
@@ -68,6 +88,9 @@ public:
     */
     sf::Vector2f getSpeed();
 
+    /**
+    * Teleport the character to it's respawn point.
+    */
     void respawn();
 
     /**
@@ -135,6 +158,9 @@ public:
     */
     int getID();
 
+    /**
+    * Replace the current spawn point (if any) with a new one.
+    */
     void setSpawnPoint(SpawnPoint spawn);
 
     /**
@@ -161,25 +187,3 @@ public:
     std::shared_ptr<GameObject> makeTemplate() override;
 };
 #endif
-
-//#ifndef SPAWNPOINT_H
-//#define SPAWNPOINT_H
-//#include "GameObject.h"
-//#include <SFML/Graphics.hpp>
-//#include <SFML/OpenGL.hpp>
-//
-//class SpawnPoint : public GameObject, public sf::RectangleShape {
-//private:
-//
-//
-//public:
-//
-//    const static int objectType = 4;
-//
-//    SpawnPoint(float x, float y);
-//
-//    int getObjectType() override;
-//
-//
-//};
-//#endif

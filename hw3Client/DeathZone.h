@@ -7,9 +7,17 @@
 class DeathZone : public GameObject, public sf::RectangleShape {
 private:
 public:
+    /**
+    * Type of object for DeathZone
+    */
     static const int objectType = 5;
+    /**
+    * Create a new DeathZone with predefined size and position
+    */
 	DeathZone(sf::Vector2f size, sf::Vector2f pos);
-
+    /**
+    * Create an empty DeathZone. Still sets GameObject appropriate;y
+    */
     DeathZone();
 
     /**

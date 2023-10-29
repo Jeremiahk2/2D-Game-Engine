@@ -12,11 +12,25 @@
 class RepThread
 {
 private:
-
+    /**
+    * The port that this thread is/will be binded to.
+    */
     int port;
+    /**
+    * The ID of this thread and the client connecting to it.
+    */
     int id;
+    /**
+    * the map of all characters connecting to the server.
+    */
     std::map<int, std::shared_ptr<GameObject>> *characters;
+    /**
+    * mutex for mutual exclusion
+    */
     std::mutex* mutex;
+    /**
+    * the timeline associated with this thread
+    */
     Timeline* time;
 
 public:

@@ -100,6 +100,9 @@ public:
     */
     float getRealTicLength();
     
+    /**
+    * Return the tic length without scale applied. 
+    */
     float getNonScalableTicLength();
 
     /**

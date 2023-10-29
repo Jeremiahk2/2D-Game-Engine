@@ -19,15 +19,26 @@ private:
     * The list of platform pointers that need to be drawn on screen.
     */
     std::list<GameObject*> staticObjects;
-
+    /**
+    * The list of static objects added to the window
+    */
     std::list<std::shared_ptr<GameObject>> nonStaticObjects;
-
+    /**
+    * The list of collidables added to the window
+    */
     std::list<GameObject*> collidables;
-
+    /**
+    * The list of drawables added to the window
+    */
     std::list<GameObject*> drawables;
-
+    /**
+    * Templates used in the drawing/collisions of non-static objects.
+    */
     std::map<int, std::shared_ptr<GameObject>> templates;
 
+    /**
+    * The single, playable character object in the window. Should be a sprite.
+    */
     GameObject* character;
 
     /**
@@ -35,6 +46,9 @@ private:
     */
     bool isProportional = true;
 
+    /**
+    * The mutex for handling inner mutual exclusion
+    */
     std::mutex *innerMutex;
 
 
@@ -84,6 +98,9 @@ public:
     */
     void handleResize(sf::Event event);
 
+    /**
+    * Return the list of static objects.
+    */
     std::list<GameObject*>* getStaticObjects();
 
     /**
@@ -102,6 +119,9 @@ public:
     */
     void updateNonStatic(std::string updates);
 
+    /**
+    * Add an empty template object to the gamewindow.
+    */
     void addTemplate(std::shared_ptr<GameObject> templateObject);
 };
 

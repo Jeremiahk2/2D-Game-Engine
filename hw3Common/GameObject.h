@@ -26,14 +26,17 @@ public:
 	GameObject(bool stationary, bool collidable, bool drawable);
 
     /**
-    * Check if the object is static
+    * Check if the object is static (Doesn't move or doesn't get send from the server)
     */
     bool isStatic();
 
+    /**
+    * Bool value for if it is drawable (inherits sf::drawable)
+    */
     bool isDrawable();
 
     /**
-    * Check if the object is collidable.
+    * Check if the object is collidable (inherits sf::Shape or sf::Shape)
     */
     bool isCollidable();
 

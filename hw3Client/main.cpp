@@ -79,13 +79,13 @@ int main() {
     //Make a deadzone of height 30 that stretches across the bottom of the view.
     DeathZone dead(sf::Vector2f(window.getView().getSize().x, 30.f), sf::Vector2f(0.f, window.getView().getSize().y - 30.f));
     window.addGameObject(&dead);
-
+    //Create first SideBound
     sf::View view1 = window.getView();
     SideBound firstView(&window, view1);
     firstView.setPosition(500.f, 0.f);
     firstView.setSize(sf::Vector2f(15.f, (float)window.getSize().y));
     window.addGameObject(&firstView);
-
+    //Creae second SideBound
     sf::View view2 = window.getView();
     view2.setCenter(window.getView().getCenter().x + 450.f, window.getView().getCenter().y);
     SideBound secondView(&window, view2);
@@ -93,7 +93,7 @@ int main() {
     secondView.setPosition(firstView.getPosition().x + firstView.getGlobalBounds().width + character.getGlobalBounds().width + 1.f, 0.f);
     window.addGameObject(&secondView);
 
-
+    //Add templates
     window.addTemplate(headBonk.makeTemplate());
     window.addTemplate(character.makeTemplate());
     window.addTemplate(dead.makeTemplate());

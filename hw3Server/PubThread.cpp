@@ -27,18 +27,19 @@ void PubThread::run() {
             std::string rtnString;
             std::stringstream stream;
             {
+                //Add characters to stream
                 std::lock_guard<std::mutex> lock(*mutex);
                 for (auto iter = characters->begin(); iter != characters->end(); ++iter) {
                     stream << iter->second->toString() << ',';
                 }
             }
-
+            //Add moving platforms to string
             for (MovingPlatform* i : *movings) {
                 stream << i->toString() << ',';
             }
 
             std::getline(stream, rtnString);
-
+            //Send the string to the players
             zmq::message_t rtnMessage(rtnString.size() + 1);
             memcpy(rtnMessage.data(), rtnString.data(), rtnString.size() + 1);
             pubSocket.send(rtnMessage, zmq::send_flags::none);

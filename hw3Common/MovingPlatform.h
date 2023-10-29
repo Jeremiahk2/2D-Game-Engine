@@ -12,7 +12,7 @@ class MovingPlatform: public Platform
 private:
 
     /**
-    * The type of movement.
+    * The type of movement. True for horizontal, false for vertical
     */
     bool m_type;
 
@@ -21,6 +21,9 @@ private:
     */
     sf::Vector2f speed = sf::Vector2f(0, 0);
 
+    /**
+    * the starting position of the platform.
+    */
     sf::Vector2f startPos;
 
     /**
@@ -31,7 +34,6 @@ private:
 
     /**
     * The last recorded move that the moving platform made.
-    * TODO: Make thread safe. Add mutex to move?
     */
     sf::Vector2f lastMove = sf::Vector2f(0, 0); 
 
@@ -48,6 +50,9 @@ public:
     */
     MovingPlatform(float speed, bool type, float startx, float starty);
 
+    /**
+    * Empty constructor. Sets GameObject fields appropriately.
+    */
     MovingPlatform();
 
     /**
@@ -64,6 +69,9 @@ public:
     */
     bool getMovementType();
 
+    /**
+    * Set the movement type for the platofmr.
+    */
     void setMovementType(int movementType);
 
     /**
@@ -71,10 +79,19 @@ public:
     */
     sf::Vector2f getStartPos();
 
+    /**
+    * Return a vector representation of speed.
+    */
     sf::Vector2f getSpeedVector();
 
+    /**
+    * Return a floating point, direction representation of speed.
+    */
     float getSpeedValue();
 
+    /**
+    *Set the speed of the moving platform.
+    */
     void setSpeed(sf::Vector2f speed);
 
     /**
@@ -82,6 +99,9 @@ public:
     */
     sf::Vector2i getBounds();
 
+    /**
+    * Move the platform (thread safe)
+    */
     void move(float x, float y);
 
     /**
@@ -94,10 +114,19 @@ public:
     */
     sf::Vector2f getLastMove(); 
 
+    /**
+    * Get a string representation of the moving platform.
+    */
     std::string toString() override;
 
+    /**
+    * Create and return a new moving platform using a string.
+    */
     std::shared_ptr<GameObject> constructSelf(std::string self) override;
 
+    /**
+    * Return MovingPlatform's object type.
+    */
     int getObjectType() override;
 
 };
