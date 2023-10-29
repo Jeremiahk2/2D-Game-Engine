@@ -1,5 +1,4 @@
 #include "CThread.h"
-//Correct version
 
 bool CThread::isBusy()
 {

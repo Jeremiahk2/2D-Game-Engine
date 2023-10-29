@@ -7,19 +7,6 @@
 #include "SubThread.h"
 #include "DeathZone.h"
 #include "SideBound.h"
-//Correct version
-
-/**
-* KNOWN BUGS
-* 1. Changing the scale to a lower scale at the precise moment that the 
-* platform hits it's bounds will cause it to stop in place. This is probably because
-* it's new speed is too slow to make it back through the bounded area.
-* This can probably be fixed by updating the platform's position to the bound when it hits it.
-* That way a speed change won't affect it.
-* Moderately difficult to replicate
-* 2. Very rare circumstance where if the player is on a vertical moving platform for a long time, they will fall through the platform eventually
-* Very difficult to replicate (Random occurrence)
-*/
 
 //Speed is calculated in pixels per second.
 #define PLAT_SPEED 100.f
