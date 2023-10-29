@@ -24,11 +24,6 @@ public:
     PubThread(Timeline* time, std::list<MovingPlatform*>* movings, std::map<int, std::shared_ptr<GameObject>>* characters, std::mutex *m);
 
     /**
-    * Not used. Possibly not needed.
-    */
-    bool isBusy();
-
-    /**
     * run the program. It is responsible for the movement of a platform, which goes back and forth between two bounds.
     */
     void run();

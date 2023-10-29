@@ -26,11 +26,6 @@ public:
     RepThread(int port, int id, std::map<int, std::shared_ptr<GameObject>>* characters, std::mutex *m, Timeline *time);
 
     /**
-    * Not used. Possibly not needed.
-    */
-    bool isBusy();
-
-    /**
     * run the program. It is responsible for the movement of a platform, which goes back and forth between two bounds.
     */
     void run();

@@ -8,9 +8,6 @@ PubThread::PubThread(Timeline *time, std::list<MovingPlatform*> *movings, std::m
     this->mutex = m;
 }
 
-bool PubThread::isBusy() {
-}
-
 void PubThread::run() {
 
     zmq::context_t context(2);

@@ -10,9 +10,6 @@ RepThread::RepThread(int port, int id, std::map<int, std::shared_ptr<GameObject>
     this->time = time;
 }
 
-bool RepThread::isBusy() {
-}
-
 void RepThread::run() {
     //Bind ourself to the port.
     char portString[21];
