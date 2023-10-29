@@ -73,6 +73,8 @@ void CThread::run() {
     int moves = 0;
     bool direction = false;
 
+    float nonScalableTicLength = line->getNonScalableTicLength();
+
     while (!(*stop)) {
         currentTic = line->getTime();
         if (currentTic > tic) {
@@ -115,20 +117,20 @@ void CThread::run() {
             window->updateNonStatic(charStrings);
 
             //Sync with visuals
-            window->update();
-            //Update the rest
-            std::string otherStuff(updates.data() + pos);
-            window->updateNonStatic(otherStuff);
-
-            ticLength = line->getRealTicLength();
-
-            *upPressed = false;
-            //Get gravity as a function of time
-            float gravity = character->getGravity() * ticLength * (currentTic - tic);
-            float oneHalfTicGrav = (character->getGravity() * ticLength) / 2;
             {
-                //Character is entering an inconsistent state, lock it.
                 std::lock_guard<std::mutex> lock(*mutex);
+                window->update();
+                //Update the rest
+                std::string otherStuff(updates.data() + pos);
+                window->updateNonStatic(otherStuff);
+
+                ticLength = line->getRealTicLength();
+
+                *upPressed = false;
+                //Get gravity as a function of time
+                float gravity = character->getGravity() * ticLength * (currentTic - tic);
+                float oneHalfTicGrav = (character->getGravity() * ticLength) / 2;
+                //Character is entering an inconsistent state, lock it.
                 GameObject* collision = nullptr;
                 bool doGravity = true;
                 if (window->checkCollisions(&collision)) {
@@ -196,7 +198,7 @@ void CThread::run() {
                         }
                         else if (collision->getObjectType() == MovingPlatform::objectType) {
                             MovingPlatform* temp = (MovingPlatform*)collision;
-                            float platSpeed = (float)temp->getSpeedValue() * (float)ticLength * (float)(currentTic - tic);
+                            float platSpeed = (float)temp->getSpeedValue() * (float)nonScalableTicLength * (float)(currentTic - tic);
 
                             //If the platform is moving horizontally.
                             if (temp->getMovementType()) {
@@ -220,6 +222,7 @@ void CThread::run() {
                                 else {
                                     //Just moved down into a downward moving platform. Correct us to be on top of it.
                                     character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - oneHalfTicGrav);
+                                    *upPressed = true;
                                 }
                             }
                         }
@@ -250,7 +253,6 @@ void CThread::run() {
 
     character->setConnecting(false);
     std::string charString = character->toString();
-
 
     zmq::message_t request(charString.size() + 1);
     memcpy(request.data(), charString.data(), charString.size() + 1);

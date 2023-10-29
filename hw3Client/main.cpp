@@ -178,14 +178,9 @@ int main() {
                     else {
                         MovingPlatform *temp = (MovingPlatform *)collision;
                         //Convert plat's speed to pixels per tic
-                        float platSpeed = (float)temp->getSpeedValue() * (float)ticLength * (float)(currentTic - tic);
+                        float oneHalfTicSpeed = (character.getSpeed().x * ticLength) / 2;
 
-                        if (temp->getMovementType()) {
-                            character.move(charSpeed + platSpeed, 0);
-                        }
-                        else {
-                            character.move(charSpeed, 0);
-                        }
+                        character.setPosition(temp->getGlobalBounds().left + temp->getGlobalBounds().width + oneHalfTicSpeed, character.getPosition().y);
                     }
                 }
             }
@@ -206,13 +201,10 @@ int main() {
                     //If it was moving, the move it back AND along with the platform's speed.
                     else {
                         MovingPlatform *temp = (MovingPlatform*)collision;
-                        float platSpeed = (float)temp->getSpeedValue() * (float)ticLength * (float)(currentTic - tic);
-                        if (temp->getMovementType()) {
-                            character.move(-1 * charSpeed + platSpeed, 0);
-                        }
-                        else {
-                            character.move(-1 * charSpeed, 0);
-                        }
+                        float oneHalfTicSpeed = (character.getSpeed().x * ticLength) / 2;
+
+                        character.setPosition(temp->getGlobalBounds().left - character.getGlobalBounds().width - oneHalfTicSpeed, character.getPosition().y);
+
                     }
                 }
             }

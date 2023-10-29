@@ -64,6 +64,11 @@ float Timeline::getRealTicLength() {
     return anchor ? tic * anchor->getRealTicLength() : scale * sf::milliseconds(1).asSeconds();
 }
 
+float Timeline::getNonScalableTicLength()
+{
+    return anchor ? tic * anchor->getRealTicLength() : sf::milliseconds(1).asSeconds();
+}
+
 void Timeline::changeScale(float scale) {
     this->scale = scale;
 }

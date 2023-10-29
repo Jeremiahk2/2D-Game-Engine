@@ -99,6 +99,8 @@ public:
     * If you are changing scale arbitrarily, you will need to update this every iteration
     */
     float getRealTicLength();
+    
+    float getNonScalableTicLength();
 
     /**
     * Change the scale of the timeline. 
