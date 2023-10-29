@@ -64,13 +64,11 @@ void RepThread::run() {
                 tic = currentTic;
             }
             //Disconnect client if we haven't heard from them in 100 tics.
-            if (currentTic - tic >= 100) {
-                std::cout << currentTic - tic << std::endl;
+            else if (currentTic - tic >= 100) {
                 std::lock_guard<std::mutex> lock(*mutex);
                 characters->erase(id);
                 tic = currentTic;
                 connected = false;
-
             }
         }
     }

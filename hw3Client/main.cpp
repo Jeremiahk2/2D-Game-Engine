@@ -120,6 +120,7 @@ int main() {
                     //Need to notify all so they can stop
                     cv.notify_all();
                     first.join();
+                    window.setActive(true);
                     window.close();
 
                 }

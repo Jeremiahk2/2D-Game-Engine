@@ -255,4 +255,5 @@ void CThread::run() {
     //Receive confirmation
     zmq::message_t reply;
     reqSocket.recv(reply, zmq::recv_flags::none);
+    window->setActive(false);
 }

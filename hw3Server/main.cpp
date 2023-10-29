@@ -54,6 +54,12 @@ struct ClientStruct {
 };
 
 int main() {
+    //This is here to avoid rendering texture issues. Apparently OpenGL will not make a handle unless you make a window and set it active first.
+    //So if you try to load textures in a certain order it fails.
+    //I figured it out by reading this github post: https://github.com/Furthen64/hurkalumo/issues/24
+    //I thought about putting actual OpenGL code here, but it might not work on other platforms, so this'll have to do.
+    sf::RenderWindow window;
+    window.setActive();
 
     //Create MovingPlatform and add it to the window
     MovingPlatform moving(PLAT_SPEED, 1, 150.f, 500.f);
