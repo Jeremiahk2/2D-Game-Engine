@@ -217,24 +217,6 @@ int main() {
                     character.setJumping(true);
                 }
             }
-
-            //If the character is currently jumping, move them up and check for collisions.
-            float frameJump = JUMP_SPEED * (float)ticLength * (float)(currentTic - tic);
-            
-            if (character.isJumping()) {
-                std::lock_guard<std::mutex> lock(mutex);
-                character.move(0, -1 * frameJump);
-                jumpTime -= (float)ticLength * (float)(currentTic - tic);
-                bool jumpCollides = window.checkCollisions(&collision);
-                //Exit jumping if there are no more jump frames or if we collided with something.
-                if (jumpTime <= 0 || jumpCollides) {
-                    if (jumpCollides) {
-                        character.move(0, frameJump);
-                    }
-                    character.setJumping(false);
-                    jumpTime = JUMP_TIME;
-                }
-            }
             tic = currentTic;
         }
     }

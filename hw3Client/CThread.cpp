@@ -72,6 +72,7 @@ void CThread::run() {
 
     int moves = 0;
     bool direction = false;
+    float jumpTime = JUMP_TIME;
 
     float nonScalableTicLength = line->getNonScalableTicLength();
 
@@ -231,7 +232,23 @@ void CThread::run() {
                         }
                     }
                 }
+                float frameJump = JUMP_SPEED * (float)ticLength * (float)(currentTic - tic);
+
+                if (character->isJumping()) {
+                    character->move(0, -1 * frameJump);
+                    jumpTime -= (float)ticLength * (float)(currentTic - tic);
+                    bool jumpCollides = window->checkCollisions(&collision);
+                    //Exit jumping if there are no more jump frames or if we collided with something.
+                    if (jumpTime <= 0 || jumpCollides) {
+                        if (jumpCollides) {
+                            character->move(0, frameJump);
+                        }
+                        character->setJumping(false);
+                        jumpTime = JUMP_TIME;
+                    }
+                }
             }
+            
             //Send updated character information to server
             {
                 std::lock_guard<std::mutex> lock(*mutex);

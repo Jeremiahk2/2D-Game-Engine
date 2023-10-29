@@ -72,5 +72,4 @@ void RepThread::run() {
             }
         }
     }
-    std::cout << "See ya" << std::endl;
 }

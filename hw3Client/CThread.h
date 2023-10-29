@@ -9,6 +9,10 @@
 #include "Timeline.h"
 #include "GameWindow.h"
 #include "DeathZone.h"
+
+#define JUMP_SPEED 420.f
+
+#define JUMP_TIME .5
 #define MESSAGE_LIMIT 1024
 
 
