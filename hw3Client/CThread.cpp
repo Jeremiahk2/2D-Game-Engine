@@ -230,6 +230,10 @@ void CThread::run() {
                         else if (collision->getObjectType() == DeathZone::objectType) {
                             character->respawn();
                         }
+                        /*else if (collision->getObjectType() == SideBound::objectType) {
+                            SideBound* s = (SideBound*)collision;
+                            s->onCollision();
+                        }*/
                     }
                 }
                 float frameJump = JUMP_SPEED * (float)ticLength * (float)(currentTic - tic);
@@ -238,6 +242,10 @@ void CThread::run() {
                     character->move(0, -1 * frameJump);
                     jumpTime -= (float)ticLength * (float)(currentTic - tic);
                     bool jumpCollides = window->checkCollisions(&collision);
+                    if (jumpCollides && collision->getObjectType() == SideBound::objectType) {
+                        //Don't stop the jump if it's just a side bound.
+                        jumpCollides = false;
+                    }
                     //Exit jumping if there are no more jump frames or if we collided with something.
                     if (jumpTime <= 0 || jumpCollides) {
                         if (jumpCollides) {

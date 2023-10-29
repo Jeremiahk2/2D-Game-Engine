@@ -67,7 +67,7 @@ int main() {
     moving.setFillColor(sf::Color(100, 250, 50));
     moving.setBounds(150, 400);
 
-    MovingPlatform vertMoving(PLAT_SPEED, false, 600.f, 500.f);
+    MovingPlatform vertMoving(PLAT_SPEED, false, 0.f, 500.f);
     vertMoving.setSize(sf::Vector2f(50.f, 15.f));
     vertMoving.setFillColor(sf::Color::Magenta);
     vertMoving.setBounds(500, 200);

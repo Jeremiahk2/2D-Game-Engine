@@ -55,10 +55,10 @@ void GameWindow::addGameObject(GameObject *object) {
         staticObjects.push_back(object);
     }
     if (object->isCollidable()) {
-        collidables.push_front(object);
+        collidables.push_back(object);
     }
     if (object->isDrawable()) {
-        drawables.push_front(object);
+        drawables.push_back(object);
     }
 }
 //Contains client objects like death bounds and side bounds.

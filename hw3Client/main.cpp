@@ -6,6 +6,7 @@
 #include "ReqThread.h"
 #include "SubThread.h"
 #include "DeathZone.h"
+#include "SideBound.h"
 //Correct version
 
 /**
@@ -79,11 +80,29 @@ int main() {
     DeathZone dead(sf::Vector2f(window.getView().getSize().x, 30.f), sf::Vector2f(0.f, window.getView().getSize().y - 30.f));
     window.addGameObject(&dead);
 
+    sf::View view1 = window.getView();
+    SideBound firstView(&window, view1);
+    firstView.setPosition(500.f, 0.f);
+    firstView.setSize(sf::Vector2f(15.f, (float)window.getSize().y));
+    window.addGameObject(&firstView);
+
+    sf::View view2 = window.getView();
+    view2.setCenter(window.getView().getCenter().x + 450.f, window.getView().getCenter().y);
+    SideBound secondView(&window, view2);
+    secondView.setSize(sf::Vector2f(15.f, (float)window.getSize().y));
+    secondView.setPosition(firstView.getPosition().x + firstView.getGlobalBounds().width + character.getGlobalBounds().width + 1.f, 0.f);
+    window.addGameObject(&secondView);
+
 
     window.addTemplate(headBonk.makeTemplate());
     window.addTemplate(character.makeTemplate());
     window.addTemplate(dead.makeTemplate());
+    window.addTemplate(secondView.makeTemplate());
     window.addTemplate(std::shared_ptr<MovingPlatform>(new MovingPlatform));
+
+
+
+    
 
 
     //END SETTING UP GAME OBJECTS
@@ -171,16 +190,20 @@ int main() {
                 //Check for collisions
                 if (window.checkCollisions(&collision)) {
                     //If the collided platform is not moving, just correct the position of Character back.
-                    if (collision->getObjectType() != MovingPlatform::objectType) {
+                    if (collision->getObjectType() == Platform::objectType) {
                         character.move(charSpeed, 0.f);
                     }
                     //if the collided platform is moving, move the character back AND move them along with the platform.
-                    else {
+                    else if (collision->getObjectType() == MovingPlatform::objectType) {
                         MovingPlatform *temp = (MovingPlatform *)collision;
                         //Convert plat's speed to pixels per tic
                         float oneHalfTicSpeed = (character.getSpeed().x * ticLength) / 2;
 
                         character.setPosition(temp->getGlobalBounds().left + temp->getGlobalBounds().width + oneHalfTicSpeed, character.getPosition().y);
+                    }
+                    else if (collision->getObjectType() == SideBound::objectType) {
+                        SideBound* temp = (SideBound*)collision;
+                        temp->onCollision();
                     }
                 }
             }
@@ -195,16 +218,20 @@ int main() {
                 //Check collisions.
                 if (window.checkCollisions(&collision)) {
                     //If the collided object is not moving, just correct the position of the character back.
-                    if (collision->getObjectType() != MovingPlatform::objectType) {
+                    if (collision->getObjectType() == Platform::objectType) {
                         character.move(-1 * charSpeed, 0.f);
                     }
                     //If it was moving, the move it back AND along with the platform's speed.
-                    else {
+                    else if (collision->getObjectType() == MovingPlatform::objectType) {
                         MovingPlatform *temp = (MovingPlatform*)collision;
                         float oneHalfTicSpeed = (character.getSpeed().x * ticLength) / 2;
 
                         character.setPosition(temp->getGlobalBounds().left - character.getGlobalBounds().width - oneHalfTicSpeed, character.getPosition().y);
 
+                    }
+                    else if (collision->getObjectType() == SideBound::objectType) {
+                        SideBound* temp = (SideBound*)collision;
+                        temp->onCollision();
                     }
                 }
             }

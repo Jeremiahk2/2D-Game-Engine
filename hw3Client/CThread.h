@@ -9,6 +9,7 @@
 #include "Timeline.h"
 #include "GameWindow.h"
 #include "DeathZone.h"
+#include "SideBound.h"
 
 #define JUMP_SPEED 420.f
 
