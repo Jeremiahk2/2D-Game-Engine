@@ -92,6 +92,5 @@ void PubThread::run() {
             }
             tic = currentTic;
         }
-        //tic = currentTic;
     }
 }

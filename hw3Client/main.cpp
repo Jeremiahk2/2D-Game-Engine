@@ -35,13 +35,6 @@
 void run_cthread(CThread *fe) {
     fe->run();
 }
-//
-//void run_reqthread(ReqThread* fe) {
-//    fe->run();
-//}
-//void run_subthread(SubThread* fe) {
-//    fe->run();
-//}
 
 
 int main() {
@@ -127,8 +120,6 @@ int main() {
                     //Need to notify all so they can stop
                     cv.notify_all();
                     first.join();
-                    //second.join();
-                    //third.join();
                     window.close();
 
                 }
@@ -244,7 +235,6 @@ int main() {
             }
             tic = currentTic;
         }
-        /*tic = currentTic;*/
     }
 
     return EXIT_SUCCESS;

@@ -41,14 +41,6 @@
 
 #define MESSAGE_LIMIT 1024 //Limit on string length for network messages
 
-/**
- * Wrapper function because threads can't take pointers to member functions.
- */
-//void run_moving(MovingThread* fe)
-//{
-//    fe->run();
-//}
-
 void run_rep(RepThread* fe) {
     fe->run();
 }

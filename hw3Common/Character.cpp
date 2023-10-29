@@ -11,7 +11,6 @@ Character::Character() : GameObject(false, false, true), Sprite() {
     }
     setTexture(texture);
     setScale(.1f, .1f);
-    /*setSize(sf::Vector2f(30.f, 30.f));*/
     setSpeed(CHAR_SPEED);
     setGravity(GRAV_SPEED);
 }
