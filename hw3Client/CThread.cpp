@@ -182,6 +182,10 @@ void CThread::run() {
                     else if (collision->getObjectType() == DeathZone::objectType) {
                         character->respawn();
                     }
+                    else if (collision->getObjectType() == SideBound::objectType) {
+                        SideBound* sb = (SideBound*)collision;
+                        sb->onCollision();
+                    }
                 }
                 //At this point, character shouldn't be colliding with anything at all.
                 if (doGravity) {
