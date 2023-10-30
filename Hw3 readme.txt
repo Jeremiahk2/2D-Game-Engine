@@ -29,6 +29,14 @@ Right click on hw3Server > Properties > C/C++ > General > Additional Include Dir
 Add the path to your copy of the "hw3Common" folder that you extracted.
 You may need to delete the path that was already there (Users/Jerry...) first
 
+Step Six
+Build both projects. Simply right click on them and click build.
+
+Step Seven
+Run server, then client. To do this quickly, go to Project -> Configure startup projects -> current selection.
+Then, simply click on the server (It will turn bold white) then click the run arrow.
+Then repeat with the client n times.
+
 
 EXTRA NOTES PLEASE READ BEFORE TESTING
 1. Resizing bug has been fixed! You can move the window or resize it without falling through the platforms.
