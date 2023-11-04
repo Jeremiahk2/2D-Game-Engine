@@ -45,7 +45,7 @@ void CThread::run() {
 
     //Receive the reply from the server, should contain our port and ID
     zmq::message_t initReply;
-    reqSocket.recv(initReply, zmq::recv_flags::none);;
+    auto r = reqSocket.recv(initReply, zmq::recv_flags::none);;
     char* initReplyString = (char*)initReply.data();
     int initId = -1;
     int port = -1;
@@ -82,7 +82,7 @@ void CThread::run() {
 
             //Receive updates to nonstatic objects. Should be comma separated string.
             zmq::message_t newPlatforms;
-            subSocket.recv(newPlatforms, zmq::recv_flags::none);
+            r = subSocket.recv(newPlatforms, zmq::recv_flags::none);
             std::string updates((char*)newPlatforms.data());
 
             int pos = 0;
@@ -266,7 +266,7 @@ void CThread::run() {
             }
             //Receive confirmation
             zmq::message_t reply;
-            reqSocket.recv(reply, zmq::recv_flags::none);
+            r = reqSocket.recv(reply, zmq::recv_flags::none);
             char* replyString = (char*)reply.data();
             int newID;
             int matches = sscanf_s(replyString, "%d", &newID);
@@ -284,6 +284,6 @@ void CThread::run() {
 
     //Receive confirmation
     zmq::message_t reply;
-    reqSocket.recv(reply, zmq::recv_flags::none);
+    r = reqSocket.recv(reply, zmq::recv_flags::none);
     window->setActive(false);
 }

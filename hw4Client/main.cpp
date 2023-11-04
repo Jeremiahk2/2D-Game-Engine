@@ -5,6 +5,15 @@
 #include "DeathZone.h"
 #include "SideBound.h"
 
+#define OBJECT 0
+#define CHARACTER 1
+#define PLATFORM 2
+#define MOVING 3
+#define SPAWNPOINT 4
+#define DEATHZONE 5
+#define SIDEBOUND 6
+#define EVENT 7
+
 //Speed is calculated in pixels per second.
 #define PLAT_SPEED 100.f
 
@@ -123,8 +132,8 @@ int main() {
 
     while (window.isOpen()) {
 
-        ticLength = FrameTime.getRealTicLength();
-        currentTic = FrameTime.getTime();
+        ticLength = global.getRealTicLength();
+        currentTic = global.getTime();
 
         sf::Event event;
         if (currentTic > tic) {
