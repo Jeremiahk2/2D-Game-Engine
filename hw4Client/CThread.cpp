@@ -23,6 +23,10 @@ CThread::CThread(bool* upPressed, GameWindow* window, Timeline* timeline, bool* 
     types.push_back(type);
 
     em->registerEvent(types, new CollisionHandler);
+    type = "movement";
+    types.clear();
+    types.push_back(type);
+    em->registerEvent(types, new MovementHandler);
 }
 
 void CThread::run() {

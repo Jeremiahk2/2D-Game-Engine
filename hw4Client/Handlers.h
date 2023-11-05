@@ -11,14 +11,21 @@ public:
 };
 
 class MovementHandler : public EventHandler {
+public:
+	enum DIRECTION {
+		LEFT,
+		RIGHT
+	};
 	void onEvent(Event e);
 };
 
 class GravityHandler : public EventHandler {
+public:
 	void onEvent(Event e);
 };
 
 class DisconnectHandler : public EventHandler {
+public:
 	void onEvent(Event e);
 };
 

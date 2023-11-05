@@ -100,11 +100,6 @@ int main() {
     window.addTemplate(secondView.makeTemplate());
     window.addTemplate(std::shared_ptr<MovingPlatform>(new MovingPlatform));
 
-
-
-    
-
-
     //END SETTING UP GAME OBJECTS
 
     //Set up timing variables
@@ -180,61 +175,44 @@ int main() {
             //Need to recalculate character speed in case scale changed.
             float charSpeed = (float)character.getSpeed().x * (float)ticLength * (float)(currentTic - tic);
 
-            GameObject* collision = nullptr;
-            //Handle left input
+            Event m;
+            m.type = std::string("movement");
+
+            Event::variant windowVariant;
+            windowVariant.m_Type = Event::variant::TYPE_GAMEWINDOW;
+            windowVariant.m_asGameWindow = &window;
+
+            Event::variant ticLengthVariant;
+            ticLengthVariant.m_Type = Event::variant::TYPE_FLOAT;
+            ticLengthVariant.m_asFloat = ticLength;
+
+            Event::variant differentialVariant;
+            differentialVariant.m_Type = Event::variant::TYPE_INT;
+            differentialVariant.m_asInt = currentTic - tic;
+
+            m.parameters.insert({ "window", windowVariant });
+            m.parameters.insert({ "ticLength", ticLengthVariant });
+            m.parameters.insert({ "differential", differentialVariant });
+            m.type = std::string("movement");
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && window.hasFocus())
             {
                 std::lock_guard<std::mutex> lock(mutex);
-                //Move left
-                character.move(-1 * charSpeed, 0.f);
-
-                //Check for collisions
-                if (window.checkCollisions(&collision)) {
-                    //If the collided platform is not moving, just correct the position of Character back.
-                    if (collision->getObjectType() == Platform::objectType) {
-                        character.move(charSpeed, 0.f);
-                    }
-                    //if the collided platform is moving, move the character back AND move them along with the platform.
-                    else if (collision->getObjectType() == MovingPlatform::objectType) {
-                        MovingPlatform *temp = (MovingPlatform *)collision;
-                        //Convert plat's speed to pixels per tic
-                        float oneHalfTicSpeed = (character.getSpeed().x * ticLength) / 2;
-
-                        character.setPosition(temp->getGlobalBounds().left + temp->getGlobalBounds().width + oneHalfTicSpeed, character.getPosition().y);
-                    }
-                    else if (collision->getObjectType() == SideBound::objectType) {
-                        SideBound* temp = (SideBound*)collision;
-                        temp->onCollision();
-                    }
-                }
+                Event::variant directionVariant;
+                directionVariant.m_Type = Event::variant::TYPE_INT;
+                directionVariant.m_asInt = MovementHandler::LEFT;
+                m.parameters.insert({ "direction", directionVariant });
+                eventManager.raise(m);
             }
 
             //Handle right input
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && window.hasFocus())
             {
                 std::lock_guard<std::mutex> lock(mutex);
-                // Move Right
-                character.move(charSpeed, 0.f);
-
-                //Check collisions.
-                if (window.checkCollisions(&collision)) {
-                    //If the collided object is not moving, just correct the position of the character back.
-                    if (collision->getObjectType() == Platform::objectType) {
-                        character.move(-1 * charSpeed, 0.f);
-                    }
-                    //If it was moving, the move it back AND along with the platform's speed.
-                    else if (collision->getObjectType() == MovingPlatform::objectType) {
-                        MovingPlatform *temp = (MovingPlatform*)collision;
-                        float oneHalfTicSpeed = (character.getSpeed().x * ticLength) / 2;
-
-                        character.setPosition(temp->getGlobalBounds().left - character.getGlobalBounds().width - oneHalfTicSpeed, character.getPosition().y);
-
-                    }
-                    else if (collision->getObjectType() == SideBound::objectType) {
-                        SideBound* temp = (SideBound*)collision;
-                        temp->onCollision();
-                    }
-                }
+                Event::variant directionVariant;
+                directionVariant.m_Type = Event::variant::TYPE_INT;
+                directionVariant.m_asInt = MovementHandler::RIGHT;
+                m.parameters.insert({ "direction", directionVariant });
+                eventManager.raise(m);
             }
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && window.hasFocus())

@@ -65,6 +65,37 @@ void CollisionHandler::onEvent(Event e)
 
 void MovementHandler::onEvent(Event e)
 {
+    GameWindow* window = e.parameters.at(std::string("window")).m_asGameWindow;
+    Character* character = (Character *)window->getPlayableObject();
+    float ticLength = e.parameters.at(std::string("ticLength")).m_asFloat;
+    int differential = e.parameters.at(std::string("differential")).m_asInt;
+    float charSpeed = (float)character->getSpeed().x * (float)ticLength * (float)(differential);
+    //Move left
+    if (e.parameters.at(std::string("direction")).m_asInt == MovementHandler::LEFT) {
+        charSpeed *= -1;
+    }
+    character->move(charSpeed, 0.f);
+
+    GameObject* collision;
+    //Check for collisions
+    if (window->checkCollisions(&collision)) {
+        //If the collided platform is not moving, just correct the position of Character back.
+        if (collision->getObjectType() == Platform::objectType) {
+            character->move(-1 * charSpeed, 0.f);
+        }
+        //if the collided platform is moving, move the character back AND move them along with the platform.
+        else if (collision->getObjectType() == MovingPlatform::objectType) {
+            MovingPlatform* temp = (MovingPlatform*)collision;
+            //Convert plat's speed to pixels per tic
+            float oneHalfTicSpeed = (character->getSpeed().x * ticLength) / 2;
+
+            character->setPosition(temp->getGlobalBounds().left + temp->getGlobalBounds().width + oneHalfTicSpeed, character->getPosition().y);
+        }
+        else if (collision->getObjectType() == SideBound::objectType) {
+            SideBound* temp = (SideBound*)collision;
+            temp->onCollision();
+        }
+    }
 }
 
 void GravityHandler::onEvent(Event e)
