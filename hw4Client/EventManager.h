@@ -13,9 +13,10 @@ public:
 
 	void raise(Event);
 
-private:
+	std::list<Event> raised_events;
+
 	std::unordered_map<std::string, std::list<EventHandler*>> handlers;
 
-	std::list<Event> raised_events;
+private:
 };
 #endif

@@ -1,5 +1,6 @@
 #include "CThread.h"
 
+
 bool CThread::isBusy()
 {
     std::lock_guard<std::mutex> lock(*mutex);  // this locks the mutuex until the variable goes out of scope (i.e., when the function returns in this case)
@@ -7,7 +8,7 @@ bool CThread::isBusy()
 }
 
 CThread::CThread(bool* upPressed, GameWindow* window, Timeline* timeline, bool* stopped,
-    std::mutex* m, std::condition_variable* cv, bool* busy)
+    std::mutex* m, std::condition_variable* cv, bool* busy, EventManager *em)
 {
     this->mutex = m;
     this->cv = cv;
@@ -16,6 +17,12 @@ CThread::CThread(bool* upPressed, GameWindow* window, Timeline* timeline, bool* 
     this->window = window;
     this->upPressed = upPressed;
     this->busy = busy;
+    this->em = em;
+    std::string type("collision");
+    std::list<std::string> types;
+    types.push_back(type);
+
+    em->registerEvent(types, new CollisionHandler);
 }
 
 void CThread::run() {
@@ -134,57 +141,46 @@ void CThread::run() {
                 GameObject* collision = nullptr;
                 bool doGravity = true;
                 if (window->checkCollisions(&collision)) {
-                    //If the collided object is not moving, correct the position by moving up one.
-                    //NOTE: This should be impossible unless a platform was generated at the player's location (Since it's not a moving platform).
-                    if (collision->getObjectType() == Platform::objectType) {
-                        Platform* temp = (Platform*)collision;
-                        character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - oneHalfTicGrav);
-                        //Enable jumping. TODO: Rename variable to better fit. canJump? canJump(bool)?
-                        *upPressed = true;
-                        //We just teleported up to the top of a stationary platform, no need for gravity.
-                        doGravity = false;
-                    }
-                    else if (collision->getObjectType() == MovingPlatform::objectType) {
-                        MovingPlatform* temp = (MovingPlatform*)collision;
-                        float platSpeed = (float)temp->getSpeedValue() * (float)ticLength * (float)(currentTic - tic);
-                        float oneHalfTicPlat = (float)temp->getSpeedValue() * (float)ticLength;
+                    //Set up event
+                    Event c;
+                    c.type = std::string("collision");
+                    Event::variant collisionVariant;
+                    collisionVariant.m_Type = Event::variant::TYPE_GAMEOBJECT;
+                    collisionVariant.m_asGameObject = collision;
+                    Event::variant upPressedVariant;
+                    upPressedVariant.m_Type = Event::variant::TYPE_BOOLP;
+                    upPressedVariant.m_asBoolP = upPressed;
+                    Event::variant doGravityVariant;
+                    doGravityVariant.m_Type = Event::variant::TYPE_BOOLP;
+                    doGravityVariant.m_asBoolP = &doGravity;
+                    Event::variant characterVariant;
+                    characterVariant.m_Type = Event::variant::TYPE_GAMEOBJECT;
+                    characterVariant.m_asGameObject = character;
+                    Event::variant ticLengthVariant;
+                    ticLengthVariant.m_Type = Event::variant::TYPE_FLOAT;
+                    ticLengthVariant.m_asFloat = ticLength;
+                    Event::variant differentialVariant;
+                    differentialVariant.m_Type = Event::variant::TYPE_INT;
+                    differentialVariant.m_asInt = currentTic - tic;
+                    c.parameters.insert({ "collision", collisionVariant });
+                    c.parameters.insert({ "upPressed", upPressedVariant });
+                    c.parameters.insert({ "doGravity", doGravityVariant });
+                    c.parameters.insert({ "character", characterVariant });
+                    c.parameters.insert({ "ticLength", ticLengthVariant });
+                    c.parameters.insert({ "differential", differentialVariant });
+                    //Add event to queue
+                    em->raise(c);
+                }
 
-                        //If the platform is moving horizontally.
-                        if (temp->getMovementType()) {
-                            //Since gravity hasn't happened yet, this must be a collision where it hit us from the x-axis, so put the character to the side of it.
-                            if (platSpeed < 0.f) {
-                                //If the platform is moving left, set us to the left of it.
-                                character->setPosition(temp->getGlobalBounds().left - character->getGlobalBounds().width - abs(oneHalfTicPlat), character->getPosition().y);
-                            }
-                            else {
-                                //If the platform is moving right, set us to the right of it
-                                character->setPosition(temp->getGlobalBounds().left + temp->getGlobalBounds().width + abs(oneHalfTicPlat), character->getPosition().y);
-                            }
+                for (Event e : em->raised_events) {
+                    if (e.priority <= currentTic) {
+                        for (EventHandler* currentHandler : em->handlers.at(e.type)) {
+                            currentHandler->onEvent(e);
                         }
-                        //If the platform is moving vertically
-                        else {
-                            //If the platform is currently moving upwards
-                            if (platSpeed < 0.f) {
-                                //At this point, we know that we have been hit by a platform moving upwards, so correct our position upwards.
-                                character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - abs(oneHalfTicPlat));
-                                //We are above a platform, we can jump.
-                                *upPressed = true;
-                                //We just got placed above a platform, no need to do gravity.
-                                doGravity = false;
-                            }
-                            //If the platform is moving downwards
-                            else {
-                                //Gravity will (probably) take care of it, but just in case, correct our movement to the bottom of the platform.
-                                character->setPosition(character->getPosition().x, temp->getGlobalBounds().top + temp->getGlobalBounds().height + oneHalfTicPlat);
-                            }
-                        }
+                        em->raised_events.pop_front();
                     }
-                    else if (collision->getObjectType() == DeathZone::objectType) {
-                        character->respawn();
-                    }
-                    else if (collision->getObjectType() == SideBound::objectType) {
-                        SideBound* sb = (SideBound*)collision;
-                        sb->onCollision();
+                    else {
+                        break;
                     }
                 }
                 //At this point, character shouldn't be colliding with anything at all.

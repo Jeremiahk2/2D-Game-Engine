@@ -120,6 +120,7 @@ int main() {
     bool busy = true;
     bool stopped = false;
     std::condition_variable cv;
+    EventManager eventManager;
 
     //Set up Timelines
     Timeline global;
@@ -127,7 +128,7 @@ int main() {
     Timeline CTime(&global, TIC);
 
     //Start collision detection thread
-    CThread cthread(&upPressed, &window, &CTime, &stopped, &mutex, &cv, &busy);
+    CThread cthread(&upPressed, &window, &CTime, &stopped, &mutex, &cv, &busy, &eventManager);
     std::thread first(run_cthread, &cthread);
 
     while (window.isOpen()) {

@@ -10,6 +10,9 @@
 #include "GameWindow.h"
 #include "DeathZone.h"
 #include "SideBound.h"
+#include "Event.h"
+#include "EventManager.h"
+#include "Handlers.h"
 
 #define JUMP_SPEED 420.f
 
@@ -58,6 +61,8 @@ class CThread
     */
     bool* busy;
 
+    EventManager* em;
+
 
 
 
@@ -66,7 +71,7 @@ class CThread
         * Create a new CThread an d initialize all of the fields.
         */
         CThread(bool* upPressed, GameWindow* window, Timeline* timeline, bool* stopped,
-            std::mutex* m, std::condition_variable* cv, bool *busy);
+            std::mutex* m, std::condition_variable* cv, bool *busy, EventManager *);
         /**
         * Run the thread
         */

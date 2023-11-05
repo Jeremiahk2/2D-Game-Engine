@@ -15,6 +15,7 @@ public:
 		enum Type {
 			TYPE_INT,
 			TYPE_FLOAT,
+			TYPE_BOOLP,
 			TYPE_GAMEOBJECT,
 			TYPE_GAMEWINDOW
 		};
@@ -22,10 +23,15 @@ public:
 		union {
 			int m_asInt;
 			float m_asFloat;
+			bool* m_asBoolP;
 			GameObject* m_asGameObject;
 			GameWindow* m_asGameWindow;
 		};
 	};
+
+	int priority = 0;
+
+	std::string type;
 
 	std::unordered_map<std::string, variant> parameters;
 

@@ -1,6 +1,10 @@
 #ifndef HANDLERS_H
 #define HANDLERS_H
 #include "EventHandler.h"
+#include "MovingPlatform.h"
+#include "Platform.h"
+#include "DeathZone.h"
+#include "SideBound.h"
 class CollisionHandler : public EventHandler {
 public:
 	void onEvent(Event e);

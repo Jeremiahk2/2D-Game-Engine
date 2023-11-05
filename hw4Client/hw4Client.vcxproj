@@ -158,6 +158,7 @@
     <ClCompile Include="DeathZone.cpp" />
     <ClCompile Include="Event.cpp" />
     <ClCompile Include="EventManager.cpp" />
+    <ClCompile Include="Handlers.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SideBound.cpp" />
   </ItemGroup>
