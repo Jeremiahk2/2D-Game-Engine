@@ -2,6 +2,7 @@
 #define EVENTMANAGER_H
 #include "EventHandler.h"
 #include <list>
+#include <unordered_map>
 class EventManager {
 public:
 	EventManager();
@@ -13,7 +14,7 @@ public:
 	void raise(Event);
 
 private:
-	std::map<std::string, std::list<EventHandler*>> handlers;
+	std::unordered_map<std::string, std::list<EventHandler*>> handlers;
 
 	std::list<Event> raised_events;
 };
