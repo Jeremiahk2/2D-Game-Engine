@@ -104,7 +104,6 @@ void CThread::run() {
     while (!(*stop)) {
         currentTic = line->getTime();
         if (currentTic > tic) {
-            std::cout << "Tic differential: " << currentTic - tic << std::endl;
             //Get information from server
 
             //Receive updates to nonstatic objects. Should be comma separated string.

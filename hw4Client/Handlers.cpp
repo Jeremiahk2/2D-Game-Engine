@@ -36,7 +36,7 @@ void CollisionHandler::onEvent(Event e)
     else if (collision->getObjectType() == MovingPlatform::objectType) {
         MovingPlatform* temp = (MovingPlatform*)collision;
         float platSpeed = (float)temp->getSpeedValue() * (float)ticLength * (float)(differential);
-        float oneHalfTicPlat = (float)temp->getSpeedValue() * (float)ticLength;
+        float oneHalfTicPlat = ((float)temp->getSpeedValue() * (float)ticLength) / 2;
 
         //If the platform is moving horizontally.
         if (temp->getMovementType()) {
