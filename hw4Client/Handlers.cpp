@@ -68,9 +68,6 @@ void CollisionHandler::onEvent(Event e)
             }
         }
     }
-    else if (collision->getObjectType() == DeathZone::objectType) {
-        character->respawn();
-    }
     else if (collision->getObjectType() == SideBound::objectType) {
         SideBound* sb = (SideBound*)collision;
         sb->onCollision();
@@ -93,18 +90,27 @@ void MovementHandler::onEvent(Event e)
     }
     Character* character = (Character*)window->getPlayableObject();
     float charSpeed = (float)character->getSpeed().x * (float)ticLength * (float)(differential);
-    //Move left
+    sf::Vector2f speedVector;
+    sf::Vector2f oppositeVector;
+    //Unless left is specified
     if (e.parameters.at(std::string("direction")).m_asInt == MovementHandler::LEFT) {
-        charSpeed *= -1;
+        speedVector.x = charSpeed * -1;
     }
-    character->move(charSpeed, 0.f);
+    else if (e.parameters.at(std::string("direction")).m_asInt == MovementHandler::RIGHT) {
+        speedVector.x = charSpeed;
+    }
+    else if (e.parameters.at(std::string("direction")).m_asInt == MovementHandler::UP) {
+        speedVector.y = character->getJumpSpeed() * (float)ticLength * (float)differential;
+    }
+
+    character->move(speedVector);
 
     GameObject* collision;
     //Check for collisions
     if (window->checkCollisions(&collision)) {
         //If the collided platform is not moving, just correct the position of Character back.
         if (collision->getObjectType() == Platform::objectType) {
-            character->move(-1 * charSpeed, 0.f);
+            character->move(-1.f * speedVector);
         }
         //if the collided platform is moving, move the character back AND move them along with the platform.
         else if (collision->getObjectType() == MovingPlatform::objectType) {
@@ -119,6 +125,11 @@ void MovementHandler::onEvent(Event e)
             temp->onCollision();
         }
     }
+}
+
+GravityHandler::GravityHandler(EventManager *em)
+{
+    this->em = em;
 }
 
 void GravityHandler::onEvent(Event e)
@@ -190,7 +201,15 @@ void GravityHandler::onEvent(Event e)
                 }
             }
             else if (collision->getObjectType() == DeathZone::objectType) {
-                character->respawn();
+                Event death;
+                Event::variant characterVariant;
+                characterVariant.m_Type = Event::variant::TYPE_GAMEOBJECT;
+                characterVariant.m_asGameObject = character;
+                death.parameters.insert({ "character", characterVariant });
+                death.type = "death";
+                death.time = e.time;
+                death.order = e.order + 1;
+                em->raise(death);
             }
         }
     }
@@ -199,3 +218,63 @@ void GravityHandler::onEvent(Event e)
 void DisconnectHandler::onEvent(Event e)
 {
 }
+
+void SpawnHandler::onEvent(Event e)
+{
+    Character* character;
+    try {
+        character = (Character*)e.parameters.at("character").m_asGameObject;
+    }
+    catch (std::out_of_range) {
+        std::cout << "Invalid arguments SpawnHandler" << std::endl;
+        exit(3);
+    }
+
+    character->respawn();
+}
+
+DeathHandler::DeathHandler(EventManager* em)
+{
+    this->em = em;
+}
+
+void DeathHandler::onEvent(Event e)
+{
+    Event spawn;
+    spawn = e;
+    spawn.type = "spawn";
+    spawn.time = e.time;
+    spawn.order = e.order + 1;
+    em->raise(spawn);
+}
+
+//JumpHandler::JumpHandler(EventManager* em)
+//{
+//    this->em = em;
+//}
+//
+//void JumpHandler::onEvent(Event e)
+//{
+//    Character* character;
+//    int tic;
+//    float ticLength;
+//    try {
+//        character = (Character*)e.parameters.at(std::string("character")).m_asGameObject;
+//        tic = e.parameters.at("tic").m_asInt;
+//    }
+//    catch (std::out_of_range) {
+//        std::cout << "Parameters for CollisionHandler are wrong";
+//        exit(3);
+//    }
+//    Event next;
+//    next.type = "movement";
+//    Event::variant directionVariant;
+//    directionVariant.m_Type = Event::variant::TYPE_INT;
+//    directionVariant.m_asInt = MovementHandler::UP;
+//    next.parameters.insert({ "direction", directionVariant });
+//    for (int i = 0; i <= 2000; i ++) {
+//        next.time = tic + i;
+//        next.order = e.order;
+//        em->raise(next);
+//    }
+//}

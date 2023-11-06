@@ -72,6 +72,8 @@ public:
     */
     int64_t getTime();
 
+    int64_t getGlobalTime();
+
     /**
     * Pause this timeline (and all timelines anchored to this one)
     */

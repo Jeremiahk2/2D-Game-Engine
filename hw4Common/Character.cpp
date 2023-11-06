@@ -129,6 +129,16 @@ int Character::getObjectType() {
     return this->objectType;
 }
 
+float Character::getJumpSpeed()
+{
+    return jumpSpeed;
+}
+
+int Character::getJumpTime()
+{
+    return jumpTime;
+}
+
 std::string Character::toString()
 {
     std::stringstream stream;

@@ -32,6 +32,10 @@ private:
     */
     bool jumping = false;
 
+    float jumpSpeed = 420.f;
+    //Number of tics (On global timeline) to jump for.
+    int jumpTime = 200;
+
     /**
     * How much does the character fall per second
     */
@@ -167,6 +171,10 @@ public:
     * Return the Character class' ID.
     */
     int getObjectType() override;
+
+    float getJumpSpeed();
+
+    int getJumpTime();
 
     /**
     * Gets a string representation of this chracter. Matches constructSelf

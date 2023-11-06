@@ -38,6 +38,22 @@ int64_t Timeline::getTime() {
     }
 }
 
+int64_t Timeline::getGlobalTime()
+{
+    if (paused) {
+        return last_paused_time;
+    }
+    //If we are not the anchor, refer to the anchor's start time.
+    if (anchor) {
+        return (anchor->getTime() - start_time);
+    }
+    //If we are the anchor, use the library to get the correct time.
+    else {
+        return (duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count() - start_time - elapsed_paused_time);
+        //Need to subtract by "elapsed_paused_time" so that when unpausing it looks like no time has passed.
+    }
+}
+
 void Timeline::pause() {
     std::lock_guard<std::recursive_mutex> lock(mutex);
     last_paused_time = getTime();

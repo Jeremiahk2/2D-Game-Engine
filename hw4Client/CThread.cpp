@@ -31,7 +31,17 @@ CThread::CThread(bool* upPressed, GameWindow* window, Timeline* timeline, bool* 
     type = "gravity";
     types.clear();
     types.push_back(type);
-    em->registerEvent(types, new GravityHandler);
+    em->registerEvent(types, new GravityHandler(em));
+
+    type = "spawn";
+    types.clear();
+    types.push_back(type);
+    em->registerEvent(types, new SpawnHandler());
+
+    type = "death";
+    types.clear();
+    types.push_back(type);
+    em->registerEvent(types, new DeathHandler(em));
 }
 
 void CThread::run() {
@@ -94,6 +104,7 @@ void CThread::run() {
     while (!(*stop)) {
         currentTic = line->getTime();
         if (currentTic > tic) {
+            std::cout << "Tic differential: " << currentTic - tic << std::endl;
             //Get information from server
 
             //Receive updates to nonstatic objects. Should be comma separated string.
@@ -147,38 +158,41 @@ void CThread::run() {
                 //Set up physics events.
                 //Set up collision event.
                 Event c;
-                c.type = std::string("collision");
-                Event::variant upPressedVariant;
-                upPressedVariant.m_Type = Event::variant::TYPE_BOOLP;
-                upPressedVariant.m_asBoolP = upPressed;
-                Event::variant doGravityVariant;
-                doGravityVariant.m_Type = Event::variant::TYPE_BOOLP;
-                doGravityVariant.m_asBoolP = &doGravity;
-                Event::variant characterVariant;
-                characterVariant.m_Type = Event::variant::TYPE_GAMEOBJECT;
-                characterVariant.m_asGameObject = character;
-                Event::variant ticLengthVariant;
-                ticLengthVariant.m_Type = Event::variant::TYPE_FLOAT;
-                ticLengthVariant.m_asFloat = ticLength;
-                Event::variant differentialVariant;
-                differentialVariant.m_Type = Event::variant::TYPE_INT;
-                differentialVariant.m_asInt = currentTic - tic;
-                c.parameters.insert({ { "upPressed", upPressedVariant }, { "doGravity", doGravityVariant } });
-                c.parameters.insert({ "character", characterVariant });
-                c.parameters.insert({ "ticLength", ticLengthVariant });
-                c.parameters.insert({ "differential", differentialVariant });
+                {
+                    c.type = std::string("collision");
+                    Event::variant upPressedVariant;
+                    upPressedVariant.m_Type = Event::variant::TYPE_BOOLP;
+                    upPressedVariant.m_asBoolP = upPressed;
+                    Event::variant doGravityVariant;
+                    doGravityVariant.m_Type = Event::variant::TYPE_BOOLP;
+                    doGravityVariant.m_asBoolP = &doGravity;
+                    Event::variant characterVariant;
+                    characterVariant.m_Type = Event::variant::TYPE_GAMEOBJECT;
+                    characterVariant.m_asGameObject = character;
+                    Event::variant ticLengthVariant;
+                    ticLengthVariant.m_Type = Event::variant::TYPE_FLOAT;
+                    ticLengthVariant.m_asFloat = ticLength;
+                    Event::variant differentialVariant;
+                    differentialVariant.m_Type = Event::variant::TYPE_INT;
+                    differentialVariant.m_asInt = currentTic - tic;
+                    c.parameters.insert({ { "upPressed", upPressedVariant }, { "doGravity", doGravityVariant } });
+                    c.parameters.insert({ "character", characterVariant });
+                    c.parameters.insert({ "ticLength", ticLengthVariant });
+                    c.parameters.insert({ "differential", differentialVariant });
+                }
                 //Set up gravity event.
                 Event g = c;
-                g.type = std::string("gravity");
-                g.order = 1;
-                Event::variant nonScalableTicLengthVariant;
-                nonScalableTicLengthVariant.m_Type = Event::variant::TYPE_FLOAT;
-                nonScalableTicLengthVariant.m_asFloat = nonScalableTicLength;
-                Event::variant windowVariant;
-                windowVariant.m_Type = Event::variant::TYPE_GAMEWINDOW;
-                windowVariant.m_asGameWindow = window;
-                g.parameters.insert({ "nonScalableTicLength", nonScalableTicLengthVariant });
-                g.parameters.insert({ "window", windowVariant });
+                {
+                    g.type = std::string("gravity");
+                    Event::variant nonScalableTicLengthVariant;
+                    nonScalableTicLengthVariant.m_Type = Event::variant::TYPE_FLOAT;
+                    nonScalableTicLengthVariant.m_asFloat = nonScalableTicLength;
+                    Event::variant windowVariant;
+                    windowVariant.m_Type = Event::variant::TYPE_GAMEWINDOW;
+                    windowVariant.m_asGameWindow = window;
+                    g.parameters.insert({ "nonScalableTicLength", nonScalableTicLengthVariant });
+                    g.parameters.insert({ "window", windowVariant });
+                }
 
                 //Check for collisions, add it to event manager if there is one.
                 if (window->checkCollisions(&collision)) {
