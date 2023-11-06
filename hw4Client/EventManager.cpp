@@ -32,5 +32,14 @@ void EventManager::deregister(std::list<std::string> list, EventHandler* handler
 
 void EventManager::raise(Event e)
 {
-	raised_events.push_back(e);
+	//If a map at that time already exists, add it to it.
+	if (auto search = raised_events.find(e.time); search != raised_events.end()) {
+		search->second.insert({ e.order, e });
+	}
+	//If there is no map at that time, make one.
+	else {
+		std::multimap<int, Event> newMap;
+		newMap.insert({ e.order, e });
+		raised_events.insert({e.time, newMap});
+	}
 }

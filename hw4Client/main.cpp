@@ -176,6 +176,7 @@ int main() {
             float charSpeed = (float)character.getSpeed().x * (float)ticLength * (float)(currentTic - tic);
 
             Event m;
+            m.order = 1;
             m.type = std::string("movement");
 
             Event::variant windowVariant;

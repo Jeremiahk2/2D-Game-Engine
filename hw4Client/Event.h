@@ -29,7 +29,9 @@ public:
 		};
 	};
 
-	int priority = 0;
+	int order = 0;
+
+	int time = 0;
 
 	std::string type;
 

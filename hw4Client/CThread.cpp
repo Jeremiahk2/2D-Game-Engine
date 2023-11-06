@@ -21,12 +21,17 @@ CThread::CThread(bool* upPressed, GameWindow* window, Timeline* timeline, bool* 
     std::string type("collision");
     std::list<std::string> types;
     types.push_back(type);
-
     em->registerEvent(types, new CollisionHandler);
+
     type = "movement";
     types.clear();
     types.push_back(type);
     em->registerEvent(types, new MovementHandler);
+
+    type = "gravity";
+    types.clear();
+    types.push_back(type);
+    em->registerEvent(types, new GravityHandler);
 }
 
 void CThread::run() {
@@ -119,11 +124,8 @@ void CThread::run() {
                     break;
                 }
             }
-
             std::string charStrings;
             std::getline(stream, charStrings);
-
-
             //Update window with new characters
             window->updateNonStatic(charStrings);
 
@@ -135,106 +137,85 @@ void CThread::run() {
                 std::string otherStuff(updates.data() + pos);
                 window->updateNonStatic(otherStuff);
 
+                //Set up physics variables
                 ticLength = line->getRealTicLength();
-
                 *upPressed = false;
-                //Get gravity as a function of time
                 float gravity = character->getGravity() * ticLength * (currentTic - tic);
                 float oneHalfTicGrav = (character->getGravity() * ticLength) / 2;
-                //Character is entering an inconsistent state, lock it.
                 GameObject* collision = nullptr;
                 bool doGravity = true;
+                //Set up physics events.
+                //Set up collision event.
+                Event c;
+                c.type = std::string("collision");
+                Event::variant upPressedVariant;
+                upPressedVariant.m_Type = Event::variant::TYPE_BOOLP;
+                upPressedVariant.m_asBoolP = upPressed;
+                Event::variant doGravityVariant;
+                doGravityVariant.m_Type = Event::variant::TYPE_BOOLP;
+                doGravityVariant.m_asBoolP = &doGravity;
+                Event::variant characterVariant;
+                characterVariant.m_Type = Event::variant::TYPE_GAMEOBJECT;
+                characterVariant.m_asGameObject = character;
+                Event::variant ticLengthVariant;
+                ticLengthVariant.m_Type = Event::variant::TYPE_FLOAT;
+                ticLengthVariant.m_asFloat = ticLength;
+                Event::variant differentialVariant;
+                differentialVariant.m_Type = Event::variant::TYPE_INT;
+                differentialVariant.m_asInt = currentTic - tic;
+                c.parameters.insert({ { "upPressed", upPressedVariant }, { "doGravity", doGravityVariant } });
+                c.parameters.insert({ "character", characterVariant });
+                c.parameters.insert({ "ticLength", ticLengthVariant });
+                c.parameters.insert({ "differential", differentialVariant });
+                //Set up gravity event.
+                Event g = c;
+                g.type = std::string("gravity");
+                g.order = 1;
+                Event::variant nonScalableTicLengthVariant;
+                nonScalableTicLengthVariant.m_Type = Event::variant::TYPE_FLOAT;
+                nonScalableTicLengthVariant.m_asFloat = nonScalableTicLength;
+                Event::variant windowVariant;
+                windowVariant.m_Type = Event::variant::TYPE_GAMEWINDOW;
+                windowVariant.m_asGameWindow = window;
+                g.parameters.insert({ "nonScalableTicLength", nonScalableTicLengthVariant });
+                g.parameters.insert({ "window", windowVariant });
+
+                //Check for collisions, add it to event manager if there is one.
                 if (window->checkCollisions(&collision)) {
-                    //Set up event
-                    Event c;
-                    c.type = std::string("collision");
+                    //Add collision event to queue.
                     Event::variant collisionVariant;
                     collisionVariant.m_Type = Event::variant::TYPE_GAMEOBJECT;
                     collisionVariant.m_asGameObject = collision;
-                    Event::variant upPressedVariant;
-                    upPressedVariant.m_Type = Event::variant::TYPE_BOOLP;
-                    upPressedVariant.m_asBoolP = upPressed;
-                    Event::variant doGravityVariant;
-                    doGravityVariant.m_Type = Event::variant::TYPE_BOOLP;
-                    doGravityVariant.m_asBoolP = &doGravity;
-                    Event::variant characterVariant;
-                    characterVariant.m_Type = Event::variant::TYPE_GAMEOBJECT;
-                    characterVariant.m_asGameObject = character;
-                    Event::variant ticLengthVariant;
-                    ticLengthVariant.m_Type = Event::variant::TYPE_FLOAT;
-                    ticLengthVariant.m_asFloat = ticLength;
-                    Event::variant differentialVariant;
-                    differentialVariant.m_Type = Event::variant::TYPE_INT;
-                    differentialVariant.m_asInt = currentTic - tic;
                     c.parameters.insert({ "collision", collisionVariant });
-                    c.parameters.insert({ "upPressed", upPressedVariant });
-                    c.parameters.insert({ "doGravity", doGravityVariant });
-                    c.parameters.insert({ "character", characterVariant });
-                    c.parameters.insert({ "ticLength", ticLengthVariant });
-                    c.parameters.insert({ "differential", differentialVariant });
-                    //Add event to queue
                     em->raise(c);
                 }
-
-                for (Event e : em->raised_events) {
-                    if (e.priority <= currentTic) {
-                        for (EventHandler* currentHandler : em->handlers.at(e.type)) {
-                            currentHandler->onEvent(e);
+                //Handle gravity as well.
+                em->raise(g);
+                
+                //Handle all events that have come up.
+                bool erase = false;
+                for (const auto& [time, orderMap] : em->raised_events) {
+                    if (time <= currentTic) {
+                        for (const auto& [order, e] : orderMap) {
+                            for (EventHandler* currentHandler : em->handlers.at(e.type)) {
+                                currentHandler->onEvent(e);
+                            }
                         }
-                        em->raised_events.pop_front();
+                        if (erase) {
+                            em->raised_events.erase(em->raised_events.begin());
+                        }
+                        erase = true;
                     }
                     else {
                         break;
                     }
                 }
-                //At this point, character shouldn't be colliding with anything at all.
-                if (doGravity) {
-                    character->move(0.f, gravity);
-                    //Check collisions after gravity movement.
-                    if (window->checkCollisions(&collision)) {
-
-                        //If the collided object is a stationary platform, correct the position to be on top of the platform.
-                        if (collision->getObjectType() == Platform::objectType) {
-                            Platform* temp = (Platform*)collision;
-                            character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - oneHalfTicGrav);
-                            //Enable jumping. TODO: Rename variable to better fit. canJump? canJump(bool)?
-                            *upPressed = true;
-                        }
-                        else if (collision->getObjectType() == MovingPlatform::objectType) {
-                            MovingPlatform* temp = (MovingPlatform*)collision;
-                            float platSpeed = (float)temp->getSpeedValue() * (float)nonScalableTicLength * (float)(currentTic - tic);
-
-                            //If the platform is moving horizontally.
-                            if (temp->getMovementType()) {
-                                //Gravity has happened, which means we moved down into a platform that was already there. Move along with it AND correct pos to the top of it.
-                                character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - oneHalfTicGrav);
-                                character->move(platSpeed, 0);
-                                *upPressed = true;
-                            }
-                            //If the platform is moving vertically
-                            else {
-                                //If the platform is currently moving upwards
-                                if (platSpeed < 0.f) {
-                                    //At this point, we know that we have been hit by a platform moving upwards, so correct our position upwards.
-                                    character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - oneHalfTicGrav);
-                                    //We are above a platform, we can jump.
-                                    *upPressed = true;
-                                    //We just got placed above a platform, no need to do gravity.
-                                    doGravity = false;
-                                }
-                                //If the platform is moving downwards
-                                else {
-                                    //Just moved down into a downward moving platform. Correct us to be on top of it.
-                                    character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - oneHalfTicGrav);
-                                    *upPressed = true;
-                                }
-                            }
-                        }
-                        else if (collision->getObjectType() == DeathZone::objectType) {
-                            character->respawn();
-                        }
-                    }
+                if (erase) {
+                    em->raised_events.erase(em->raised_events.begin());
                 }
+
+
+                //Handle jumping.
                 float frameJump = JUMP_SPEED * (float)ticLength * (float)(currentTic - tic);
 
                 if (character->isJumping()) {

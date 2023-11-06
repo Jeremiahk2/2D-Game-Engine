@@ -11,9 +11,9 @@ public:
 
 	void deregister(std::list<std::string>, EventHandler*);
 
-	void raise(Event);
+	void raise(Event e);
 
-	std::list<Event> raised_events;
+	std::map<int, std::multimap<int, Event>> raised_events;
 
 	std::unordered_map<std::string, std::list<EventHandler*>> handlers;
 
