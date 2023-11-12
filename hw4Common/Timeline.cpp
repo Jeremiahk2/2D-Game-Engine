@@ -54,6 +54,16 @@ int64_t Timeline::getGlobalTime()
     }
 }
 
+int64_t Timeline::convertGlobal(int64_t time)
+{
+    if (anchor) {
+        return anchor->convertGlobal(time) * tic;
+    }
+    else {
+        return time * tic;
+    }
+}
+
 void Timeline::pause() {
     std::lock_guard<std::recursive_mutex> lock(mutex);
     last_paused_time = getTime();

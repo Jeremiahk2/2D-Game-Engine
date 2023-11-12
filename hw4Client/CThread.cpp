@@ -158,6 +158,7 @@ void CThread::run() {
                 //Set up collision event.
                 Event c;
                 {
+                    c.time = line->convertGlobal(currentTic);
                     c.type = std::string("collision");
                     Event::variant upPressedVariant;
                     upPressedVariant.m_Type = Event::variant::TYPE_BOOLP;
@@ -208,7 +209,7 @@ void CThread::run() {
                 //Handle all events that have come up.
                 bool erase = false;
                 for (const auto& [time, orderMap] : em->raised_events) {
-                    if (time <= currentTic) {
+                    if (time <= line->convertGlobal(currentTic)) {
                         for (const auto& [order, e] : orderMap) {
                             for (EventHandler* currentHandler : em->handlers.at(e.type)) {
                                 currentHandler->onEvent(e);

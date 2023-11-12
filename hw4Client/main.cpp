@@ -115,12 +115,13 @@ int main() {
     bool busy = true;
     bool stopped = false;
     std::condition_variable cv;
-    EventManager eventManager;
 
     //Set up Timelines
     Timeline global;
     Timeline FrameTime(&global, TIC);
     Timeline CTime(&global, TIC);
+
+    EventManager eventManager(&window, &global);
 
     //Start collision detection thread
     CThread cthread(&upPressed, &window, &CTime, &stopped, &mutex, &cv, &busy, &eventManager);
@@ -128,8 +129,8 @@ int main() {
 
     while (window.isOpen()) {
 
-        ticLength = global.getRealTicLength();
-        currentTic = global.getTime();
+        ticLength = FrameTime.getRealTicLength();
+        currentTic = FrameTime.getTime();
 
         sf::Event event;
         if (currentTic > tic) {
@@ -177,6 +178,7 @@ int main() {
 
             Event m;
             m.order = 1;
+            m.time = FrameTime.convertGlobal(currentTic);
             m.type = std::string("movement");
 
             Event::variant windowVariant;

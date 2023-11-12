@@ -117,8 +117,12 @@ void MovementHandler::onEvent(Event e)
             MovingPlatform* temp = (MovingPlatform*)collision;
             //Convert plat's speed to pixels per tic
             float oneHalfTicSpeed = (character->getSpeed().x * ticLength) / 2;
-
-            character->setPosition(temp->getGlobalBounds().left + temp->getGlobalBounds().width + oneHalfTicSpeed, character->getPosition().y);
+            if (e.parameters.at(std::string("direction")).m_asInt == MovementHandler::LEFT) {
+                character->setPosition(temp->getGlobalBounds().left + temp->getGlobalBounds().width + oneHalfTicSpeed, character->getPosition().y);
+            }
+            else {
+                character->setPosition(temp->getGlobalBounds().left - character->getGlobalBounds().width - oneHalfTicSpeed, character->getPosition().y);
+            }
         }
         else if (collision->getObjectType() == SideBound::objectType) {
             SideBound* temp = (SideBound*)collision;
@@ -200,8 +204,9 @@ void GravityHandler::onEvent(Event e)
                     }
                 }
             }
-            else if (collision->getObjectType() == DeathZone::objectType) {
+            else if (collision->getObjectType() == DeathZone::objectType && !character->isDead()) {
                 Event death;
+                character->died();
                 Event::variant characterVariant;
                 characterVariant.m_Type = Event::variant::TYPE_GAMEOBJECT;
                 characterVariant.m_asGameObject = character;
@@ -243,38 +248,7 @@ void DeathHandler::onEvent(Event e)
     Event spawn;
     spawn = e;
     spawn.type = "spawn";
-    spawn.time = e.time;
+    spawn.time = e.time + 3000; //Respawn three seconds later.
     spawn.order = e.order + 1;
     em->raise(spawn);
 }
-
-//JumpHandler::JumpHandler(EventManager* em)
-//{
-//    this->em = em;
-//}
-//
-//void JumpHandler::onEvent(Event e)
-//{
-//    Character* character;
-//    int tic;
-//    float ticLength;
-//    try {
-//        character = (Character*)e.parameters.at(std::string("character")).m_asGameObject;
-//        tic = e.parameters.at("tic").m_asInt;
-//    }
-//    catch (std::out_of_range) {
-//        std::cout << "Parameters for CollisionHandler are wrong";
-//        exit(3);
-//    }
-//    Event next;
-//    next.type = "movement";
-//    Event::variant directionVariant;
-//    directionVariant.m_Type = Event::variant::TYPE_INT;
-//    directionVariant.m_asInt = MovementHandler::UP;
-//    next.parameters.insert({ "direction", directionVariant });
-//    for (int i = 0; i <= 2000; i ++) {
-//        next.time = tic + i;
-//        next.order = e.order;
-//        em->raise(next);
-//    }
-//}

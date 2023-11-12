@@ -2,7 +2,39 @@
 
 EventManager::EventManager()
 {
+	this->window = NULL;
+	this->global = NULL;
 }
+
+EventManager::EventManager(GameWindow* window)
+{
+	this->window = window;
+	this->global = NULL;
+}
+
+EventManager::EventManager(Timeline* global)
+{
+	this->window = NULL;
+	this->global = global;
+}
+
+EventManager::EventManager(GameWindow* window, Timeline* global)
+{
+	this->window = window;
+	this->global = global;
+}
+
+GameWindow* EventManager::getWindow()
+{
+	return window;
+}
+
+Timeline* EventManager::getTimeline()
+{
+	return global;
+}
+
+
 
 void EventManager::registerEvent(std::list<std::string> list, EventHandler* handler)
 {

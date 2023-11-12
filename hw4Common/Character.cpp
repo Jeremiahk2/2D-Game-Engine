@@ -91,6 +91,16 @@ bool Character::isJumping() {
     return jumping;
 }
 
+bool Character::isDead()
+{
+    return dead;
+}
+
+void Character::died()
+{
+    this->dead = true;
+}
+
 void Character::setJumping(bool jump) {
     std::lock_guard<std::mutex> lock(innerMutex);
     this->jumping = jump;
@@ -123,6 +133,7 @@ void Character::setSpawnPoint(SpawnPoint spawn)
 
 void Character::respawn() {
     setPosition(spawn.getPosition());
+    dead = false;
 }
 
 int Character::getObjectType() {

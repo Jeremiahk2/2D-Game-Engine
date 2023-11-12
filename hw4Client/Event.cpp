@@ -8,22 +8,23 @@ Event::Event() : GameObject(false, false, false)
 std::string Event::toString()
 {
 	
-    //std::stringstream stream;
-    //char space = ' ';
+    std::stringstream stream;
+    char space = ' ';
 
-    //stream << getObjectType();
+    stream << getObjectType() << space << time << space << order;
 
-    //for (const auto& [key, value] : paramaters) {
-    //    stream << space <<
-    //}
-    //    
-
-    //stream << getObjectType() << space << getPosition().x << space << getPosition().y << space << getSize().x << space << getSize().y
-    //    << space << (int)getFillColor().r << space << (int)getFillColor().g << space << (int)getFillColor().b << space << getMovementType()
-    //    << space << getSpeedValue();
+    for (const auto& [key, value] : parameters) {
+        stream << space << key;
+        if (value.m_Type == Event::variant::TYPE_INT) {
+            stream << space << value.m_asInt;
+        }
+        else if (value.m_Type == Event::variant::TYPE_FLOAT){
+            stream << space << value.m_asFloat;
+        }
+    }
 
     std::string line;
-    //getline(stream, line);
+    getline(stream, line);
 
     return line;
 }

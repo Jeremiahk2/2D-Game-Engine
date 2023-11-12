@@ -62,6 +62,8 @@ private:
     */
     SpawnPoint spawn;
 
+    bool dead = false;
+
 public:
     /**
     * Character's object type
@@ -136,6 +138,10 @@ public:
     * check if the character is currently jumping
     */
     bool isJumping();
+
+    bool isDead();
+    
+    void died();
 
     /**
     * set the state of the character as jumping
