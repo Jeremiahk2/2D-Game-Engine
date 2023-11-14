@@ -8,6 +8,7 @@
 #include "Platform.h"
 #include "RepThread.h"
 #include "PubThread.h"
+#include "EventManager.h"
 
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
@@ -81,8 +82,9 @@ int main() {
 
     //Set up timelines
     Timeline global;
-    Timeline MPTime(&global, TIC);
     Timeline FrameTime(&global, TIC);
+
+    EventManager manager(&FrameTime);
 
     //Set up time variables
     int64_t tic = 0;
@@ -107,10 +109,6 @@ int main() {
     int numClients = 0;
     int numCharacters = 0;
     int availPort = 5557;
-
-    ////Create and run moving platform thread
-    //MovingThread mthread(&MPTime, &stopped, 0, NULL, &mutex, &cv, &movings);
-    //std::thread first(run_moving, &mthread);
 
     //Create and run publisher thread
     PubThread pubthread(&FrameTime, &movings, &characters, &mutex);

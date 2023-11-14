@@ -132,35 +132,35 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\hw4Common\Character.h" />
+    <ClInclude Include="..\hw4Common\DeathZone.h" />
+    <ClInclude Include="..\hw4Common\Event.h" />
+    <ClInclude Include="..\hw4Common\EventHandler.h" />
+    <ClInclude Include="..\hw4Common\EventManager.h" />
     <ClInclude Include="..\hw4Common\GameObject.h" />
     <ClInclude Include="..\hw4Common\GameWindow.h" />
+    <ClInclude Include="..\hw4Common\Handlers.h" />
     <ClInclude Include="..\hw4Common\MovingPlatform.h" />
     <ClInclude Include="..\hw4Common\Platform.h" />
+    <ClInclude Include="..\hw4Common\SideBound.h" />
     <ClInclude Include="..\hw4Common\SpawnPoint.h" />
     <ClInclude Include="..\hw4Common\Timeline.h" />
     <ClInclude Include="CThread.h" />
-    <ClInclude Include="DeathZone.h" />
-    <ClInclude Include="Event.h" />
-    <ClInclude Include="EventHandler.h" />
-    <ClInclude Include="EventManager.h" />
-    <ClInclude Include="Handlers.h" />
-    <ClInclude Include="SideBound.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\hw4Common\Character.cpp" />
+    <ClCompile Include="..\hw4Common\DeathZone.cpp" />
+    <ClCompile Include="..\hw4Common\Event.cpp" />
+    <ClCompile Include="..\hw4Common\EventManager.cpp" />
     <ClCompile Include="..\hw4Common\GameObject.cpp" />
     <ClCompile Include="..\hw4Common\GameWindow.cpp" />
+    <ClCompile Include="..\hw4Common\Handlers.cpp" />
     <ClCompile Include="..\hw4Common\MovingPlatform.cpp" />
     <ClCompile Include="..\hw4Common\Platform.cpp" />
+    <ClCompile Include="..\hw4Common\SideBound.cpp" />
     <ClCompile Include="..\hw4Common\SpawnPoint.cpp" />
     <ClCompile Include="..\hw4Common\Timeline.cpp" />
     <ClCompile Include="CThread.cpp" />
-    <ClCompile Include="DeathZone.cpp" />
-    <ClCompile Include="Event.cpp" />
-    <ClCompile Include="EventManager.cpp" />
-    <ClCompile Include="Handlers.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="SideBound.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
