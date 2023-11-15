@@ -9,6 +9,7 @@
 #include "RepThread.h"
 #include "PubThread.h"
 #include "EventManager.h"
+#include "Handlers.h"
 
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
@@ -84,7 +85,25 @@ int main() {
     Timeline global;
     Timeline FrameTime(&global, TIC);
 
-    EventManager manager(&FrameTime);
+    //Set up EventManage for server
+    EventManager manager(&global);
+    std::string serverClosed("Server_Closed");
+    std::string clientClosed("Client_Closed");
+    std::list<std::string> types;
+    types.push_back(clientClosed);
+    types.push_back(serverClosed);
+    manager.registerEvent(types, new ClosedHandler);
+
+    //Add server closed event.
+    Event e;
+    e.time = GAME_LENGTH; //Three minutes in the future
+    e.type = "Server_Closed";
+    std::string message = "Server Closed";
+    Event::variant messageVariant;
+    messageVariant.m_Type = Event::variant::TYPE_STRING;
+    messageVariant.m_asString = message.data();
+    e.parameters.insert({ "message", messageVariant });
+    manager.raise(e);
 
     //Set up time variables
     int64_t tic = 0;
@@ -111,7 +130,7 @@ int main() {
     int availPort = 5557;
 
     //Create and run publisher thread
-    PubThread pubthread(&FrameTime, &movings, &characters, &mutex);
+    PubThread pubthread(&FrameTime, &movings, &characters, &mutex, &manager);
     std::thread second(run_pub, &pubthread);
 
 
@@ -133,7 +152,7 @@ int main() {
 
             //Create client struct and thread
             ClientStruct newClient;
-            newClient.repThread = new RepThread(newPort, id, &characters, &mutex, &FrameTime);
+            newClient.repThread = new RepThread(newPort, id, &characters, &mutex, &FrameTime, &manager);
             newClient.thread = new std::thread(run_rep, newClient.repThread);
             clientThreads.push_back(newClient);
 

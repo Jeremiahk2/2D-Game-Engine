@@ -42,6 +42,11 @@ CThread::CThread(bool* upPressed, GameWindow* window, Timeline* timeline, bool* 
     types.clear();
     types.push_back(type);
     em->registerEvent(types, new DeathHandler(em));
+
+    type = "Client_Closed";
+    types.clear();
+    types.push_back(type);
+    em->registerEvent(types, new ClosedHandler(em));
 }
 
 void CThread::run() {
@@ -106,6 +111,29 @@ void CThread::run() {
         if (currentTic > tic) {
             //Get information from server
 
+            bool erase = false;
+            {
+                std::lock_guard<std::mutex> lock(*mutex);
+                for (const auto& [time, orderMap] : em->raised_events) {
+                    if (time <= line->convertGlobal(currentTic)) {
+                        for (const auto& [order, e] : orderMap) {
+                            for (EventHandler* currentHandler : em->handlers.at(e.type)) {
+                                currentHandler->onEvent(e);
+                            }
+                        }
+                        if (erase) {
+                            em->raised_events.erase(em->raised_events.begin());
+                        }
+                        erase = true;
+                    }
+                    else {
+                        break;
+                    }
+                }
+                if (erase) {
+                    em->raised_events.erase(em->raised_events.begin());
+                }
+            }
             //Receive updates to nonstatic objects. Should be comma separated string.
             zmq::message_t newPlatforms;
             r = subSocket.recv(newPlatforms, zmq::recv_flags::none);
@@ -205,9 +233,10 @@ void CThread::run() {
                 }
                 //Handle gravity as well.
                 em->raise(g);
-                
+
                 //Handle all events that have come up.
                 bool erase = false;
+
                 for (const auto& [time, orderMap] : em->raised_events) {
                     if (time <= line->convertGlobal(currentTic)) {
                         for (const auto& [order, e] : orderMap) {
@@ -250,7 +279,7 @@ void CThread::run() {
                     }
                 }
             }
-            
+
             //Send updated character information to server
             {
                 std::lock_guard<std::mutex> lock(*mutex);
@@ -263,9 +292,20 @@ void CThread::run() {
             zmq::message_t reply;
             r = reqSocket.recv(reply, zmq::recv_flags::none);
             char* replyString = (char*)reply.data();
-            int newID;
-            int matches = sscanf_s(replyString, "%d", &newID);
-            character->setID(newID);
+            try {
+                std::shared_ptr<Event> e(new Event);
+                //Convert to an event pointer
+                e = (std::dynamic_pointer_cast<Event>(e->constructSelf(replyString)));
+                e->time = line->convertGlobal(currentTic) + e->time;
+                //Raise event
+                em->raise(*e);
+            }
+            catch (std::invalid_argument) {
+                //Oops, wasn't an event. Must be our updated ID.
+                int newID;
+                int matches = sscanf_s(replyString, "%d", &newID);
+                character->setID(newID);
+            }
             tic = currentTic;
         }
     }

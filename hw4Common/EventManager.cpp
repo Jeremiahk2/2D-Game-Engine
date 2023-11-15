@@ -64,6 +64,7 @@ void EventManager::deregister(std::list<std::string> list, EventHandler* handler
 
 void EventManager::raise(Event e)
 {
+
 	//If a map at that time already exists, add it to it.
 	if (auto search = raised_events.find(e.time); search != raised_events.end()) {
 		search->second.insert({ e.order, e });

@@ -2,12 +2,13 @@
 
 
 
-RepThread::RepThread(int port, int id, std::map<int, std::shared_ptr<GameObject>> *characters, std::mutex *m, Timeline *time) {
+RepThread::RepThread(int port, int id, std::map<int, std::shared_ptr<GameObject>> *characters, std::mutex *m, Timeline *time, EventManager *manager) {
     this->port = port;
     this->id = id;
     this->characters = characters;
     this->mutex = m;
     this->time = time;
+    this->manager = manager;
 }
 
 void RepThread::run() {
@@ -18,6 +19,32 @@ void RepThread::run() {
     zmq::context_t context(2);
     zmq::socket_t repSocket(context, zmq::socket_type::rep);
     repSocket.connect(portString);
+
+    //Time of 0, we want this to be sent to the client ahead of time, so handle it immediately.
+    Event init;
+    init.type = "Client_Closed";
+    std::string message = "Game Over";
+    Event::variant messageVariant;
+    messageVariant.m_Type = Event::variant::TYPE_STRING;
+    messageVariant.m_asString = message.data();
+    init.parameters.insert({ "message", messageVariant });
+
+    Event::variant socketVariant;
+    socketVariant.m_Type = Event::variant::TYPE_SOCKET;
+    socketVariant.m_asSocket = &repSocket;
+    init.parameters.insert({ "socket", socketVariant });
+
+    zmq::message_t update;
+    zmq::recv_result_t received(repSocket.recv(update, zmq::recv_flags::none));
+
+    init.time = GAME_LENGTH - manager->getTimeline()->getGlobalTime();
+    std::string rtnString = init.toString();
+
+
+    zmq::message_t reply(rtnString.size() + 1);
+    memcpy(reply.data(), rtnString.data(), rtnString.size() + 1);
+
+    repSocket.send(reply, zmq::send_flags::none);
 
     int64_t tic = time->getTime();
     int64_t currentTic = tic;
@@ -32,7 +59,11 @@ void RepThread::run() {
             currentTic = time->getTime();
             //Receive message from client
             zmq::message_t update;
-            zmq::recv_result_t received(repSocket.recv(update, zmq::recv_flags::dontwait));
+            zmq::recv_result_t received;
+            {
+                std::lock_guard<std::mutex> lock(*mutex);
+                received = repSocket.recv(update, zmq::recv_flags::dontwait);
+            }
             if ((received.has_value() && (EAGAIN != received.value()))) {
                 std::string updateString((char*)update.data());
                 Character c;
@@ -60,7 +91,10 @@ void RepThread::run() {
 
                 zmq::message_t reply(rtnString.size() + 1);
                 memcpy(reply.data(), rtnString.data(), rtnString.size() + 1);
-                repSocket.send(reply, zmq::send_flags::none);
+                {
+                    std::lock_guard<std::mutex> lock(*mutex);
+                    repSocket.send(reply, zmq::send_flags::none);
+                }
                 tic = currentTic;
             }
             //Disconnect client if we haven't heard from them in 100 tics.

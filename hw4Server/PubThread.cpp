@@ -1,11 +1,12 @@
 #include "PubThread.h"
 
 
-PubThread::PubThread(Timeline *time, std::list<MovingPlatform*> *movings, std::map<int, std::shared_ptr<GameObject>>* characters, std::mutex* m) {
-    this->time = time;
+PubThread::PubThread(Timeline *timeline, std::list<MovingPlatform*> *movings, std::map<int, std::shared_ptr<GameObject>>* characters, std::mutex* m, EventManager *manager) {
+    this->timeline = timeline;
     this->movings = movings;
     this->characters = characters;
     this->mutex = m;
+    this->manager = manager;
 }
 
 void PubThread::run() {
@@ -19,8 +20,8 @@ void PubThread::run() {
     float ticLength;
     int moves = 0;
     while (true) {
-        ticLength = time->getRealTicLength();
-        currentTic = time->getTime();
+        ticLength = timeline->getRealTicLength();
+        currentTic = timeline->getTime();
 
         if (currentTic > tic) {
             //Construct return string
@@ -86,6 +87,30 @@ void PubThread::run() {
                 }
                 else {
                     i->move(0, platSpeed);
+                }
+
+                bool erase = false;
+                {
+                    std::lock_guard<std::mutex> lock(*mutex);
+                    for (const auto& [time, orderMap] : manager->raised_events) {
+                        if (time <= timeline->convertGlobal(currentTic)) {
+                            for (const auto& [order, e] : orderMap) {
+                                for (EventHandler* currentHandler : manager->handlers.at(e.type)) {
+                                    currentHandler->onEvent(e);
+                                }
+                            }
+                            if (erase) {
+                                manager->raised_events.erase(manager->raised_events.begin());
+                            }
+                            erase = true;
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                    if (erase) {
+                        manager->raised_events.erase(manager->raised_events.begin());
+                    }
                 }
             }
             tic = currentTic;

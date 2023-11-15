@@ -21,7 +21,6 @@ void CollisionHandler::onEvent(Event e)
         exit(3);
     }
 
-
     float oneHalfTicGrav = (character->getGravity() * ticLength) / 2;
     //If the collided object is not moving, correct the position by moving up one.
                     //NOTE: This should be impossible unless a platform was generated at the player's location (Since it's not a moving platform).
@@ -252,3 +251,70 @@ void DeathHandler::onEvent(Event e)
     spawn.order = e.order + 1;
     em->raise(spawn);
 }
+
+ClosedHandler::ClosedHandler()
+{
+    em = NULL;
+}
+
+ClosedHandler::ClosedHandler(EventManager* em)
+{
+    this->em = em;
+}
+
+void ClosedHandler::onEvent(Event e)
+{
+    if (e.type == "Server_Closed") {
+        std::cout << "RAN" << std::endl;
+        //we are on the server, need to forcefully exit.
+        try {
+            std::cout << e.parameters.at("message").m_asString << std::endl;
+            exit(1);
+        }
+        catch (std::out_of_range) {
+            std::cout << "Invalid arguments ClosedHandler" << std::endl;
+            exit(3);
+        }
+    }
+    else if (e.type == "Client_Closed") {
+        try {
+            //Only execute if we are on the client (If there is no window, we are on the server)
+            if (em && em->getWindow()) {
+                std::cout << e.parameters.at("message").m_asString << std::endl;
+                exit(1);
+            }
+        }
+        catch (std::out_of_range) {
+            std::cout << "Invalid arguments ClosedHandler (Client)" << std::endl;
+            exit(3);
+        }
+    }
+}
+
+//NetworkHandler::NetworkHandler(EventManager* em)
+//{
+//    this->em = em;
+//}
+//
+//void NetworkHandler::onEvent(Event e)
+//{
+//    zmq::context_t context(2);
+//    zmq::socket_t socket(context, zmq::socket_type::rep);
+//    socket.connect("tcp://localhost:5556");
+//    //try {
+//    //    socket = e.parameters.at("socket").m_asSocket;
+//    //}
+//    //catch (std::out_of_range) {
+//    //    std::cout << "Invalid socket parameter in NetworkHandler" << std::endl;
+//    //    exit(3);
+//    //}
+//    if (e.type == "Client Closed") {
+//        e.time = GAME_LENGTH - em->getTimeline()->getGlobalTime();
+//        std::string rtnString = e.toString();
+//        zmq::message_t reply(rtnString.size() + 1);
+//        memcpy(reply.data(), rtnString.data(), rtnString.size() + 1);
+//        socket.send(reply, zmq::send_flags::none);
+//        zmq::message_t update;
+//        zmq::recv_result_t received(socket.recv(update, zmq::recv_flags::none));
+//    }
+//}

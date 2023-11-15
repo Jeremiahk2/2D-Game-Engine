@@ -123,6 +123,7 @@ int main() {
 
     EventManager eventManager(&window, &global);
 
+
     //Start collision detection thread
     CThread cthread(&upPressed, &window, &CTime, &stopped, &mutex, &cv, &busy, &eventManager);
     std::thread first(run_cthread, &cthread);

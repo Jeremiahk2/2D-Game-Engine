@@ -5,6 +5,7 @@
 #include <iostream> //Remove later. Testing purposes only
 #include "Timeline.h"
 #include "MovingPlatform.h"
+#include "EventManager.h"
 #define MESSAGE_LIMIT 1024
 
 class PubThread
@@ -14,7 +15,7 @@ private:
     /**
     * The timneline associated with this thread
     */
-    Timeline* time;
+    Timeline* timeline;
     /**
     * The list of moving platforms to move and publish
     */
@@ -28,12 +29,14 @@ private:
     */
     std::mutex* mutex;
 
+    EventManager* manager;
+
 
 public:
     /**
     * Constructor
     */
-    PubThread(Timeline* time, std::list<MovingPlatform*>* movings, std::map<int, std::shared_ptr<GameObject>>* characters, std::mutex *m);
+    PubThread(Timeline* timeline, std::list<MovingPlatform*>* movings, std::map<int, std::shared_ptr<GameObject>>* characters, std::mutex *m, EventManager *manager);
 
     /**
     * run the program. It is responsible for the movement of a platform, which goes back and forth between two bounds.

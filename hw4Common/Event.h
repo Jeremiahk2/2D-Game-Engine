@@ -3,6 +3,7 @@
 #include "GameObject.h"
 #include "GameWindow.h"
 #include <unordered_map>
+#include <zmq.hpp>
 
 class Event : public GameObject {
 
@@ -16,14 +17,18 @@ public:
 			TYPE_INT,
 			TYPE_FLOAT,
 			TYPE_BOOLP,
+			TYPE_STRING,
 			TYPE_GAMEOBJECT,
-			TYPE_GAMEWINDOW
+			TYPE_GAMEWINDOW,
+			TYPE_SOCKET
 		};
 		variant::Type m_Type;
 		union {
 			int m_asInt;
 			float m_asFloat;
+			const char* m_asString;
 			bool* m_asBoolP;
+			zmq::socket_t* m_asSocket;
 			GameObject* m_asGameObject;
 			GameWindow* m_asGameWindow;
 		};
