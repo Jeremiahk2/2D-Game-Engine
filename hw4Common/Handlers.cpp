@@ -265,7 +265,6 @@ ClosedHandler::ClosedHandler(EventManager* em)
 void ClosedHandler::onEvent(Event e)
 {
     if (e.type == "Server_Closed") {
-        std::cout << "RAN" << std::endl;
         //we are on the server, need to forcefully exit.
         try {
             std::cout << e.parameters.at("message").m_asString << std::endl;

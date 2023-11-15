@@ -20,7 +20,6 @@ void RepThread::run() {
     zmq::socket_t repSocket(context, zmq::socket_type::rep);
     repSocket.connect(portString);
 
-    //Time of 0, we want this to be sent to the client ahead of time, so handle it immediately.
     Event init;
     init.type = "Client_Closed";
     std::string message = "Game Over";
@@ -37,7 +36,7 @@ void RepThread::run() {
     zmq::message_t update;
     zmq::recv_result_t received(repSocket.recv(update, zmq::recv_flags::none));
 
-    init.time = GAME_LENGTH - manager->getTimeline()->getGlobalTime();
+    init.time = GAME_LENGTH - manager->getTimeline()->getGlobalTime(); //Time differential
     std::string rtnString = init.toString();
 
 

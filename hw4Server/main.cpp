@@ -96,7 +96,7 @@ int main() {
 
     //Add server closed event.
     Event e;
-    e.time = GAME_LENGTH; //Three minutes in the future
+    e.time = GAME_LENGTH; //GAME_LENGTH into the future
     e.type = "Server_Closed";
     std::string message = "Server Closed";
     Event::variant messageVariant;
