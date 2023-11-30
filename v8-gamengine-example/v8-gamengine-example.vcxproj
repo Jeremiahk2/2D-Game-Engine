@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\v8.symbols-v143-x64.11.9.169.4\build\native\v8.symbols-v143-x64.props" Condition="Exists('..\packages\v8.symbols-v143-x64.11.9.169.4\build\native\v8.symbols-v143-x64.props')" />
-  <Import Project="..\packages\v8-v143-x64.11.9.169.4\build\native\v8-v143-x64.props" Condition="Exists('..\packages\v8-v143-x64.11.9.169.4\build\native\v8-v143-x64.props')" />
+  <Import Project="..\packages\v8-v142-x64.10.0.139.9\build\native\v8-v142-x64.props" Condition="Exists('..\packages\v8-v142-x64.10.0.139.9\build\native\v8-v142-x64.props')" />
+  <Import Project="..\packages\v8.redist-v142-x64.10.0.139.9\build\native\v8.redist-v142-x64.props" Condition="Exists('..\packages\v8.redist-v142-x64.10.0.139.9\build\native\v8.redist-v142-x64.props')" />
   <Import Project="..\packages\v8.redist-v143-x64.11.9.169.4\build\native\v8.redist-v143-x64.props" Condition="Exists('..\packages\v8.redist-v143-x64.11.9.169.4\build\native\v8.redist-v143-x64.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -24,8 +24,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{822a3a75-7e99-4475-813a-026605f5b414}</ProjectGuid>
-    <RootNamespace>hw5Server</RootNamespace>
+    <ProjectGuid>{3a34b83a-1ff7-4b84-9904-2fcb7dbcda8d}</ProjectGuid>
+    <RootNamespace>v8gamengineexample</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -107,14 +107,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Jerry\source\repos\VS 481\packages\v8-v142-x64.10.0.139.9\include;C:\Users\Jerry\source\repos\VS 481\hw5Common</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Jerry\source\repos\VS 481\packages\v8-v142-x64.10.0.139.9\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\Jerry\source\repos\VS 481\packages\v8-v142-x64.10.0.139.9\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\Jerry\source\repos\VS 481\packages\v8-v142-x64.10.0.139.9\lib\Release</AdditionalLibraryDirectories>
+      <AdditionalDependencies>v8.dll.lib;v8_libbase.dll.lib;v8_libplatform.dll.lib;zlib.dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -125,7 +125,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Jerry\source\repos\VS 481\packages\v8-v142-x64.10.0.139.9\include;C:\Users\Jerry\source\repos\VS 481\hw5Common</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Jerry\source\repos\VS 481\packages\v8-v142-x64.10.0.139.9\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -133,43 +133,20 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\Jerry\source\repos\VS 481\packages\v8-v142-x64.10.0.139.9\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\Jerry\source\repos\VS 481\packages\v8-v142-x64.10.0.139.9\lib\Release</AdditionalLibraryDirectories>
+      <AdditionalDependencies>v8.dll.lib;v8_libbase.dll.lib;v8_libplatform.dll.lib;zlib.dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\hw5Common\Character.cpp" />
-    <ClCompile Include="..\hw5Common\DeathZone.cpp" />
-    <ClCompile Include="..\hw5Common\Event.cpp" />
-    <ClCompile Include="..\hw5Common\EventManager.cpp" />
-    <ClCompile Include="..\hw5Common\GameObject.cpp" />
-    <ClCompile Include="..\hw5Common\GameWindow.cpp" />
-    <ClCompile Include="..\hw5Common\Handlers.cpp" />
-    <ClCompile Include="..\hw5Common\MovingPlatform.cpp" />
-    <ClCompile Include="..\hw5Common\Platform.cpp" />
-    <ClCompile Include="..\hw5Common\SideBound.cpp" />
-    <ClCompile Include="..\hw5Common\SpawnPoint.cpp" />
-    <ClCompile Include="..\hw5Common\Timeline.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="PubThread.cpp" />
-    <ClCompile Include="RepThread.cpp" />
+    <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="ScriptDemo.cpp" />
+    <ClCompile Include="ScriptManager.cpp" />
+    <ClCompile Include="v8helpers.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\hw5Common\Character.h" />
-    <ClInclude Include="..\hw5Common\DeathZone.h" />
-    <ClInclude Include="..\hw5Common\Event.h" />
-    <ClInclude Include="..\hw5Common\EventHandler.h" />
-    <ClInclude Include="..\hw5Common\EventManager.h" />
-    <ClInclude Include="..\hw5Common\GameObject.h" />
-    <ClInclude Include="..\hw5Common\GameWindow.h" />
-    <ClInclude Include="..\hw5Common\Handlers.h" />
-    <ClInclude Include="..\hw5Common\MovingPlatform.h" />
-    <ClInclude Include="..\hw5Common\Platform.h" />
-    <ClInclude Include="..\hw5Common\SideBound.h" />
-    <ClInclude Include="..\hw5Common\SpawnPoint.h" />
-    <ClInclude Include="..\hw5Common\Timeline.h" />
-    <ClInclude Include="PubThread.h" />
-    <ClInclude Include="RepThread.h" />
+    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="ScriptManager.h" />
+    <ClInclude Include="v8helpers.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -181,7 +158,7 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\v8.redist-v143-x64.11.9.169.4\build\native\v8.redist-v143-x64.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\v8.redist-v143-x64.11.9.169.4\build\native\v8.redist-v143-x64.props'))" />
-    <Error Condition="!Exists('..\packages\v8-v143-x64.11.9.169.4\build\native\v8-v143-x64.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\v8-v143-x64.11.9.169.4\build\native\v8-v143-x64.props'))" />
-    <Error Condition="!Exists('..\packages\v8.symbols-v143-x64.11.9.169.4\build\native\v8.symbols-v143-x64.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\v8.symbols-v143-x64.11.9.169.4\build\native\v8.symbols-v143-x64.props'))" />
+    <Error Condition="!Exists('..\packages\v8.redist-v142-x64.10.0.139.9\build\native\v8.redist-v142-x64.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\v8.redist-v142-x64.10.0.139.9\build\native\v8.redist-v142-x64.props'))" />
+    <Error Condition="!Exists('..\packages\v8-v142-x64.10.0.139.9\build\native\v8-v142-x64.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\v8-v142-x64.10.0.139.9\build\native\v8-v142-x64.props'))" />
   </Target>
 </Project>
