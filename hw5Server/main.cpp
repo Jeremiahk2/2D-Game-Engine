@@ -16,6 +16,7 @@
 #include <iostream>
 #include <thread>
 #include <list>
+#include <v8.h>
 
 #define MESSAGE_LIMIT 1024
 
