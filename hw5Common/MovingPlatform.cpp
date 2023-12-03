@@ -14,12 +14,20 @@
         }
         bound1 = 0;
         bound2 = 0;
+
+        guid = "moving" + std::to_string(*GameObject::getCurrentGUID());
+        (*GameObject::getCurrentGUID())++;
+        game_objects.push_back(this);
     }
 
     MovingPlatform::MovingPlatform() : Platform(false, true, true) {
         bound1 = 0;
         bound2 = 0;
         m_type = 0;
+
+        guid = "moving" + std::to_string(*GameObject::getCurrentGUID());
+        (*GameObject::getCurrentGUID())++;
+        game_objects.push_back(this);
     }
 
     void MovingPlatform::setSpeed(sf::Vector2f speed) {
@@ -133,6 +141,140 @@
 
     int MovingPlatform::getObjectType() {
         return MovingPlatform::objectType;
+    }
+    
+    //Script stuff
+
+    void MovingPlatform::setMPlatformGUID(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+    {
+        v8::Local<v8::Object> self = info.Holder();
+        v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+        void* ptr = wrap->Value();
+        v8::String::Utf8Value utf8_str(info.GetIsolate(), value->ToString(info.GetIsolate()->GetCurrentContext()).ToLocalChecked());
+        static_cast<MovingPlatform*>(ptr)->guid = *utf8_str;
+    }
+
+    void MovingPlatform::getMPlatformGUID(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+    {
+        v8::Local<v8::Object> self = info.Holder();
+        v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+        void* ptr = wrap->Value();
+        std::string guid = static_cast<MovingPlatform*>(ptr)->guid;
+        v8::Local<v8::String> v8_guid = v8::String::NewFromUtf8(info.GetIsolate(), guid.c_str()).ToLocalChecked();
+        info.GetReturnValue().Set(v8_guid);
+    }
+
+    void MovingPlatform::setMPlatformX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+    {
+        v8::Local<v8::Object> self = info.Holder();
+        v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+        void* ptr = wrap->Value();
+        static_cast<MovingPlatform*>(ptr)->setPosition(value->NumberValue(info.GetIsolate()->GetCurrentContext()).ToChecked(), static_cast<MovingPlatform*>(ptr)->getPosition().y);
+    }
+
+    void MovingPlatform::getMPlatformX(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+    {
+        v8::Local<v8::Object> self = info.Holder();
+        v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+        void* ptr = wrap->Value();
+        float x_val = static_cast<MovingPlatform*>(ptr)->getPosition().x;
+        info.GetReturnValue().Set(x_val);
+    }
+
+    void MovingPlatform::setMPlatformY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+    {
+        v8::Local<v8::Object> self = info.Holder();
+        v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+        void* ptr = wrap->Value();
+        static_cast<MovingPlatform*>(ptr)->setPosition(static_cast<MovingPlatform*>(ptr)->getPosition().x, value->NumberValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
+    }
+
+    void MovingPlatform::getMPlatformY(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+    {
+        v8::Local<v8::Object> self = info.Holder();
+        v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+        void* ptr = wrap->Value();
+        float y_val = static_cast<MovingPlatform*>(ptr)->getPosition().y;
+        info.GetReturnValue().Set(y_val);
+    }
+
+    void MovingPlatform::setExposedSpeedX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+    {
+        v8::Local<v8::Object> self = info.Holder();
+        v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+        void* ptr = wrap->Value();
+        static_cast<MovingPlatform*>(ptr)->setSpeed(sf::Vector2f(value->NumberValue(info.GetIsolate()->GetCurrentContext()).ToChecked(), static_cast<MovingPlatform*>(ptr)->getSpeedVector().y));
+    }
+
+    void MovingPlatform::getExposedSpeedX(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+    {
+        v8::Local<v8::Object> self = info.Holder();
+        v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+        void* ptr = wrap->Value();
+        float x_val = static_cast<MovingPlatform*>(ptr)->getSpeedVector().x;
+        info.GetReturnValue().Set(x_val);
+    }
+
+    void MovingPlatform::setExposedSpeedY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+    {
+        v8::Local<v8::Object> self = info.Holder();
+        v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+        void* ptr = wrap->Value();
+        static_cast<MovingPlatform*>(ptr)->setSpeed(sf::Vector2f(static_cast<MovingPlatform*>(ptr)->getSpeedVector().x, value->NumberValue(info.GetIsolate()->GetCurrentContext()).ToChecked()));
+    }
+
+    void MovingPlatform::getExposedSpeedY(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+    {
+        v8::Local<v8::Object> self = info.Holder();
+        v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+        void* ptr = wrap->Value();
+        float y_val = static_cast<MovingPlatform*>(ptr)->getSpeedVector().y;
+        info.GetReturnValue().Set(y_val);
+    }
+
+    /**
+ * IMPORTANT: Pay close attention to the definition of the std::vector in this
+ * example implementation. The v8helpers::expostToV8 will assume you have
+ * instantiated this exact type of vector and passed it in. If you don't the
+ * helper function will not work.
+ */
+    v8::Local<v8::Object> MovingPlatform::exposeToV8(v8::Isolate* isolate, v8::Local<v8::Context>& context, std::string context_name)
+    {
+        std::vector<v8helpers::ParamContainer<v8::AccessorGetterCallback, v8::AccessorSetterCallback>> v;
+        v.push_back(v8helpers::ParamContainer("guid", getMPlatformGUID, setMPlatformGUID));
+        v.push_back(v8helpers::ParamContainer("x", getMPlatformX, setMPlatformX));
+        v.push_back(v8helpers::ParamContainer("y", getMPlatformY, setMPlatformY));
+        v.push_back(v8helpers::ParamContainer("scale", getScale, setScale));
+        v.push_back(v8helpers::ParamContainer("speedX", getExposedSpeedX, setExposedSpeedX));
+        v.push_back(v8helpers::ParamContainer("speedY", getExposedSpeedY, setExposedSpeedY));
+        return v8helpers::exposeToV8(guid, this, v, isolate, context, context_name);
+    }
+
+    void MovingPlatform::setScale(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+    {
+        v8::Local<v8::Object> self = info.Holder();
+        v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+        void* ptr = wrap->Value();
+        static_cast<MovingPlatform*>(ptr)->setCurrentScale(value->NumberValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
+    }
+
+    void MovingPlatform::getScale(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+    {
+        v8::Local<v8::Object> self = info.Holder();
+        v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+        void* ptr = wrap->Value();
+        float y_val = static_cast<MovingPlatform*>(ptr)->getCurrentScale();
+        info.GetReturnValue().Set(y_val);
+    }
+
+    float MovingPlatform::getCurrentScale()
+    {
+        return currentScale;
+    }
+
+    void MovingPlatform::setCurrentScale(float scale)
+    {
+        currentScale = scale;
     }
 
 

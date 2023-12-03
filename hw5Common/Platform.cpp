@@ -1,12 +1,18 @@
 #include "Platform.h"
 
 Platform::Platform() : sf::RectangleShape(), GameObject(true, true, true) {
-    passthrough = false;
+    guid = "platform" + std::to_string(*GameObject::getCurrentGUID());
+    (*GameObject::getCurrentGUID())++;
+    game_objects.push_back(this);
 }
 
 Platform::Platform(bool stationary, bool collidable, bool drawable) : sf::RectangleShape(), GameObject(stationary, collidable, drawable)
 {
     passthrough = false;
+
+    guid = "platform" + std::to_string(*GameObject::getCurrentGUID());
+    (*GameObject::getCurrentGUID())++;
+    game_objects.push_back(this);
 }
 
 void Platform::setPassthrough(bool passthrough) {
@@ -112,4 +118,74 @@ std::shared_ptr<GameObject> Platform::makeTemplate() {
 */
 int Platform::getObjectType() {
     return this->objectType;
+}
+
+//Script stuff
+
+void Platform::setPlatformGUID(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    v8::Local<v8::Object> self = info.Holder();
+    v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+    void* ptr = wrap->Value();
+    v8::String::Utf8Value utf8_str(info.GetIsolate(), value->ToString(info.GetIsolate()->GetCurrentContext()).ToLocalChecked());
+    static_cast<Platform*>(ptr)->guid = *utf8_str;
+}
+
+void Platform::getPlatformGUID(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    v8::Local<v8::Object> self = info.Holder();
+    v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+    void* ptr = wrap->Value();
+    std::string guid = static_cast<Platform*>(ptr)->guid;
+    v8::Local<v8::String> v8_guid = v8::String::NewFromUtf8(info.GetIsolate(), guid.c_str()).ToLocalChecked();
+    info.GetReturnValue().Set(v8_guid);
+}
+
+void Platform::setPlatformX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    v8::Local<v8::Object> self = info.Holder();
+    v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+    void* ptr = wrap->Value();
+    static_cast<Platform*>(ptr)->setPosition(value->NumberValue(info.GetIsolate()->GetCurrentContext()).ToChecked(), static_cast<Platform*>(ptr)->getPosition().y);
+}
+
+void Platform::getPlatformX(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    v8::Local<v8::Object> self = info.Holder();
+    v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+    void* ptr = wrap->Value();
+    float x_val = static_cast<Platform*>(ptr)->getPosition().x;
+    info.GetReturnValue().Set(x_val);
+}
+
+void Platform::setPlatformY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    v8::Local<v8::Object> self = info.Holder();
+    v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+    void* ptr = wrap->Value();
+    static_cast<Platform*>(ptr)->setPosition(static_cast<Platform*>(ptr)->getPosition().x, value->NumberValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
+}
+
+void Platform::getPlatformY(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    v8::Local<v8::Object> self = info.Holder();
+    v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+    void* ptr = wrap->Value();
+    float y_val = static_cast<Platform*>(ptr)->getPosition().y;
+    info.GetReturnValue().Set(y_val);
+}
+
+/**
+ * IMPORTANT: Pay close attention to the definition of the std::vector in this
+ * example implementation. The v8helpers::expostToV8 will assume you have
+ * instantiated this exact type of vector and passed it in. If you don't the
+ * helper function will not work.
+ */
+v8::Local<v8::Object> Platform::exposeToV8(v8::Isolate* isolate, v8::Local<v8::Context>& context, std::string context_name)
+{
+    std::vector<v8helpers::ParamContainer<v8::AccessorGetterCallback, v8::AccessorSetterCallback>> v;
+    v.push_back(v8helpers::ParamContainer("guid", getPlatformGUID, setPlatformGUID));
+    v.push_back(v8helpers::ParamContainer("x", getPlatformX, setPlatformX));
+    v.push_back(v8helpers::ParamContainer("y", getPlatformY, setPlatformY));
+    return v8helpers::exposeToV8(guid, this, v, isolate, context, context_name);
 }

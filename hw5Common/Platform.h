@@ -22,6 +22,19 @@ private:
     */
     std::mutex innerMutex;
 
+    //SCRIPTING STUFF
+
+    v8::Isolate* isolate;
+    v8::Global<v8::Context>* context;
+
+    static void setPlatformGUID(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+    static void getPlatformGUID(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info); // note return type
+
+    static void setPlatformX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+    static void getPlatformX(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info); // note return type
+    static void setPlatformY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+    static void getPlatformY(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info); // note return type
+
     
 public:
     /**
@@ -92,6 +105,21 @@ public:
     * type should be unique for each version of GameObject that you use with GameWindow.
     */
     int getObjectType() override;
+
+    //Script Stuff
+
+    std::string guid;
+
+    /**
+     * This function will make this class instance accessible to scripts in
+     * the given context.
+     *
+     * IMPORTANT: Please read this definition of this function in
+     * GameObject.cpp. The helper function I've provided expects certain
+     * parameters which you must use in order to take advance of this
+     * convinience.
+     */
+    v8::Local<v8::Object> exposeToV8(v8::Isolate* isolate, v8::Local<v8::Context>& context, std::string context_name = "default") override;
 };
 
 #endif

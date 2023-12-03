@@ -34,6 +34,8 @@ private:
 
 public:
 
+    static std::mutex innerMutex;
+
     static const int objectType = 0;
 
 

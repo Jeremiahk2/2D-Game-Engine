@@ -32,13 +32,39 @@ private:
     int bound1;
     int bound2;
 
+    float currentScale = 1.f;
+
     /**
     * The last recorded move that the moving platform made.
     */
     sf::Vector2f lastMove = sf::Vector2f(0, 0); 
 
+    //Scripting Stuff
+
+    v8::Isolate* isolate;
+    v8::Global<v8::Context>* context;
+
+    static void setMPlatformGUID(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+    static void getMPlatformGUID(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info); // note return type
+
+    static void setMPlatformX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+    static void getMPlatformX(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info); // note return type
+    static void setMPlatformY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+    static void getMPlatformY(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info); // note return type
+    static void setScale(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+    static void getScale(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info); // note return type
+    static void setExposedSpeedX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+    static void getExposedSpeedX(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info); // note return type
+    static void setExposedSpeedY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+    static void getExposedSpeedY(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info); // note return type
+
+
 
 public:
+
+    float getCurrentScale();
+
+    void setCurrentScale(float scale);
 
     static const int objectType = 3;
     /**
@@ -129,6 +155,21 @@ public:
     */
     int getObjectType() override;
 
+
+    //Script Stuff
+
+    std::string guid;
+
+    /**
+     * This function will make this class instance accessible to scripts in
+     * the given context.
+     *
+     * IMPORTANT: Please read this definition of this function in
+     * GameObject.cpp. The helper function I've provided expects certain
+     * parameters which you must use in order to take advance of this
+     * convinience.
+     */
+    v8::Local<v8::Object> exposeToV8(v8::Isolate* isolate, v8::Local<v8::Context>& context, std::string context_name = "default") override;
 };
 
 #endif

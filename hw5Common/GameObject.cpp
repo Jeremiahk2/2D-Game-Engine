@@ -1,11 +1,13 @@
 #include "GameObject.h"
 
+std::mutex GameObject::innerMutex;
+
 GameObject::GameObject(bool stationary, bool collidable, bool drawable)
 {
     this->stationary = stationary;
     this->collidable = collidable;
     this->drawable = drawable;
-
+	std::lock_guard<std::mutex> lock(innerMutex);
 	guid = "gameobject" + std::to_string(current_guid);
 	current_guid++;
 	game_objects.push_back(this);

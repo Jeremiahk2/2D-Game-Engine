@@ -13,7 +13,7 @@ Character::Character() : GameObject(false, false, true), Sprite() {
     setScale(.1f, .1f);
     setSpeed(CHAR_SPEED);
     setGravity(GRAV_SPEED);
-
+    std::lock_guard<std::mutex> lock(innerMutex);
     guid = "character" + std::to_string(*GameObject::getCurrentGUID());
     (*GameObject::getCurrentGUID())++;
     game_objects.push_back(this);
@@ -32,7 +32,7 @@ Character::Character(bool stationary, bool collidable, bool drawable) : GameObje
     setTexture(charTexture);
     setSpeed(CHAR_SPEED);
     setGravity(GRAV_SPEED);
-
+    std::lock_guard<std::mutex> lock(innerMutex);
     guid = "character" + std::to_string(*GameObject::getCurrentGUID());
     (*GameObject::getCurrentGUID())++;
     game_objects.push_back(this);
@@ -255,7 +255,7 @@ void Character::setCharacterX(v8::Local<v8::String> property, v8::Local<v8::Valu
     v8::Local<v8::Object> self = info.Holder();
     v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
     void* ptr = wrap->Value();
-    static_cast<Character*>(ptr)->setPosition(value->Int32Value(info.GetIsolate()->GetCurrentContext()).FromMaybe(-1), static_cast<Character*>(ptr)->getPosition().y);
+    static_cast<Character*>(ptr)->setPosition(value->NumberValue(info.GetIsolate()->GetCurrentContext()).ToChecked(), static_cast<Character*>(ptr)->getPosition().y);
 }
 
 void Character::getCharacterX(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -263,7 +263,7 @@ void Character::getCharacterX(v8::Local<v8::String> property, const v8::Property
     v8::Local<v8::Object> self = info.Holder();
     v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
     void* ptr = wrap->Value();
-    int x_val = static_cast<Character*>(ptr)->getPosition().x;
+    float x_val = static_cast<Character*>(ptr)->getPosition().x;
     info.GetReturnValue().Set(x_val);
 }
 
@@ -272,7 +272,7 @@ void Character::setCharacterY(v8::Local<v8::String> property, v8::Local<v8::Valu
     v8::Local<v8::Object> self = info.Holder();
     v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
     void* ptr = wrap->Value();
-    static_cast<Character*>(ptr)->setPosition(static_cast<Character*>(ptr)->getPosition().x, value->Int32Value(info.GetIsolate()->GetCurrentContext()).FromMaybe(-1));
+    static_cast<Character*>(ptr)->setPosition(static_cast<Character*>(ptr)->getPosition().x, value->NumberValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
 }
 
 void Character::getCharacterY(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
@@ -280,7 +280,7 @@ void Character::getCharacterY(v8::Local<v8::String> property, const v8::Property
     v8::Local<v8::Object> self = info.Holder();
     v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
     void* ptr = wrap->Value();
-    int y_val = static_cast<Character*>(ptr)->getPosition().y;
+    float y_val = static_cast<Character*>(ptr)->getPosition().y;
     info.GetReturnValue().Set(y_val);
 }
 

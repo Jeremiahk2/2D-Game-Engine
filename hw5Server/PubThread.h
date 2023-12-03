@@ -6,6 +6,8 @@
 #include "Timeline.h"
 #include "MovingPlatform.h"
 #include "EventManager.h"
+#include "ScriptManager.h"
+#include <libplatform/libplatform.h>
 #define MESSAGE_LIMIT 1024
 
 class PubThread

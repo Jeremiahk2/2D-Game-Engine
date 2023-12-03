@@ -87,8 +87,6 @@ void ScriptManager::runOne(std::string script_id, bool reload, std::string conte
 	}
 
 	v8::String::Utf8Value utf8(container.isolate, result);
-	if (strcmp(*utf8, "undefined") != 0)
-		printf("%s\n", *utf8);
 }
 
 void ScriptManager::runAll(bool reload, std::string context_name)
@@ -147,6 +145,7 @@ void ScriptManager::getNextArg(const v8::FunctionCallbackInfo<v8::Value>& args)
 	v8::Context::Scope context_scope(context);
 
 	GameObject* new_object = scriptArgs.front();
+	scriptArgs.pop();
 	v8::Local<v8::Object> v8_obj = new_object->exposeToV8(isolate, context);
 	args.GetReturnValue().Set(handle_scope.Escape(v8_obj));
 }

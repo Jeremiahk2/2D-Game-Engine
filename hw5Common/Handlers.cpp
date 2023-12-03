@@ -290,30 +290,3 @@ void ClosedHandler::onEvent(Event e)
     }
 }
 
-//NetworkHandler::NetworkHandler(EventManager* em)
-//{
-//    this->em = em;
-//}
-//
-//void NetworkHandler::onEvent(Event e)
-//{
-//    zmq::context_t context(2);
-//    zmq::socket_t socket(context, zmq::socket_type::rep);
-//    socket.connect("tcp://localhost:5556");
-//    //try {
-//    //    socket = e.parameters.at("socket").m_asSocket;
-//    //}
-//    //catch (std::out_of_range) {
-//    //    std::cout << "Invalid socket parameter in NetworkHandler" << std::endl;
-//    //    exit(3);
-//    //}
-//    if (e.type == "Client Closed") {
-//        e.time = GAME_LENGTH - em->getTimeline()->getGlobalTime();
-//        std::string rtnString = e.toString();
-//        zmq::message_t reply(rtnString.size() + 1);
-//        memcpy(reply.data(), rtnString.data(), rtnString.size() + 1);
-//        socket.send(reply, zmq::send_flags::none);
-//        zmq::message_t update;
-//        zmq::recv_result_t received(socket.recv(update, zmq::recv_flags::none));
-//    }
-//}

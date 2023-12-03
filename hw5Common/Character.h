@@ -23,11 +23,6 @@ private:
     sf::Vector2f speed;
 
     /**
-    * Mutex for blocking inner processes
-    */
-    std::mutex innerMutex;
-
-    /**
     * Is the character jumping right now.
     */
     bool jumping = false;
@@ -78,6 +73,7 @@ private:
     static void getCharacterY(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info); // note return type
 
 public:
+    
     /**
     * Character's object type
     */
