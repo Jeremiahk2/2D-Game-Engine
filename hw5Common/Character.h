@@ -215,8 +215,6 @@ public:
 
     //SCRIPTING STUFF
 
-    ~Character();
-
     std::string guid;
 
     /**

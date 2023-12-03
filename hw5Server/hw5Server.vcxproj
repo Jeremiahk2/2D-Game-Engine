@@ -109,12 +109,13 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Users\Jerry\source\repos\VS 481\packages\v8-v142-x64.10.0.139.9\include;C:\Users\Jerry\source\repos\VS 481\hw5Common</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>-DV8_COMPRESS_POINTERS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Users\Jerry\source\repos\VS 481\packages\v8-v142-x64.10.0.139.9\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>v8.dll.lib;v8_libbase.dll.lib;v8_libplatform.dll.lib;zlib.dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -127,6 +128,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Users\Jerry\source\repos\VS 481\packages\v8-v142-x64.10.0.139.9\include;C:\Users\Jerry\source\repos\VS 481\hw5Common</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>-DV8_COMPRESS_POINTERS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -134,7 +136,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Users\Jerry\source\repos\VS 481\packages\v8-v142-x64.10.0.139.9\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>v8.dll.lib;v8_libbase.dll.lib;v8_libplatform.dll.lib;zlib.dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -147,9 +149,11 @@
     <ClCompile Include="..\hw5Common\Handlers.cpp" />
     <ClCompile Include="..\hw5Common\MovingPlatform.cpp" />
     <ClCompile Include="..\hw5Common\Platform.cpp" />
+    <ClCompile Include="..\hw5Common\ScriptManager.cpp" />
     <ClCompile Include="..\hw5Common\SideBound.cpp" />
     <ClCompile Include="..\hw5Common\SpawnPoint.cpp" />
     <ClCompile Include="..\hw5Common\Timeline.cpp" />
+    <ClCompile Include="..\hw5Common\v8helpers.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PubThread.cpp" />
     <ClCompile Include="RepThread.cpp" />
@@ -165,9 +169,11 @@
     <ClInclude Include="..\hw5Common\Handlers.h" />
     <ClInclude Include="..\hw5Common\MovingPlatform.h" />
     <ClInclude Include="..\hw5Common\Platform.h" />
+    <ClInclude Include="..\hw5Common\ScriptManager.h" />
     <ClInclude Include="..\hw5Common\SideBound.h" />
     <ClInclude Include="..\hw5Common\SpawnPoint.h" />
     <ClInclude Include="..\hw5Common\Timeline.h" />
+    <ClInclude Include="..\hw5Common\v8helpers.h" />
     <ClInclude Include="PubThread.h" />
     <ClInclude Include="RepThread.h" />
   </ItemGroup>

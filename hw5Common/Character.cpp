@@ -204,10 +204,6 @@ std::shared_ptr<GameObject> Character::makeTemplate()
 
 /** Definitions of static class members */
 
-Character::~Character()
-{
-    context->Reset();
-}
 
 /**
  * IMPORTANT: Pay close attention to the definition of the std::vector in this

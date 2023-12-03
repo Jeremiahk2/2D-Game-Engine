@@ -76,21 +76,6 @@ int main(int argc, char **argv) {
         //For raising events, pass an array that is stored in the manager, and can be accessed from the script. Pop the elements off to get the arguments.
         ScriptManager* sm = new ScriptManager(isolate, default_context);
 
-        sm->addScript("hello_world", "scripts/hello_world.js");
-        Character character;
-        character.setPosition(100.f, 230);//startPlatform.getPosition().y - character.getGlobalBounds().height - 1.f);
-        character.setSpawnPoint(SpawnPoint(character.getPosition()));
-        character.setConnecting(1);
-        //window.addPlayableObject(&character);
-        //character.exposeToV8(isolate, default_context);
-
-        bool reload = false;
-        sm->addArgs(&character);
-        sm->runOne("hello_world", reload);
-        reload = false;
-        sleep(1000000);
-
-        //Setup window and add character.
         GameWindow window;
 
         sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
@@ -118,6 +103,13 @@ int main(int argc, char **argv) {
         headBonk.setPosition(500.f, 440.f);
         window.addGameObject(&headBonk);
 
+        sm->addScript("hello_world", "scripts/hello_world.js");
+        Character character;
+        character.setPosition(100.f, 230);//startPlatform.getPosition().y - character.getGlobalBounds().height - 1.f);
+        character.setSpawnPoint(SpawnPoint(character.getPosition()));
+        character.setConnecting(1);
+
+
         //Make a deadzone of height 30 that stretches across the bottom of the view.
         DeathZone dead(sf::Vector2f(window.getView().getSize().x * 2, 30.f), sf::Vector2f(0.f, window.getView().getSize().y - 30.f));
         window.addGameObject(&dead);
@@ -141,7 +133,14 @@ int main(int argc, char **argv) {
         secondView.setSize(sf::Vector2f(15.f, (float)window.getSize().y));
         secondView.setPosition(firstView.getPosition().x + firstView.getGlobalBounds().width + character.getGlobalBounds().width + 1.f, 0.f);
         window.addGameObject(&secondView);
+        window.addPlayableObject(&character);
 
+        bool reload = false;
+        sm->addArgs(&character);
+        sm->runOne("hello_world", reload);
+        reload = false;
+
+        //Setup window and add character.
         //Add templates
         window.addTemplate(headBonk.makeTemplate());
         window.addTemplate(character.makeTemplate());
