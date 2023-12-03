@@ -1,5 +1,6 @@
 #include "GameWindow.h"
 
+
 GameWindow::GameWindow() {
 
     innerMutex = (std::mutex*)malloc(sizeof(std::mutex));
@@ -7,8 +8,6 @@ GameWindow::GameWindow() {
     if (innerMutex != NULL) {
         memcpy(innerMutex, &tempMutex, sizeof(std::mutex));
     }
-
-    character = NULL;
 }
 
 bool GameWindow::checkCollisions(GameObject** collides) {

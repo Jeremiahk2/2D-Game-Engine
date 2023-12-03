@@ -64,6 +64,19 @@ private:
 
     bool dead = false;
 
+    //SCRIPTING STUFF
+
+    v8::Isolate* isolate;
+    v8::Global<v8::Context>* context;
+
+    static void setCharacterGUID(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+    static void getCharacterGUID(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info); // note return type
+
+    static void setCharacterX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+    static void getCharacterX(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info); // note return type
+    static void setCharacterY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+    static void getCharacterY(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info); // note return type
+
 public:
     /**
     * Character's object type
@@ -199,5 +212,33 @@ public:
     * Create a new empty character for GameWindow use
     */
     std::shared_ptr<GameObject> makeTemplate() override;
+
+    //SCRIPTING STUFF
+
+    ~Character();
+
+    std::string guid;
+
+    /**
+     * This function will make this class instance accessible to scripts in
+     * the given context.
+     *
+     * IMPORTANT: Please read this definition of this function in
+     * GameObject.cpp. The helper function I've provided expects certain
+     * parameters which you must use in order to take advance of this
+     * convinience.
+     */
+    v8::Local<v8::Object> exposeToV8(v8::Isolate* isolate, v8::Local<v8::Context>& context, std::string context_name = "default") override;
+
+    /**
+     * Factor methods for creating new instances of GameObjects.
+     *
+     * This is primarily a demonstration of how you can create new objects
+     * in javascript. NOTE: this is embedded in this GameObject class, but
+     * could (and likely should) be used for other functionality as well
+     * (i.e., Events).
+     */
+     //static GameObject* GameObjectFactory(std::string context_name = "default");
+    static void ScriptedGameObjectFactory(const v8::FunctionCallbackInfo<v8::Value>& args);
 };
 #endif
