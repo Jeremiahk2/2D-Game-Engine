@@ -192,6 +192,7 @@ int main(int argc, char **argv) {
                     }
                     polls++;
                 }
+                //Only do the stop command if left has been pressed and rigth was pressed within 5 tics, or if right has been pressed and left has been pressed within 5 tics.
                 if ((leftPressed && currentTic - lastRight < 5) || (rightPressed && currentTic - lastLeft < 5)) {
                     lastStop = currentTic;
                     leftPressed = false;
@@ -207,6 +208,7 @@ int main(int argc, char **argv) {
                     s.parameters.insert({ "character", characterVariant });
                     eventManager.raise(s);
                 }
+                //Only do the slow down command if left has been pressed and it's been more then 5 tics since right has been pressed.
                 else if (leftPressed && currentTic - lastLeft >= 5) {
                     leftPressed = false;
                     if (scale != .5) {
@@ -214,6 +216,7 @@ int main(int argc, char **argv) {
                         globalTime.changeScale(scale);
                     }
                 }
+                //Only do the speed up command if right has been pressed and it's been more than 5 tics since left has been pressed.
                 else if (rightPressed && currentTic - lastRight >= 5) {
                     rightPressed = false;
                     if (scale != 2.0) {
