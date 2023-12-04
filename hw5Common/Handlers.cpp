@@ -245,8 +245,7 @@ DeathHandler::DeathHandler(EventManager* em, ScriptManager*sm)
 
 void DeathHandler::onEvent(Event e)
 {
-    v8::Local<v8::Context> context = sm->getContextContainer().context;
-    e.exposeToV8(sm->getContextContainer().isolate, context);
+    Event::events.insert_or_assign( e.guid, &e );
     sm->addArgs(&e);
     sm->runOne("handle_death", false);
 }

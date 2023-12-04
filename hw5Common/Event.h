@@ -65,6 +65,8 @@ public:
 	std::shared_ptr<GameObject> makeTemplate() override;
 
 	int getObjectType() override;
+	
+	static std::unordered_map<std::string, Event*> events;
 
 	std::string guid;
 

@@ -5,7 +5,6 @@
 
 //This better be the event
 var death = moreArgs();
-print(death.type);
 //Set it up.
 death.type = "spawn";
 death.time = death.time + 3000;

@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
         headBonk.setPosition(500.f, 440.f);
         window.addGameObject(&headBonk);
         Character character;
-        character.setPosition(100.f, 230);//startPlatform.getPosition().y - character.getGlobalBounds().height - 1.f);
+        character.setPosition(100.f, startPlatform.getPosition().y - character.getGlobalBounds().height - 1.f);
         character.setSpawnPoint(SpawnPoint(character.getPosition()));
         character.setConnecting(1);
 

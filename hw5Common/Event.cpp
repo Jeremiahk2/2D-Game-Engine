@@ -1,11 +1,13 @@
 #include "Event.h"
 
+std::unordered_map<std::string, Event*> Event::events;
+
 Event::Event() : GameObject(false, false, false)
 {
     std::lock_guard<std::mutex> lock(innerMutex);
     guid = "event" + std::to_string(*GameObject::getCurrentGUID());
     (*GameObject::getCurrentGUID())++;
-    game_objects.push_back(this);
+    events.insert_or_assign( guid, this );
 }
 
 Event::~Event() {
