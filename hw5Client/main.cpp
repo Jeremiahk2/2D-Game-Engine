@@ -48,33 +48,6 @@ void run_cthread(CThread *fe) {
 
 
 int main(int argc, char **argv) {
-    std::unique_ptr<v8::Platform> platform = v8::platform::NewDefaultPlatform();
-    v8::V8::InitializePlatform(platform.release());
-    v8::V8::InitializeICU();
-    v8::V8::Initialize();
-    v8::Isolate::CreateParams create_params;
-    create_params.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
-    v8::Isolate* isolate = v8::Isolate::New(create_params);
-
-    { // anonymous scope for managing handle scope
-        v8::Isolate::Scope isolate_scope(isolate); // must enter the virtual machine to do stuff
-        v8::HandleScope handle_scope(isolate);
-
-        //Best practice to isntall all global functions in the context ahead of time.
-        v8::Local<v8::ObjectTemplate> global = v8::ObjectTemplate::New(isolate);
-        // Bind the global 'print' function to the C++ Print callback.
-        global->Set(isolate, "print", v8::FunctionTemplate::New(isolate, v8helpers::Print));
-        // Bind the global static factory function for creating new GameObject instances
-        global->Set(isolate, "gameobjectfactory", v8::FunctionTemplate::New(isolate, GameObject::ScriptedGameObjectFactory));
-        // Bind the global static function for retrieving object handles
-        global->Set(isolate, "gethandle", v8::FunctionTemplate::New(isolate, ScriptManager::getHandleFromScript));
-
-        global->Set(isolate, "moreArgs", v8::FunctionTemplate::New(isolate, ScriptManager::getNextArg));
-
-        v8::Local<v8::Context> default_context = v8::Context::New(isolate, NULL, global);
-        v8::Context::Scope default_context_scope(default_context); // enter the context
-        //For raising events, pass an array that is stored in the manager, and can be accessed from the script. Pop the elements off to get the arguments.
-        ScriptManager* sm = new ScriptManager(isolate, default_context);
 
         GameWindow window;
 
@@ -102,8 +75,6 @@ int main(int argc, char **argv) {
         headBonk.setFillColor(sf::Color::Blue);
         headBonk.setPosition(500.f, 440.f);
         window.addGameObject(&headBonk);
-
-        sm->addScript("hello_world", "scripts/hello_world.js");
         Character character;
         character.setPosition(100.f, 230);//startPlatform.getPosition().y - character.getGlobalBounds().height - 1.f);
         character.setSpawnPoint(SpawnPoint(character.getPosition()));
@@ -134,11 +105,6 @@ int main(int argc, char **argv) {
         secondView.setPosition(firstView.getPosition().x + firstView.getGlobalBounds().width + character.getGlobalBounds().width + 1.f, 0.f);
         window.addGameObject(&secondView);
         window.addPlayableObject(&character);
-
-        bool reload = false;
-        sm->addArgs(&character);
-        sm->runOne("hello_world", reload);
-        reload = false;
 
         //Setup window and add character.
         //Add templates
@@ -279,10 +245,5 @@ int main(int argc, char **argv) {
                 tic = currentTic;
             }
         }
-    }
-    isolate->Dispose();
-    v8::V8::Dispose();
-    v8::V8::ShutdownPlatform();
-
     return EXIT_SUCCESS;
 }

@@ -28,9 +28,11 @@ void PubThread::run() {
         // Bind the global 'print' function to the C++ Print callback.
         global->Set(isolate, "print", v8::FunctionTemplate::New(isolate, v8helpers::Print));
         // Bind the global static factory function for creating new GameObject instances
-        global->Set(isolate, "gameobjectfactory", v8::FunctionTemplate::New(isolate, GameObject::ScriptedGameObjectFactory));
+        global->Set(isolate, "makeEvent", v8::FunctionTemplate::New(isolate, Event::ScriptedGameObjectFactory));
         // Bind the global static function for retrieving object handles
         global->Set(isolate, "gethandle", v8::FunctionTemplate::New(isolate, ScriptManager::getHandleFromScript));
+
+        global->Set(isolate, "raise", v8::FunctionTemplate::New(isolate, EventManager::raiseEventFromScript));
 
         global->Set(isolate, "moreArgs", v8::FunctionTemplate::New(isolate, ScriptManager::getNextArg));
 

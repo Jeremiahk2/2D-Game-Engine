@@ -4,6 +4,8 @@
 #include <thread>
 #include <condition_variable>
 #include <zmq.hpp>
+#include <v8.h>
+#include <libplatform/libplatform.h>
 
 #include "MovingPlatform.h"
 #include "Timeline.h"

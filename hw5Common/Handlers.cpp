@@ -237,19 +237,18 @@ void SpawnHandler::onEvent(Event e)
     character->respawn();
 }
 
-DeathHandler::DeathHandler(EventManager* em)
+DeathHandler::DeathHandler(EventManager* em, ScriptManager*sm)
 {
     this->em = em;
+    this->sm = sm;
 }
 
 void DeathHandler::onEvent(Event e)
 {
-    Event spawn;
-    spawn = e;
-    spawn.type = "spawn";
-    spawn.time = e.time + 3000; //Respawn three seconds later.
-    spawn.order = e.order + 1;
-    em->raise(spawn);
+    v8::Local<v8::Context> context = sm->getContextContainer().context;
+    e.exposeToV8(sm->getContextContainer().isolate, context);
+    sm->addArgs(&e);
+    sm->runOne("handle_death", false);
 }
 
 ClosedHandler::ClosedHandler()

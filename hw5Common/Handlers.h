@@ -6,6 +6,7 @@
 #include "DeathZone.h"
 #include "SideBound.h"
 #include "EventManager.h"
+#include "ScriptManager.h"
 #include <zmq.hpp>
 class CollisionHandler : public EventHandler {
 public:
@@ -41,8 +42,9 @@ public:
 class DeathHandler : public EventHandler {
 private:
 	EventManager* em;
+	ScriptManager* sm;
 public:
-	DeathHandler(EventManager* em);
+	DeathHandler(EventManager* em, ScriptManager *sm);
 	void onEvent(Event e) override;
 };
 
@@ -58,15 +60,6 @@ public:
 
 	ClosedHandler();
 	ClosedHandler(EventManager* em);
-
-	void onEvent(Event e) override;
-};
-
-class NetworkHandler : public EventHandler {
-private:
-	EventManager* em;
-public:
-	NetworkHandler(EventManager* em);
 
 	void onEvent(Event e) override;
 };
