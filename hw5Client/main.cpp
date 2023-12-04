@@ -219,7 +219,7 @@ int main(int argc, char **argv) {
                     Event::variant directionVariant;
                     directionVariant.m_Type = Event::variant::TYPE_INT;
                     directionVariant.m_asInt = MovementHandler::LEFT;
-                    m.parameters.insert({ "direction", directionVariant });
+                    m.parameters.insert_or_assign( "direction", directionVariant );
                     eventManager.raise(m);
                 }
 
@@ -230,7 +230,7 @@ int main(int argc, char **argv) {
                     Event::variant directionVariant;
                     directionVariant.m_Type = Event::variant::TYPE_INT;
                     directionVariant.m_asInt = MovementHandler::RIGHT;
-                    m.parameters.insert({ "direction", directionVariant });
+                    m.parameters.insert_or_assign( "direction", directionVariant );
                     eventManager.raise(m);
                 }
 

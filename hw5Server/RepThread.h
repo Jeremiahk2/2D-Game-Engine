@@ -8,7 +8,7 @@
 #include "Timeline.h"
 #include "Character.h"
 #include "EventManager.h"
-#define GAME_LENGTH 120000
+#define GAME_LENGTH 10000000000
 #define MESSAGE_LIMIT 1024
 
 class RepThread
