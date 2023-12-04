@@ -142,6 +142,16 @@ int main(int argc, char **argv) {
         //Start collision detection thread
         CThread cthread(&upPressed, &window, &CTime, &stopped, &mutex, &cv, &busy, &eventManager);
         std::thread first(run_cthread, &cthread);
+        int lastLeft = 0;
+        int lastRight = 0;
+        int lastStop = 0;
+        bool leftPressed = false;
+        bool rightPressed = false;
+
+        std::string type("stop");
+        std::list<std::string> types;
+        types.push_back(type);
+        eventManager.registerEvent(types, new StopHandler());
 
         while (window.isOpen()) {
 
@@ -169,16 +179,12 @@ int main(int argc, char **argv) {
                         window.changeScaling();
                     }
                     if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Left)) {
-                        if (scale != .5) {
-                            scale *= .5;
-                            globalTime.changeScale(scale);
-                        }
+                        leftPressed = true;
+                        lastLeft = currentTic;
                     }
                     if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Right)) {
-                        if (scale != 2.0) {
-                            scale *= 2.0;
-                            globalTime.changeScale(scale);
-                        }
+                        rightPressed = true;
+                        lastRight = currentTic;
                     }
                     if (event.type == sf::Event::Resized)
                     {
@@ -186,6 +192,36 @@ int main(int argc, char **argv) {
                     }
                     polls++;
                 }
+                if ((leftPressed && currentTic - lastRight < 5) || (rightPressed && currentTic - lastLeft < 5)) {
+                    lastStop = currentTic;
+                    leftPressed = false;
+                    rightPressed = false;
+                    Event s;
+                    s.order = 1;
+                    s.time = FrameTime.convertGlobal(currentTic);
+                    s.type = std::string("stop");
+
+                    Event::variant characterVariant;
+                    characterVariant.m_Type = Event::variant::TYPE_GAMEOBJECT;
+                    characterVariant.m_asGameObject = &character;
+                    s.parameters.insert({ "character", characterVariant });
+                    eventManager.raise(s);
+                }
+                else if (leftPressed && currentTic - lastLeft >= 5) {
+                    leftPressed = false;
+                    if (scale != .5) {
+                        scale *= .5;
+                        globalTime.changeScale(scale);
+                    }
+                }
+                else if (rightPressed && currentTic - lastRight >= 5) {
+                    rightPressed = false;
+                    if (scale != 2.0) {
+                        scale *= 2.0;
+                        globalTime.changeScale(scale);
+                    }
+                }
+
                 //Out of the event loop, need to sync up with thread again.
 
                 //END EVENT CHECKS

@@ -64,6 +64,11 @@ public:
 	void onEvent(Event e) override;
 };
 
-
-
+class StopHandler : public EventHandler {
+private:
+public:
+	StopHandler();
+	
+	void onEvent(Event e) override;
+};
 #endif

@@ -288,3 +288,24 @@ void ClosedHandler::onEvent(Event e)
     }
 }
 
+StopHandler::StopHandler()
+{
+}
+
+void StopHandler::onEvent(Event e)
+{
+    Character* character;
+    try {
+        character = (Character*)e.parameters.at(std::string("character")).m_asGameObject;
+    }
+    catch (std::out_of_range) {
+        std::cout << "Parameters for CollisionHandler are wrong";
+        exit(3);
+    }
+    if (character->getSpeed().x == 0) {
+        character->setSpeed(CHAR_SPEED);
+    }
+    else {
+        character->setSpeed(0);
+    }
+}
