@@ -18,8 +18,8 @@ public:
 	enum DIRECTION {
 		LEFT,
 		RIGHT,
-		JUMP,
-		UP
+		UP,
+		DOWN
 	};
 	void onEvent(Event e) override;
 };

@@ -75,58 +75,28 @@ void CollisionHandler::onEvent(Event e)
 
 void MovementHandler::onEvent(Event e)
 {
-    GameWindow* window;
-    float ticLength;
-    int differential;
+    std::cout << "Ran" << std::endl;
+    Character *character;
     try {
-        window = e.parameters.at(std::string("window")).m_asGameWindow;
-        ticLength = e.parameters.at(std::string("ticLength")).m_asFloat;
-        differential = e.parameters.at(std::string("differential")).m_asInt;
-    }
+        character = (Character*)e.parameters.at(std::string("character")).m_asGameObject;
+
+        //Unless left is specified
+        if (e.parameters.at(std::string("direction")).m_asInt == MovementHandler::LEFT) {
+            character->setSpeed(sf::Vector2f(-CHAR_SPEED, 0));
+        }
+        else if (e.parameters.at(std::string("direction")).m_asInt == MovementHandler::RIGHT) {
+            character->setSpeed(sf::Vector2f(CHAR_SPEED, 0));
+        }
+        else if (e.parameters.at(std::string("direction")).m_asInt == MovementHandler::UP) {
+            character->setSpeed(sf::Vector2f(0, -CHAR_SPEED));
+        }
+        else if (e.parameters.at(std::string("direction")).m_asInt == MovementHandler::DOWN) {
+            character->setSpeed(sf::Vector2f(0, CHAR_SPEED));
+        }
+    } 
     catch (std::out_of_range) {
         std::cout << "Parameters for MovementHandler messed up";
         exit(3);
-    }
-    Character* character = (Character*)window->getPlayableObject();
-    float charSpeed = (float)character->getSpeed().x * (float)ticLength * (float)(differential);
-    sf::Vector2f speedVector;
-    sf::Vector2f oppositeVector;
-    //Unless left is specified
-    if (e.parameters.at(std::string("direction")).m_asInt == MovementHandler::LEFT) {
-        speedVector.x = charSpeed * -1;
-    }
-    else if (e.parameters.at(std::string("direction")).m_asInt == MovementHandler::RIGHT) {
-        speedVector.x = charSpeed;
-    }
-    else if (e.parameters.at(std::string("direction")).m_asInt == MovementHandler::UP) {
-        speedVector.y = character->getJumpSpeed() * (float)ticLength * (float)differential;
-    }
-
-    character->move(speedVector);
-
-    GameObject* collision;
-    //Check for collisions
-    if (window->checkCollisions(&collision)) {
-        //If the collided platform is not moving, just correct the position of Character back.
-        if (collision->getObjectType() == Platform::objectType) {
-            character->move(-1.f * speedVector);
-        }
-        //if the collided platform is moving, move the character back AND move them along with the platform.
-        else if (collision->getObjectType() == MovingPlatform::objectType) {
-            MovingPlatform* temp = (MovingPlatform*)collision;
-            //Convert plat's speed to pixels per tic
-            float oneHalfTicSpeed = (character->getSpeed().x * ticLength) / 2;
-            if (e.parameters.at(std::string("direction")).m_asInt == MovementHandler::LEFT) {
-                character->setPosition(temp->getGlobalBounds().left + temp->getGlobalBounds().width + oneHalfTicSpeed, character->getPosition().y);
-            }
-            else {
-                character->setPosition(temp->getGlobalBounds().left - character->getGlobalBounds().width - oneHalfTicSpeed, character->getPosition().y);
-            }
-        }
-        else if (collision->getObjectType() == SideBound::objectType) {
-            SideBound* temp = (SideBound*)collision;
-            temp->onCollision();
-        }
     }
 }
 

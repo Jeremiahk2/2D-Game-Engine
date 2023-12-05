@@ -133,18 +133,34 @@ int main(int argc, char **argv) {
         types.push_back(type);
         eventManager.registerEvent(types, new StopHandler());
 
+        type = "input";
+        types.clear();
+        types.push_back(type);
+        eventManager.registerEvent(types, new MovementHandler());
+
+        Event m;
+        m.order = 1;
+        m.time = FrameTime.convertGlobal(currentTic);
+        m.type = std::string("input");
+
+        Event::variant characterVariant;
+        characterVariant.m_Type = Event::variant::TYPE_GAMEOBJECT;
+        characterVariant.m_asGameObject = &character;
+        m.parameters.insert({ "character", characterVariant });
+
+        Event::variant directionVariant;
+        directionVariant.m_Type = Event::variant::TYPE_INT;
+        directionVariant.m_asInt = MovementHandler::DIRECTION::UP;
+        m.parameters.insert({ "direction", directionVariant });
+        int numInputs = 0;
+
         while (window.isOpen()) {
 
             ticLength = FrameTime.getRealTicLength();
             currentTic = FrameTime.getTime();
 
             sf::Event event;
-
-            int polls = 0;
             while (window.pollEvent(event)) {
-                if (polls > 2) {
-                    //busy = false; //We've been in the event loop for too long, probably due to a resize or something similar. Allow our thread to continue.
-                }
                 if (event.type == sf::Event::Closed) {
                     stopped = true;
                     //Need to notify all so they can stop
@@ -157,34 +173,39 @@ int main(int argc, char **argv) {
                 if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Q)) {
                     window.changeScaling();
                 }
-                if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Left)) {
-                    leftPressed = true;
-                    lastLeft = currentTic;
-                }
-                if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Right)) {
-                    rightPressed = true;
-                    lastRight = currentTic;
-                }
+
                 if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::W)) {
-                    character.setSpeed(sf::Vector2f(0, -CHAR_SPEED));
+                    m.time = FrameTime.convertGlobal(tic + ++numInputs);
+                    directionVariant.m_asInt = MovementHandler::DIRECTION::UP;
+                    m.parameters.insert_or_assign( "direction", directionVariant );
+                    eventManager.raise(m);
                 }
                 if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::A)) {
-                    character.setSpeed(sf::Vector2f(-CHAR_SPEED, 0));
+                    m.time = FrameTime.convertGlobal(tic + ++numInputs);
+                    directionVariant.m_asInt = MovementHandler::DIRECTION::LEFT;
+                    m.parameters.insert_or_assign( "direction", directionVariant );
+                    eventManager.raise(m);
                 }
                 if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::S)) {
-                    character.setSpeed(sf::Vector2f(0, CHAR_SPEED));
+                    m.time = FrameTime.convertGlobal(tic + ++numInputs);
+                    directionVariant.m_asInt = MovementHandler::DIRECTION::DOWN;
+                    m.parameters.insert_or_assign("direction", directionVariant );
+                    eventManager.raise(m);
                 }
                 if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::D)) {
-                    character.setSpeed(sf::Vector2f(CHAR_SPEED, 0));
+                    m.time = FrameTime.convertGlobal(tic + ++numInputs);
+                    directionVariant.m_asInt = MovementHandler::DIRECTION::RIGHT;
+                    m.parameters.insert_or_assign( "direction", directionVariant );
+                    eventManager.raise(m);
                 }
                 if (event.type == sf::Event::Resized)
                 {
                     window.handleResize(event);
                 }
-                polls++;
             }
 
             if (currentTic > tic) {
+                numInputs = 0;
                 //Only do the stop command if left has been pressed and rigth was pressed within 5 tics, or if right has been pressed and left has been pressed within 5 tics.
                 if ((leftPressed && currentTic - lastRight < 5) || (rightPressed && currentTic - lastLeft < 5)) {
                     lastStop = currentTic;
@@ -223,28 +244,6 @@ int main(int argc, char **argv) {
                 //END EVENT CHECKS
                 //Need to recalculate character speed in case scale changed.
                 float charSpeed = (float)character.getSpeed().x * (float)ticLength * (float)(currentTic - tic);
-
-                Event m;
-                m.order = 1;
-                m.time = FrameTime.convertGlobal(currentTic);
-                m.type = std::string("movement");
-
-                Event::variant windowVariant;
-                windowVariant.m_Type = Event::variant::TYPE_GAMEWINDOW;
-                windowVariant.m_asGameWindow = &window;
-
-                Event::variant ticLengthVariant;
-                ticLengthVariant.m_Type = Event::variant::TYPE_FLOAT;
-                ticLengthVariant.m_asFloat = ticLength;
-
-                Event::variant differentialVariant;
-                differentialVariant.m_Type = Event::variant::TYPE_INT;
-                differentialVariant.m_asInt = currentTic - tic;
-
-                m.parameters.insert({ "window", windowVariant });
-                m.parameters.insert({ "ticLength", ticLengthVariant });
-                m.parameters.insert({ "differential", differentialVariant });
-                m.type = std::string("movement");
 
                 tic = currentTic;
             }
