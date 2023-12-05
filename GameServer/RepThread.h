@@ -23,10 +23,6 @@ private:
     */
     int id;
     /**
-    * the map of all characters connecting to the server.
-    */
-    std::map<int, std::shared_ptr<GameObject>> *characters;
-    /**
     * mutex for mutual exclusion
     */
     std::mutex* mutex;
@@ -36,11 +32,13 @@ private:
     Timeline* time;
 
     EventManager* manager;
+
+    int* highScore;
 public:
     /**
     * Constructor
     */
-    RepThread(int port, int id, std::map<int, std::shared_ptr<GameObject>>* characters, std::mutex *m, Timeline *time, EventManager *manager);
+    RepThread(int port, int id, int *highScore, std::mutex *m, Timeline *time, EventManager *manager);
 
     /**
     * run the program. It is responsible for the movement of a platform, which goes back and forth between two bounds.

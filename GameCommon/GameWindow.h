@@ -60,6 +60,8 @@ public:
     */
     GameWindow();
 
+    void clearStaticObjects();
+
     /**
     Check collisions of all collidables versus the character.
     @param collides Returns the CBox that the character collided with (stationary platforms take precedence)

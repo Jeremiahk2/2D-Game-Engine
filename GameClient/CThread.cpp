@@ -47,6 +47,24 @@ void CThread::run() {
 
         global->Set(isolate, "moreArgs", v8::FunctionTemplate::New(isolate, ScriptManager::getNextArg));
 
+        // Declare and load a font
+        sf::Font font;
+        font.loadFromFile("superstar_memesbruh03.ttf");
+
+        // Create a text
+        sf::Text personal("Length: 1", font);
+        personal.setCharacterSize(30);
+        personal.setStyle(sf::Text::Regular);
+        personal.setFillColor(sf::Color::Yellow);
+        personal.setPosition(250.f, 600.f);
+
+        // Create a text
+        sf::Text highScore("High Score: 1", font);
+        highScore.setCharacterSize(30);
+        highScore.setStyle(sf::Text::Regular);
+        highScore.setFillColor(sf::Color::Yellow);
+        highScore.setPosition(450, 600.f);
+
 
 
         v8::Local<v8::Context> default_context = v8::Context::New(isolate, NULL, global);
@@ -55,6 +73,7 @@ void CThread::run() {
         ScriptManager* sm = new ScriptManager(isolate, default_context);
 
         sm->addScript("handle_death", "scripts/handle_death.js");
+        sm->addScript("move_character", "scripts/move_character.js");
 
         std::string type("collision");
         std::list<std::string> types;
@@ -69,12 +88,12 @@ void CThread::run() {
         type = "gravity";
         types.clear();
         types.push_back(type);
-        em->registerEvent(types, new GravityHandler(em));
+        em->registerEvent(types, new GravityHandler(em, window, sm));
 
         type = "spawn";
         types.clear();
         types.push_back(type);
-        em->registerEvent(types, new SpawnHandler());
+        em->registerEvent(types, new SpawnHandler(window));
 
         type = "death";
         types.clear();
@@ -174,98 +193,26 @@ void CThread::run() {
                 zmq::message_t newPlatforms;
                 r = subSocket.recv(newPlatforms, zmq::recv_flags::none);
                 std::string updates((char*)newPlatforms.data());
-
-                int pos = 0;
-                int newPos = 0;
-                char* currentObject = (char*)malloc(updates.size() + 1);
-
-                std::stringstream stream;
-
-                //Scan through each object looking for just characters
-                while (sscanf_s(updates.data() + pos, "%[^,]%n", currentObject, (unsigned int)(updates.size() + 1), &newPos) == 1) {
-                    //Get the type of the current object.
-                    int type;
-                    int matches = sscanf_s(currentObject, "%d", &type);
-                    if (matches != 1) {
-                        throw std::invalid_argument("Failed to read string. Type must be the first value.");
-                    }
-                    if (type == Character::objectType) {
-                        stream << currentObject << ",";
-                        //update position and skip past comma
-                        pos += newPos + 1;
-                    }
-                    else {
-                        break;
-                    }
-                }
-                std::string charStrings;
-                std::getline(stream, charStrings);
-                //Update window with new characters
-                window->updateNonStatic(charStrings);
+                highScore.setString("High Score: " + updates);
 
                 //Sync with visuals
                 {
                     std::lock_guard<std::mutex> lock(*mutex);
                     window->update();
-                    //Update the rest
-                    std::string otherStuff(updates.data() + pos);
-                    window->updateNonStatic(otherStuff);
+                    personal.setString("Length: " + std::to_string(character->length + 1));
+                    window->draw(personal);
+                    window->draw(highScore);
+                    window->display();
 
-                    //Set up physics variables
-                    ticLength = line->getRealTicLength();
-                    *upPressed = false;
-                    float gravity = character->getGravity() * ticLength * (currentTic - tic);
-                    float oneHalfTicGrav = (character->getGravity() * ticLength) / 2;
-                    GameObject* collision = nullptr;
-                    bool doGravity = true;
-                    //Set up physics events.
-                    //Set up collision event.
-                    Event c;
+                    //Set up gravity event.
+                    Event g;
                     {
-                        c.time = line->convertGlobal(currentTic);
-                        c.type = std::string("collision");
-                        Event::variant upPressedVariant;
-                        upPressedVariant.m_Type = Event::variant::TYPE_BOOLP;
-                        upPressedVariant.m_asBoolP = upPressed;
-                        Event::variant doGravityVariant;
-                        doGravityVariant.m_Type = Event::variant::TYPE_BOOLP;
-                        doGravityVariant.m_asBoolP = &doGravity;
+                        g.time = line->convertGlobal(currentTic);
+                        g.type = std::string("gravity");
                         Event::variant characterVariant;
                         characterVariant.m_Type = Event::variant::TYPE_GAMEOBJECT;
                         characterVariant.m_asGameObject = character;
-                        Event::variant ticLengthVariant;
-                        ticLengthVariant.m_Type = Event::variant::TYPE_FLOAT;
-                        ticLengthVariant.m_asFloat = ticLength;
-                        Event::variant differentialVariant;
-                        differentialVariant.m_Type = Event::variant::TYPE_INT;
-                        differentialVariant.m_asInt = currentTic - tic;
-                        c.parameters.insert({ { "upPressed", upPressedVariant }, { "doGravity", doGravityVariant } });
-                        c.parameters.insert({ "character", characterVariant });
-                        c.parameters.insert({ "ticLength", ticLengthVariant });
-                        c.parameters.insert({ "differential", differentialVariant });
-                    }
-                    //Set up gravity event.
-                    Event g = c;
-                    {
-                        g.type = std::string("gravity");
-                        Event::variant nonScalableTicLengthVariant;
-                        nonScalableTicLengthVariant.m_Type = Event::variant::TYPE_FLOAT;
-                        nonScalableTicLengthVariant.m_asFloat = nonScalableTicLength;
-                        Event::variant windowVariant;
-                        windowVariant.m_Type = Event::variant::TYPE_GAMEWINDOW;
-                        windowVariant.m_asGameWindow = window;
-                        g.parameters.insert({ "nonScalableTicLength", nonScalableTicLengthVariant });
-                        g.parameters.insert({ "window", windowVariant });
-                    }
-
-                    //Check for collisions, add it to event manager if there is one.
-                    if (window->checkCollisions(&collision)) {
-                        //Add collision event to queue.
-                        Event::variant collisionVariant;
-                        collisionVariant.m_Type = Event::variant::TYPE_GAMEOBJECT;
-                        collisionVariant.m_asGameObject = collision;
-                        c.parameters.insert({ "collision", collisionVariant });
-                        em->raise(c);
+                        g.parameters.insert({ "character", characterVariant });
                     }
                     //Handle gravity as well.
                     em->raise(g);
@@ -292,34 +239,11 @@ void CThread::run() {
                     if (erase) {
                         em->raised_events.erase(em->raised_events.begin());
                     }
-
-
-                    //Handle jumping.
-                    float frameJump = JUMP_SPEED * (float)ticLength * (float)(currentTic - tic);
-
-                    if (character->isJumping()) {
-                        character->move(0, -1 * frameJump);
-                        jumpTime -= (float)ticLength * (float)(currentTic - tic);
-                        bool jumpCollides = window->checkCollisions(&collision);
-                        if (jumpCollides && collision->getObjectType() == SideBound::objectType) {
-                            //Don't stop the jump if it's just a side bound.
-                            jumpCollides = false;
-                        }
-                        //Exit jumping if there are no more jump frames or if we collided with something.
-                        if (jumpTime <= 0 || jumpCollides) {
-                            if (jumpCollides) {
-                                character->move(0, frameJump);
-                            }
-                            character->setJumping(false);
-                            jumpTime = JUMP_TIME;
-                        }
-                    }
                 }
-
                 //Send updated character information to server
                 {
                     std::lock_guard<std::mutex> lock(*mutex);
-                    std::string charString = character->toString();
+                    std::string charString(std::to_string(character->length + 1));
                     zmq::message_t request(charString.size() + 1);
                     memcpy(request.data(), charString.data(), charString.size() + 1);
                     reqSocket.send(request, zmq::send_flags::none);
@@ -337,17 +261,14 @@ void CThread::run() {
                     em->raise(*e);
                 }
                 catch (std::invalid_argument) {
-                    //Oops, wasn't an event. Must be our updated ID.
-                    int newID;
-                    int matches = sscanf_s(replyString, "%d", &newID);
-                    character->setID(newID);
+                    //Oops, wasn't an event.
                 }
                 tic = currentTic;
             }
         }
         //Tell the server we are disconnecting
         character->setConnecting(false);
-        std::string charString = character->toString();
+        std::string charString = "-1";
 
         zmq::message_t request(charString.size() + 1);
         memcpy(request.data(), charString.data(), charString.size() + 1);

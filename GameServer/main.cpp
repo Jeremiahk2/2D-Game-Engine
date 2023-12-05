@@ -38,7 +38,7 @@
 
 #define JUMP_TIME .5
 
-#define TIC 100 //Change this to try out different tic rates
+#define TIC 75 //Change this to try out different tic rates
 
 #define MESSAGE_LIMIT 1024 //Limit on string length for network messages
 
@@ -127,9 +127,10 @@ int main() {
     int numClients = 0;
     int numCharacters = 0;
     int availPort = 5557;
+    int highScore = 1;
 
     //Create and run publisher thread
-    PubThread pubthread(&FrameTime, &movings, &characters, &mutex, &manager);
+    PubThread pubthread(&FrameTime, &highScore, &mutex, &manager);
     std::thread second(run_pub, &pubthread);
 
 
@@ -151,7 +152,7 @@ int main() {
 
             //Create client struct and thread
             ClientStruct newClient;
-            newClient.repThread = new RepThread(newPort, id, &characters, &mutex, &FrameTime, &manager);
+            newClient.repThread = new RepThread(newPort, id, &highScore, &mutex, &FrameTime, &manager);
             newClient.thread = new std::thread(run_rep, newClient.repThread);
             clientThreads.push_back(newClient);
 

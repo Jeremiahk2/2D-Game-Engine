@@ -75,22 +75,21 @@ void CollisionHandler::onEvent(Event e)
 
 void MovementHandler::onEvent(Event e)
 {
-    std::cout << "Ran" << std::endl;
     Character *character;
     try {
         character = (Character*)e.parameters.at(std::string("character")).m_asGameObject;
 
         //Unless left is specified
-        if (e.parameters.at(std::string("direction")).m_asInt == MovementHandler::LEFT) {
+        if (e.parameters.at(std::string("direction")).m_asInt == MovementHandler::LEFT && character->getSpeed().x != CHAR_SPEED) {
             character->setSpeed(sf::Vector2f(-CHAR_SPEED, 0));
         }
-        else if (e.parameters.at(std::string("direction")).m_asInt == MovementHandler::RIGHT) {
+        else if (e.parameters.at(std::string("direction")).m_asInt == MovementHandler::RIGHT && character->getSpeed().x != -CHAR_SPEED) {
             character->setSpeed(sf::Vector2f(CHAR_SPEED, 0));
         }
-        else if (e.parameters.at(std::string("direction")).m_asInt == MovementHandler::UP) {
+        else if (e.parameters.at(std::string("direction")).m_asInt == MovementHandler::UP && character->getSpeed().y != CHAR_SPEED) {
             character->setSpeed(sf::Vector2f(0, -CHAR_SPEED));
         }
-        else if (e.parameters.at(std::string("direction")).m_asInt == MovementHandler::DOWN) {
+        else if (e.parameters.at(std::string("direction")).m_asInt == MovementHandler::DOWN && character->getSpeed().y != -CHAR_SPEED) {
             character->setSpeed(sf::Vector2f(0, CHAR_SPEED));
         }
     } 
@@ -100,44 +99,59 @@ void MovementHandler::onEvent(Event e)
     }
 }
 
-GravityHandler::GravityHandler(EventManager *em)
+GravityHandler::GravityHandler(EventManager *em, GameWindow *window, ScriptManager *sm)
 {
     this->em = em;
+    this->window = window;
+    this->sm = sm;
 }
 
 void GravityHandler::onEvent(Event e)
 {
     //Get event parameters
-    GameWindow* window;
-    bool* upPressed;
-    float ticLength;
-    int differential;
-    float nonScalableTicLength;
-    bool* doGravity;
+    Character* character;
     try {
-        window = e.parameters.at(std::string("window")).m_asGameWindow;
-        upPressed = e.parameters.at(std::string("upPressed")).m_asBoolP;
-        ticLength = e.parameters.at(std::string("ticLength")).m_asFloat;
-        differential = e.parameters.at(std::string("differential")).m_asInt;
-        nonScalableTicLength = e.parameters.at(std::string("nonScalableTicLength")).m_asFloat;
-        doGravity = e.parameters.at(std::string("doGravity")).m_asBoolP;
+        character = (Character *)e.parameters.at(std::string("character")).m_asGameWindow;
     }
     catch (std::out_of_range) {
         std::cout << "Parameters incorrect in GravityHandler";
         exit(3);
     }
+    //Only do ANY of this if we are moving.
+    if (!(character->getSpeed().x == 0 && character->getSpeed().y == 0)) {
+        GameObject* collision;
+        sf::Vector2f oldBack = character->getPosition();
+        if (character->trail.size() != 0) {
+            //Take a reference to the back.
+            Character* back = character->trail.back();
+            //Save it for if we found an apple.
+            oldBack = back->getPosition();
+            //Pop it off and add it to the front, at the same position character is at.
+            character->trail.pop_back();
+            back->setPosition(character->getPosition());
+            character->trail.push_front(back);
+        }
+        //Move character forward
+        sm->addArgs(character);
+        sm->runOne("move_character");
+        //character->move(character->getSpeed());
+        //Erase the position my character is in from the unoccupied list.
+        for (std::list<sf::Vector2f>::iterator it = character->unoccupied.begin(); it != character->unoccupied.end();)
+        {
+            //Erase the position my character is in from the unoccupied list.
+            if (*it == character->getPosition()) {
+                character->unoccupied.erase(it);
+                break;
+            }
+            else {
+                it++;
+            }
+        }
 
-    //Set up our own variables.
-    Character* character = (Character*)window->getPlayableObject();
-    float oneHalfTicGrav = (character->getGravity() * ticLength) / 2;
-    float gravity = character->getGravity() * ticLength * (differential);
-
-    GameObject* collision;
-    if (doGravity) {
-        character->move(character->getSpeed());
-        //Check collisions after gravity movement.
+        //Check collisions after character movement.
         if (window->checkCollisions(&collision)) {
-            if (!character->isDead()) {
+            //If the collision was a wall or its tail.
+            if ((collision->getObjectType() == Character::objectType || collision->getObjectType() == Platform::objectType) && !character->isDead()) {
                 Event death;
                 character->died();
                 Event::variant characterVariant;
@@ -149,12 +163,48 @@ void GravityHandler::onEvent(Event e)
                 death.order = e.order + 1;
                 em->raise(death);
             }
+            //If the collision was an apple (Moving platform)
+            else if (collision->getObjectType() == MovingPlatform::objectType && !character->isDead()) {
+                //Hit apple
+                Character* newCharacter = new Character;
+                //Set the new character piece at where the old back used to be (Should be blank now).
+                newCharacter->setPosition(oldBack);
+                character->trail.push_back(newCharacter);
+                window->addGameObject(newCharacter);
+
+                //Generate new apple position.
+                srand(time(NULL));
+                int appleIndex = rand() % character->unoccupied.size();
+                int count = 0;
+                sf::Vector2f newPosition;
+                std::list<sf::Vector2f>::iterator it = character->unoccupied.begin();
+                bool found = false;
+                for (sf::Vector2f i : character->unoccupied) {
+                    if (count == appleIndex) {
+                        newPosition = i;
+                        found = true;
+                        break;
+                    }
+                    it++;
+                    count++;
+                }
+                //Change the apple's position to the generated one.
+                character->apple->setPosition(newPosition);
+                character->length++;
+            }
+            else {
+                character->unoccupied.push_back(oldBack);
+            }
+        }
+        else {
+            character->unoccupied.push_back(oldBack);
         }
     }
 }
 
-void DisconnectHandler::onEvent(Event e)
+SpawnHandler::SpawnHandler(GameWindow* window)
 {
+    this->window = window;
 }
 
 void SpawnHandler::onEvent(Event e)
@@ -167,7 +217,64 @@ void SpawnHandler::onEvent(Event e)
         std::cout << "Invalid arguments SpawnHandler" << std::endl;
         exit(3);
     }
-    character->setSpeed(sf::Vector2f(CHAR_SPEED, 0));
+    //Clear trail
+    character->length = 0;
+    character->trail.clear();
+    character->unoccupied.clear();
+    //Repopulate unoccupied list
+    for (int i = 0; i < 780 / character->getSize().x; i++) {
+        for (int j = 0; j < 580 / character->getSize().y; j++) {
+            //Skip first square (Character will be here).
+            if (!(i == 0 && j== 0)) {
+                character->unoccupied.push_back(sf::Vector2f(i * character->getSize().x + 10, j * character->getSize().y + 10));
+            }
+        }
+    }
+    //Clear trail from window.
+    window->clearStaticObjects();
+
+    //Regenerate apple
+    int appleIndex = rand() % character->unoccupied.size();
+    int count = 0;
+    sf::Vector2f newPosition;
+    std::list<sf::Vector2f>::iterator it = character->unoccupied.begin();
+    for (sf::Vector2f i : character->unoccupied) {
+        if (count == appleIndex) {
+            newPosition = i;
+            break;
+            //character->unoccupied.erase(it);
+        }
+        it++;
+        count++;
+    }
+    //Change the apple's position to the generated one.
+    character->apple->setPosition(newPosition);
+    window->addGameObject(character->apple);
+    //Add the boundaries back to the window
+    Platform *bottom = new Platform;
+    bottom->setSize(sf::Vector2f(800, 10.f));
+    bottom->setFillColor(sf::Color(100, 0, 0));
+    bottom->setPosition(sf::Vector2f(0, 590));
+    window->addGameObject(bottom);
+
+    Platform *right = new Platform;
+    right->setSize(sf::Vector2f(10, 580));
+    right->setFillColor(sf::Color(100, 0, 0));
+    right->setPosition(sf::Vector2f(790, 10));
+    window->addGameObject(right);
+
+    Platform *left = new Platform;
+    left->setSize(sf::Vector2f(10, 580));
+    left->setFillColor(sf::Color(100, 0, 0));
+    left->setPosition(sf::Vector2f(0, 10));
+    window->addGameObject(left);
+
+    Platform* top = new Platform;
+    top->setSize(sf::Vector2f(800, 10.f));
+    top->setFillColor(sf::Color(100, 0, 0));
+    top->setPosition(sf::Vector2f(0, 0));
+    window->addGameObject(top);
+    //Respawn the character
     character->respawn();
 }
 
@@ -236,10 +343,8 @@ void StopHandler::onEvent(Event e)
         std::cout << "Parameters for CollisionHandler are wrong";
         exit(3);
     }
-    if (character->getSpeed().x == 0) {
-        character->setSpeed(CHAR_SPEED);
-    }
-    else {
-        character->setSpeed(0);
-    }
+    //Stop the character's movement.
+    character->setSpeed(0);
+    character->setSpeed(sf::Vector2f(0, 0));
+
 }

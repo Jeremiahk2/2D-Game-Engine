@@ -1,10 +1,9 @@
 #include "PubThread.h"
 
 
-PubThread::PubThread(Timeline *timeline, std::list<MovingPlatform*> *movings, std::map<int, std::shared_ptr<GameObject>>* characters, std::mutex* m, EventManager *manager) {
+PubThread::PubThread(Timeline *timeline, int *highScore, std::mutex* m, EventManager *manager) {
     this->timeline = timeline;
-    this->movings = movings;
-    this->characters = characters;
+    this->highScore = highScore;
     this->mutex = m;
     this->manager = manager;
 }
@@ -60,86 +59,16 @@ void PubThread::run() {
                 std::string rtnString;
                 std::stringstream stream;
                 {
-                    //Add characters to stream
+                    //Add high score to stream
                     std::lock_guard<std::mutex> lock(*mutex);
-                    for (auto iter = characters->begin(); iter != characters->end(); ++iter) {
-                        stream << iter->second->toString() << ',';
-                    }
+                    stream << *highScore;
                 }
-                ////Add moving platforms to string
-                //for (MovingPlatform* i : *movings) {
-                //    stream << i->toString() << ',';
-                //}
 
                 std::getline(stream, rtnString);
                 //Send the string to the players
                 zmq::message_t rtnMessage(rtnString.size() + 1);
                 memcpy(rtnMessage.data(), rtnString.data(), rtnString.size() + 1);
                 pubSocket.send(rtnMessage, zmq::send_flags::none);
-
-
-                //for (MovingPlatform* i : *movings) {
-
-                //    sf::Vector2i bounds = i->getBounds();
-                //    //boundx is left or bottom bound
-                //    //If the movement is horizontal
-                //    if ((i->getMovementType())) {
-                //        //If we are moving to the right
-                //        if (i->getSpeedValue() > 0) {
-                //            //Then we only care about our right bound.
-                //            if ((int)i->getGlobalBounds().left > bounds.y) {
-                //                i->setSpeed(sf::Vector2f(i->getSpeedValue() * -1.f, 0));
-                //            }
-                //        }
-                //        //Else if we are moving left, check the left bound.
-                //        else if ((int)i->getGlobalBounds().left < bounds.x) {
-                //            i->setSpeed(sf::Vector2f(i->getSpeedValue() * -1.f, 0));
-                //        }
-                //    }
-                //    //If movement is vertical
-                //    else {
-                //        //If we are going up
-                //        if (i->getSpeedValue() < 0) {
-                //            //Then we only care about or top bound.
-                //            if ((int)i->getGlobalBounds().top < bounds.y) {
-                //                i->setSpeed(sf::Vector2f(0, i->getSpeedValue() * -1.f));
-                //            }
-                //        }
-                //        //else if we are going down, we only care about our bottom bound.
-                //        else if ((int)i->getGlobalBounds().top > bounds.x) {
-                //            i->setSpeed(sf::Vector2f(0, i->getSpeedValue() * -1.f));
-                //        }
-                //    }
-                //    i->setCurrentScale((float)ticLength * (float)(currentTic - tic));
-
-                //    //If the platform is moving horizontally
-                //    sm->addArgs(i);
-                //    sm->runOne("move_platform", false);
-
-                //    bool erase = false;
-                //    {
-                //        std::lock_guard<std::mutex> lock(*mutex);
-                //        for (const auto& [time, orderMap] : manager->raised_events) {
-                //            if (time <= timeline->convertGlobal(currentTic)) {
-                //                for (const auto& [order, e] : orderMap) {
-                //                    for (EventHandler* currentHandler : manager->handlers.at(e.type)) {
-                //                        currentHandler->onEvent(e);
-                //                    }
-                //                }
-                //                if (erase) {
-                //                    manager->raised_events.erase(manager->raised_events.begin());
-                //                }
-                //                erase = true;
-                //            }
-                //            else {
-                //                break;
-                //            }
-                //        }
-                //        if (erase) {
-                //            manager->raised_events.erase(manager->raised_events.begin());
-                //        }
-                //    }
-                //}
                 tic = currentTic;
             }
         }

@@ -1,16 +1,19 @@
 #include "Character.h"
 
-Character::Character() : GameObject(false, false, true), RectangleShape() {
+Character::Character() : GameObject(false, true, true), RectangleShape() {
     /**
     ART FOR SANTA PROVIDED BY Marco Giorgini THROUGH OPENGAMEART.ORG
     License: CC0 (Public Domain) @ 12/28/21
     https://opengameart.org/content/santas-rats-issue-c64-sprites
     */
-    setSpeed(CHAR_SPEED);
-    setSpeed(sf::Vector2f(CHAR_SPEED, 0));
+    setSpeed(0);
+    setSpeed(sf::Vector2f(0, 0));
     setGravity(GRAV_SPEED);
     setSize(sf::Vector2f(CHAR_SPEED, CHAR_SPEED));
     setFillColor(sf::Color::Green);
+    setOutlineColor(sf::Color::Black);
+    setOutlineThickness(-1.f);
+    apple = new MovingPlatform;
     std::lock_guard<std::mutex> lock(innerMutex);
     guid = "character" + std::to_string(*GameObject::getCurrentGUID());
     (*GameObject::getCurrentGUID())++;
@@ -30,8 +33,11 @@ Character::Character(bool stationary, bool collidable, bool drawable) : GameObje
     setSpeed(CHAR_SPEED);
     setSpeed(sf::Vector2f(CHAR_SPEED, 0));
     setGravity(GRAV_SPEED);
-    setSize(sf::Vector2f(20.f, 20.f));
+    setSize(sf::Vector2f(CHAR_SPEED, CHAR_SPEED));
     setFillColor(sf::Color::Green);
+    setOutlineColor(sf::Color::Black);
+    setOutlineThickness(-1.f);
+    apple = new MovingPlatform;
     std::lock_guard<std::mutex> lock(innerMutex);
     guid = "character" + std::to_string(*GameObject::getCurrentGUID());
     (*GameObject::getCurrentGUID())++;
@@ -222,6 +228,8 @@ v8::Local<v8::Object> Character::exposeToV8(v8::Isolate* isolate, v8::Local<v8::
     v.push_back(v8helpers::ParamContainer("guid", getCharacterGUID, setCharacterGUID));
     v.push_back(v8helpers::ParamContainer("x", getCharacterX, setCharacterX));
     v.push_back(v8helpers::ParamContainer("y", getCharacterY, setCharacterY));
+    v.push_back(v8helpers::ParamContainer("speedX", getSpeedX, setSpeedX));
+    v.push_back(v8helpers::ParamContainer("speedY", getSpeedY, setSpeedY));
     return v8helpers::exposeToV8(guid, this, v, isolate, context, context_name);
 }
 
@@ -286,6 +294,40 @@ void Character::getCharacterY(v8::Local<v8::String> property, const v8::Property
     v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
     void* ptr = wrap->Value();
     float y_val = static_cast<Character*>(ptr)->getPosition().y;
+    info.GetReturnValue().Set(y_val);
+}
+
+void Character::setSpeedX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    v8::Local<v8::Object> self = info.Holder();
+    v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+    void* ptr = wrap->Value();
+    static_cast<Character*>(ptr)->setSpeed(sf::Vector2f(value->NumberValue(info.GetIsolate()->GetCurrentContext()).ToChecked(), static_cast<Character*>(ptr)->getSpeed().y));
+}
+
+void Character::getSpeedX(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    v8::Local<v8::Object> self = info.Holder();
+    v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+    void* ptr = wrap->Value();
+    float x_val = static_cast<Character*>(ptr)->getSpeed().x;
+    info.GetReturnValue().Set(x_val);
+}
+
+void Character::setSpeedY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+    v8::Local<v8::Object> self = info.Holder();
+    v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+    void* ptr = wrap->Value();
+    static_cast<Character*>(ptr)->setSpeed(sf::Vector2f(static_cast<Character*>(ptr)->getSpeed().x, value->NumberValue(info.GetIsolate()->GetCurrentContext()).ToChecked()));
+}
+
+void Character::getSpeedY(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+    v8::Local<v8::Object> self = info.Holder();
+    v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+    void* ptr = wrap->Value();
+    float y_val = static_cast<Character*>(ptr)->getSpeed().y;
     info.GetReturnValue().Set(y_val);
 }
 

@@ -27,15 +27,19 @@ public:
 class GravityHandler : public EventHandler {
 private:
 	EventManager *em;
+	GameWindow* window;
+	ScriptManager* sm;
 public:
-	GravityHandler(EventManager *em);
+	GravityHandler(EventManager *em, GameWindow *window, ScriptManager *sm);
 
 	void onEvent(Event e) override;
 };
 
 class SpawnHandler : public EventHandler {
+private:
+	GameWindow* window;
 public:
-
+	SpawnHandler(GameWindow* window);
 	void onEvent(Event e) override;
 };
 
@@ -45,11 +49,6 @@ private:
 	ScriptManager* sm;
 public:
 	DeathHandler(EventManager* em, ScriptManager *sm);
-	void onEvent(Event e) override;
-};
-
-class DisconnectHandler : public EventHandler {
-public:
 	void onEvent(Event e) override;
 };
 

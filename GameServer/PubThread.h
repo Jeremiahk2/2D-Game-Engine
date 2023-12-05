@@ -19,26 +19,19 @@ private:
     */
     Timeline* timeline;
     /**
-    * The list of moving platforms to move and publish
-    */
-    std::list<MovingPlatform*>* movings;
-    /**
-    * The list of characters to publish
-    */
-    std::map<int, std::shared_ptr<GameObject>>* characters;
-    /**
     * The mutex for mutual exclusion
     */
     std::mutex* mutex;
 
     EventManager* manager;
 
+    int* highScore;
 
 public:
     /**
     * Constructor
     */
-    PubThread(Timeline* timeline, std::list<MovingPlatform*>* movings, std::map<int, std::shared_ptr<GameObject>>* characters, std::mutex *m, EventManager *manager);
+    PubThread(Timeline* timeline, int *highScore, std::mutex *m, EventManager *manager);
 
     /**
     * run the program. It is responsible for the movement of a platform, which goes back and forth between two bounds.

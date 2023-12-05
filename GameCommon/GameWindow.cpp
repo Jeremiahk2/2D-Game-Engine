@@ -10,6 +10,13 @@ GameWindow::GameWindow() {
     }
 }
 
+void GameWindow::clearStaticObjects()
+{
+    staticObjects.clear();
+    collidables.clear();
+    drawables.clear();
+}
+
 bool GameWindow::checkCollisions(GameObject** collides) {
     bool foundCollision = false;
     //Cycle through the list of collidables and check if they collide with the player.
@@ -83,8 +90,9 @@ void GameWindow::update() {
             draw(*(dynamic_cast<sf::Drawable*>(i.get())));
         }
     }
+    draw(*(dynamic_cast<sf::Drawable*>(character)));
     nonStaticObjects.clear();
-    display();
+    //display();
 }
 
 void GameWindow::addTemplate(std::shared_ptr<GameObject> templateObject) {

@@ -2,10 +2,10 @@
 
 
 
-RepThread::RepThread(int port, int id, std::map<int, std::shared_ptr<GameObject>> *characters, std::mutex *m, Timeline *time, EventManager *manager) {
+RepThread::RepThread(int port, int id, int *highScore, std::mutex *m, Timeline *time, EventManager *manager) {
     this->port = port;
     this->id = id;
-    this->characters = characters;
+    this->highScore = highScore;
     this->mutex = m;
     this->time = time;
     this->manager = manager;
@@ -65,41 +65,31 @@ void RepThread::run() {
             }
             if ((received.has_value() && (EAGAIN != received.value()))) {
                 std::string updateString((char*)update.data());
-                Character c;
-
-                //Make the character from the string we were given.
-                std::shared_ptr<GameObject> character = c.constructSelf(updateString);
-                Character* charPtr = dynamic_cast<Character*>(character.get());
+                int score = stoi(updateString);
 
                 //If it is a client that is disconnecting, remove them from the map
-                if (!(charPtr->isConnecting())) {
-                    std::lock_guard<std::mutex> lock(*mutex);
-                    characters->erase(id);
+                if (score <= 0) {
                     connected = false;
                 }
-                else if (charPtr->isConnecting()) { //If it's a returning client, update it with the new information
+                if (score > *highScore) {
                     std::lock_guard<std::mutex> lock(*mutex);
-                    characters->insert_or_assign(id, character);
+                    *highScore = score;
                 }
                 //Send a response with the character's new ID
 
                 std::stringstream stream;
-                stream << id;
+                stream << "Connected";
                 std::string rtnString;
                 std::getline(stream, rtnString);
 
                 zmq::message_t reply(rtnString.size() + 1);
                 memcpy(reply.data(), rtnString.data(), rtnString.size() + 1);
-                {
-                    std::lock_guard<std::mutex> lock(*mutex);
-                    repSocket.send(reply, zmq::send_flags::none);
-                }
+                repSocket.send(reply, zmq::send_flags::none);
                 tic = currentTic;
             }
             //Disconnect client if we haven't heard from them in 100 tics.
             else if (currentTic - tic >= 100) {
                 std::lock_guard<std::mutex> lock(*mutex);
-                characters->erase(id);
                 tic = currentTic;
                 connected = false;
             }

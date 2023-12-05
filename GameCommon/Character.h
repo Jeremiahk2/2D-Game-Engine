@@ -6,7 +6,8 @@
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
 #include <mutex>
-#define CHAR_SPEED 20.f
+#include <list>
+#define CHAR_SPEED 20
 #define GRAV_SPEED 160
 #define CHARACTER 1
 
@@ -73,9 +74,20 @@ private:
     static void setCharacterY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
     static void getCharacterY(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info); // note return type
 
+    static void setSpeedX(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+    static void getSpeedX(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info); // note return type
+    static void setSpeedY(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+    static void getSpeedY(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info); // note return type
+
 public:
 
-    std::vector<MovingPlatform*> trail;
+    std::list<Character*> trail;
+
+    std::list<sf::Vector2f> unoccupied;
+
+    MovingPlatform* apple;
+
+    int length = 0;
     
     /**
     * Character's object type

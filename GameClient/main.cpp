@@ -38,7 +38,7 @@
 
 #define JUMP_TIME .5
 
-#define TIC 100 //Setting this to 8 seems to produce optimal behavior. At least on my machine. 16 and 32 both work but they don't look very good. 4 usually results in 8 behavior anyway.
+#define TIC 75 
 /**
 * Run the CThread
 */
@@ -52,7 +52,8 @@ int main(int argc, char **argv) {
         GameWindow window;
 
         sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
-        window.create(sf::VideoMode(800, 600, desktop.bitsPerPixel), "Window", sf::Style::Default);
+        window.create(sf::VideoMode(800, 600), "Window", sf::Style::Default);
+        window.setView(sf::View(sf::FloatRect(0, 0, 860, 645)));
         window.setActive(false);
 
         //Create StartPlatform and add it to the window
@@ -80,14 +81,47 @@ int main(int argc, char **argv) {
         top.setPosition(sf::Vector2f(0, 0));
         window.addGameObject(&top);
 
+        Platform personal;
+        personal.setSize(sf::Vector2f(150.f, 40.f));
+        personal.setFillColor(sf::Color::Transparent);
+        personal.setPosition(sf::Vector2f(250.f, 600.f));
+        
+
         Character character;
         character.setPosition(10, 10);
         character.setSpawnPoint(SpawnPoint(character.getPosition()));
         character.setConnecting(1);
         window.addPlayableObject(&character);
+        //Set up the list of occupied squares.
+        for (int i = 0; i < 780 / character.getSize().x; i++) {
+            for (int j = 0; j < 580 / character.getSize().y; j++) {
+                //Skip the first square (Character is occupying it)
+                if (!(i == 0 && j == 0)) {
+                    character.unoccupied.push_back(sf::Vector2f(i * character.getSize().x + 10, j * character.getSize().y + 10));
+                }
+            }
+        }
 
-        std::vector<MovingPlatform*> trail;
-
+        //Get initial apple position
+        srand(time(NULL));
+        int appleIndex = rand() % character.unoccupied.size();
+        int count = 0;
+        sf::Vector2f newPosition;
+        std::list<sf::Vector2f>::iterator it = character.unoccupied.begin();
+        for (sf::Vector2f i : character.unoccupied) {
+            if (count == appleIndex) {
+                newPosition = i;
+            }
+            it++;
+            count++;
+        }
+        //Change the apple's position to the generated one.
+        character.apple->setPosition(newPosition);
+        window.addGameObject(character.apple);
+        character.apple->setFillColor(sf::Color::Red);
+        character.apple->setSize(sf::Vector2f(CHAR_SPEED, CHAR_SPEED));
+        character.apple->setOutlineThickness(-1.f);
+        character.apple->setOutlineColor(sf::Color::Black);
 
         //Add templates
         window.addTemplate(bottom.makeTemplate());
@@ -174,26 +208,26 @@ int main(int argc, char **argv) {
                     window.changeScaling();
                 }
 
-                if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::W)) {
-                    m.time = FrameTime.convertGlobal(tic + ++numInputs);
+                if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::W || event.key.code == sf::Keyboard::Up)) {
+                    m.time = FrameTime.convertGlobal(currentTic + ++numInputs);
                     directionVariant.m_asInt = MovementHandler::DIRECTION::UP;
                     m.parameters.insert_or_assign( "direction", directionVariant );
                     eventManager.raise(m);
                 }
-                if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::A)) {
-                    m.time = FrameTime.convertGlobal(tic + ++numInputs);
+                if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::A || event.key.code == sf::Keyboard::Left)) {
+                    m.time = FrameTime.convertGlobal(currentTic + ++numInputs);
                     directionVariant.m_asInt = MovementHandler::DIRECTION::LEFT;
                     m.parameters.insert_or_assign( "direction", directionVariant );
                     eventManager.raise(m);
                 }
-                if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::S)) {
-                    m.time = FrameTime.convertGlobal(tic + ++numInputs);
+                if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::S || event.key.code == sf::Keyboard::Down)) {
+                    m.time = FrameTime.convertGlobal(currentTic + ++numInputs);
                     directionVariant.m_asInt = MovementHandler::DIRECTION::DOWN;
                     m.parameters.insert_or_assign("direction", directionVariant );
                     eventManager.raise(m);
                 }
-                if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::D)) {
-                    m.time = FrameTime.convertGlobal(tic + ++numInputs);
+                if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::D || event.key.code == sf::Keyboard::Right)) {
+                    m.time = FrameTime.convertGlobal(currentTic + ++numInputs);
                     directionVariant.m_asInt = MovementHandler::DIRECTION::RIGHT;
                     m.parameters.insert_or_assign( "direction", directionVariant );
                     eventManager.raise(m);
@@ -203,48 +237,8 @@ int main(int argc, char **argv) {
                     window.handleResize(event);
                 }
             }
-
             if (currentTic > tic) {
                 numInputs = 0;
-                //Only do the stop command if left has been pressed and rigth was pressed within 5 tics, or if right has been pressed and left has been pressed within 5 tics.
-                if ((leftPressed && currentTic - lastRight < 5) || (rightPressed && currentTic - lastLeft < 5)) {
-                    lastStop = currentTic;
-                    leftPressed = false;
-                    rightPressed = false;
-                    Event s;
-                    s.order = 1;
-                    s.time = FrameTime.convertGlobal(currentTic);
-                    s.type = std::string("stop");
-
-                    Event::variant characterVariant;
-                    characterVariant.m_Type = Event::variant::TYPE_GAMEOBJECT;
-                    characterVariant.m_asGameObject = &character;
-                    s.parameters.insert({ "character", characterVariant });
-                    eventManager.raise(s);
-                }
-                //Only do the slow down command if left has been pressed and it's been more then 5 tics since right has been pressed.
-                else if (leftPressed && currentTic - lastLeft >= 5) {
-                    leftPressed = false;
-                    if (scale != .5) {
-                        scale *= .5;
-                        globalTime.changeScale(scale);
-                    }
-                }
-                //Only do the speed up command if right has been pressed and it's been more than 5 tics since left has been pressed.
-                else if (rightPressed && currentTic - lastRight >= 5) {
-                    rightPressed = false;
-                    if (scale != 2.0) {
-                        scale *= 2.0;
-                        globalTime.changeScale(scale);
-                    }
-                }
-
-                //Out of the event loop, need to sync up with thread again.
-
-                //END EVENT CHECKS
-                //Need to recalculate character speed in case scale changed.
-                float charSpeed = (float)character.getSpeed().x * (float)ticLength * (float)(currentTic - tic);
-
                 tic = currentTic;
             }
         }
