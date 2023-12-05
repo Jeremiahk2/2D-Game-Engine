@@ -28,8 +28,6 @@
 #define sleep(n)	Sleep(n)
 #endif
 
-#define CHAR_SPEED 100.f
-
 // #define GRAV_SPEED 160.f
 #define GRAV_SPEED 160
 
@@ -40,7 +38,7 @@
 
 #define JUMP_TIME .5
 
-#define TIC 8 //Change this to try out different tic rates
+#define TIC 100 //Change this to try out different tic rates
 
 #define MESSAGE_LIMIT 1024 //Limit on string length for network messages
 

@@ -38,7 +38,7 @@
 
 #define JUMP_TIME .5
 
-#define TIC 8 //Setting this to 8 seems to produce optimal behavior. At least on my machine. 16 and 32 both work but they don't look very good. 4 usually results in 8 behavior anyway.
+#define TIC 100 //Setting this to 8 seems to produce optimal behavior. At least on my machine. 16 and 32 both work but they don't look very good. 4 usually results in 8 behavior anyway.
 /**
 * Run the CThread
 */
@@ -56,62 +56,42 @@ int main(int argc, char **argv) {
         window.setActive(false);
 
         //Create StartPlatform and add it to the window
-        Platform startPlatform;
-        startPlatform.setSize(sf::Vector2f(100.f, 15.f));
-        startPlatform.setFillColor(sf::Color(100, 0, 0));
-        startPlatform.setPosition(sf::Vector2f(50.f, 500.f));
-        window.addGameObject(&startPlatform);
+        Platform bottom;
+        bottom.setSize(sf::Vector2f(800, 10.f));
+        bottom.setFillColor(sf::Color(100, 0, 0));
+        bottom.setPosition(sf::Vector2f(0, 590));
+        window.addGameObject(&bottom);
 
-        //Create endPlatform and add it to the window
-        Platform endPlatform;
-        endPlatform.setSize(sf::Vector2f(100.f, 15.f));
-        endPlatform.setFillColor(sf::Color(218, 165, 32));
-        endPlatform.setPosition(sf::Vector2f(500.f, 500.f));
-        window.addGameObject(&endPlatform);
+        Platform right;
+        right.setSize(sf::Vector2f(10, 580));
+        right.setFillColor(sf::Color(100, 0, 0));
+        right.setPosition(sf::Vector2f(790, 10));
+        window.addGameObject(&right);
 
-        //Create headBonk platform (for testing jump) and add it to the window
-        Platform headBonk;
-        headBonk.setSize(sf::Vector2f(100.f, 15.f));
-        headBonk.setFillColor(sf::Color::Blue);
-        headBonk.setPosition(500.f, 440.f);
-        window.addGameObject(&headBonk);
+        Platform left;
+        left.setSize(sf::Vector2f(10, 580));
+        left.setFillColor(sf::Color(100, 0, 0));
+        left.setPosition(sf::Vector2f(0, 10));
+        window.addGameObject(&left);
+
+        Platform top;
+        top.setSize(sf::Vector2f(800, 10.f));
+        top.setFillColor(sf::Color(100, 0, 0));
+        top.setPosition(sf::Vector2f(0, 0));
+        window.addGameObject(&top);
+
         Character character;
-        character.setPosition(100.f, startPlatform.getPosition().y - character.getGlobalBounds().height - 1.f);
+        character.setPosition(10, 10);
         character.setSpawnPoint(SpawnPoint(character.getPosition()));
         character.setConnecting(1);
-
-
-        //Make a deadzone of height 30 that stretches across the bottom of the view.
-        DeathZone dead(sf::Vector2f(window.getView().getSize().x * 2, 30.f), sf::Vector2f(0.f, window.getView().getSize().y - 30.f));
-        window.addGameObject(&dead);
-        //Create first SideBound
-        sf::View view1 = window.getView();
-        SideBound firstView(&window, view1);
-        firstView.setPosition(500.f, 0.f);
-        firstView.setSize(sf::Vector2f(15.f, (float)window.getSize().y));
-        window.addGameObject(&firstView);
-
-        sf::View view3 = window.getView();
-        SideBound thirdView(&window, view3);
-        thirdView.setPosition(character.getPosition());
-        thirdView.setSize(sf::Vector2f(15.f, (float)window.getSize().y));
-        window.addGameObject(&thirdView);
-
-        //Create second SideBound
-        sf::View view2 = window.getView();
-        view2.setCenter(window.getView().getCenter().x + 450.f, window.getView().getCenter().y);
-        SideBound secondView(&window, view2);
-        secondView.setSize(sf::Vector2f(15.f, (float)window.getSize().y));
-        secondView.setPosition(firstView.getPosition().x + firstView.getGlobalBounds().width + character.getGlobalBounds().width + 1.f, 0.f);
-        window.addGameObject(&secondView);
         window.addPlayableObject(&character);
 
-        //Setup window and add character.
+        std::vector<MovingPlatform*> trail;
+
+
         //Add templates
-        window.addTemplate(headBonk.makeTemplate());
+        window.addTemplate(bottom.makeTemplate());
         window.addTemplate(character.makeTemplate());
-        window.addTemplate(dead.makeTemplate());
-        window.addTemplate(secondView.makeTemplate());
         window.addTemplate(std::shared_ptr<MovingPlatform>(new MovingPlatform));
 
 
@@ -159,39 +139,52 @@ int main(int argc, char **argv) {
             currentTic = FrameTime.getTime();
 
             sf::Event event;
-            if (currentTic > tic) {
 
-                int polls = 0;
-                while (window.pollEvent(event)) {
-                    if (polls > 2) {
-                        //busy = false; //We've been in the event loop for too long, probably due to a resize or something similar. Allow our thread to continue.
-                    }
-                    if (event.type == sf::Event::Closed) {
-                        stopped = true;
-                        //Need to notify all so they can stop
-                        cv.notify_all();
-                        first.join();
-                        window.setActive(true);
-                        window.close();
-
-                    }
-                    if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Q)) {
-                        window.changeScaling();
-                    }
-                    if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Left)) {
-                        leftPressed = true;
-                        lastLeft = currentTic;
-                    }
-                    if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Right)) {
-                        rightPressed = true;
-                        lastRight = currentTic;
-                    }
-                    if (event.type == sf::Event::Resized)
-                    {
-                        window.handleResize(event);
-                    }
-                    polls++;
+            int polls = 0;
+            while (window.pollEvent(event)) {
+                if (polls > 2) {
+                    //busy = false; //We've been in the event loop for too long, probably due to a resize or something similar. Allow our thread to continue.
                 }
+                if (event.type == sf::Event::Closed) {
+                    stopped = true;
+                    //Need to notify all so they can stop
+                    cv.notify_all();
+                    first.join();
+                    window.setActive(true);
+                    window.close();
+
+                }
+                if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Q)) {
+                    window.changeScaling();
+                }
+                if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Left)) {
+                    leftPressed = true;
+                    lastLeft = currentTic;
+                }
+                if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Right)) {
+                    rightPressed = true;
+                    lastRight = currentTic;
+                }
+                if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::W)) {
+                    character.setSpeed(sf::Vector2f(0, -CHAR_SPEED));
+                }
+                if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::A)) {
+                    character.setSpeed(sf::Vector2f(-CHAR_SPEED, 0));
+                }
+                if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::S)) {
+                    character.setSpeed(sf::Vector2f(0, CHAR_SPEED));
+                }
+                if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::D)) {
+                    character.setSpeed(sf::Vector2f(CHAR_SPEED, 0));
+                }
+                if (event.type == sf::Event::Resized)
+                {
+                    window.handleResize(event);
+                }
+                polls++;
+            }
+
+            if (currentTic > tic) {
                 //Only do the stop command if left has been pressed and rigth was pressed within 5 tics, or if right has been pressed and left has been pressed within 5 tics.
                 if ((leftPressed && currentTic - lastRight < 5) || (rightPressed && currentTic - lastLeft < 5)) {
                     lastStop = currentTic;
@@ -252,35 +245,7 @@ int main(int argc, char **argv) {
                 m.parameters.insert({ "ticLength", ticLengthVariant });
                 m.parameters.insert({ "differential", differentialVariant });
                 m.type = std::string("movement");
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && window.hasFocus())
-                {
-                    std::lock_guard<std::mutex> lock(mutex);
-                    Event::variant directionVariant;
-                    directionVariant.m_Type = Event::variant::TYPE_INT;
-                    directionVariant.m_asInt = MovementHandler::LEFT;
-                    m.parameters.insert_or_assign( "direction", directionVariant );
-                    eventManager.raise(m);
-                }
 
-                //Handle right input
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && window.hasFocus())
-                {
-                    std::lock_guard<std::mutex> lock(mutex);
-                    Event::variant directionVariant;
-                    directionVariant.m_Type = Event::variant::TYPE_INT;
-                    directionVariant.m_asInt = MovementHandler::RIGHT;
-                    m.parameters.insert_or_assign( "direction", directionVariant );
-                    eventManager.raise(m);
-                }
-
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && window.hasFocus())
-                {
-                    std::lock_guard<std::mutex> lock(mutex);
-                    if (upPressed) {
-                        upPressed = false;
-                        character.setJumping(true);
-                    }
-                }
                 tic = currentTic;
             }
         }

@@ -2,10 +2,11 @@
 #define CHARACTER_H
 #include "GameObject.h"
 #include "SpawnPoint.h"
+#include "MovingPlatform.h"
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
 #include <mutex>
-#define CHAR_SPEED 100.f
+#define CHAR_SPEED 20.f
 #define GRAV_SPEED 160
 #define CHARACTER 1
 
@@ -14,7 +15,7 @@
 * A character has speed, which is the amount of movement the character moves right or left per frame.
 * A character also has various states like jumping.
 */
-class Character : public GameObject, public sf::Sprite {
+class Character : public GameObject, public sf::RectangleShape {
 
 private:
     /**
@@ -73,6 +74,8 @@ private:
     static void getCharacterY(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info); // note return type
 
 public:
+
+    std::vector<MovingPlatform*> trail;
     
     /**
     * Character's object type
@@ -142,6 +145,8 @@ public:
     * set the speed of the character
     */
     void setSpeed(float speed);
+
+    void setSpeed(sf::Vector2f speed);
 
     /**
     * check if the character is currently jumping

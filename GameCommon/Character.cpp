@@ -1,25 +1,23 @@
 #include "Character.h"
 
-Character::Character() : GameObject(false, false, true), Sprite() {
+Character::Character() : GameObject(false, false, true), RectangleShape() {
     /**
     ART FOR SANTA PROVIDED BY Marco Giorgini THROUGH OPENGAMEART.ORG
     License: CC0 (Public Domain) @ 12/28/21
     https://opengameart.org/content/santas-rats-issue-c64-sprites
     */
-    if (!texture.loadFromFile("Santa_standing.png")) {
-        std::cout << "Failed";
-    }
-    setTexture(texture);
-    setScale(.1f, .1f);
     setSpeed(CHAR_SPEED);
+    setSpeed(sf::Vector2f(CHAR_SPEED, 0));
     setGravity(GRAV_SPEED);
+    setSize(sf::Vector2f(CHAR_SPEED, CHAR_SPEED));
+    setFillColor(sf::Color::Green);
     std::lock_guard<std::mutex> lock(innerMutex);
     guid = "character" + std::to_string(*GameObject::getCurrentGUID());
     (*GameObject::getCurrentGUID())++;
     game_objects.push_back(this);
 }
 
-Character::Character(bool stationary, bool collidable, bool drawable) : GameObject(stationary, collidable, drawable), Sprite(){
+Character::Character(bool stationary, bool collidable, bool drawable) : GameObject(stationary, collidable, drawable), RectangleShape(){
     /**
     ART FOR SANTA PROVIDED BY Marco Giorgini THROUGH OPENGAMEART.ORG
     License: CC0 (Public Domain) @ 12/28/21
@@ -29,9 +27,11 @@ Character::Character(bool stationary, bool collidable, bool drawable) : GameObje
     if (!charTexture.loadFromFile("Santa_standing.png")) {
         std::cout << "Failed";
     }
-    setTexture(charTexture);
     setSpeed(CHAR_SPEED);
+    setSpeed(sf::Vector2f(CHAR_SPEED, 0));
     setGravity(GRAV_SPEED);
+    setSize(sf::Vector2f(20.f, 20.f));
+    setFillColor(sf::Color::Green);
     std::lock_guard<std::mutex> lock(innerMutex);
     guid = "character" + std::to_string(*GameObject::getCurrentGUID());
     (*GameObject::getCurrentGUID())++;
@@ -50,38 +50,38 @@ void Character::move(float offsetX, float offsetY) {
     float roundedX = std::roundf(100 * offsetX) / 100.f;
     float roundedY = std::roundf(100 * offsetY) / 100.f;
     std::lock_guard<std::mutex> lock(innerMutex);
-    sf::Sprite::move(offsetX, offsetY);
+    sf::RectangleShape::move(offsetX, offsetY);
 }
 
 void Character::move(const sf::Vector2f offset) {
     float roundedX = std::roundf(100 * offset.x) / 100.f;
     float roundedY = std::roundf(100 * offset.y) / 100.f;
     std::lock_guard<std::mutex> lock(innerMutex);
-    sf::Sprite::move(offset);
+    sf::RectangleShape::move(offset);
 }
 
 void Character::setPosition(float x, float y) {
     float roundedX = std::roundf(100 * x) / 100.f;
     float roundedY = std::roundf(100 * y) / 100.f;
     std::lock_guard<std::mutex> lock(innerMutex);
-    sf::Sprite::setPosition(x, y);
+    sf::RectangleShape::setPosition(x, y);
 }
 
 void Character::setPosition(const sf::Vector2f position) {
     float roundedX = std::roundf(100 * position.x) / 100.f;
     float roundedY = std::roundf(100 * position.y) / 100.f;
     std::lock_guard<std::mutex> lock(innerMutex);
-    sf::Sprite::setPosition(position);
+    sf::RectangleShape::setPosition(position);
 }
 
 sf::Vector2f Character::getPosition() {
     std::lock_guard<std::mutex> lock(innerMutex);
-    return sf::Sprite::getPosition();
+    return sf::RectangleShape::getPosition();
 }
 
 sf::FloatRect Character::getGlobalBounds() {
     std::lock_guard<std::mutex> lock(innerMutex);
-    return sf::Sprite::getGlobalBounds();
+    return sf::RectangleShape::getGlobalBounds();
 }
 
 sf::Vector2f Character::getSpeed() {
@@ -92,6 +92,11 @@ sf::Vector2f Character::getSpeed() {
 void Character::setSpeed(float speed) {
     std::lock_guard<std::mutex> lock(innerMutex);
     this->speed.x = speed;
+}
+
+void Character::setSpeed(sf::Vector2f speed)
+{
+    this->speed = speed;
 }
 
 bool Character::isJumping() {

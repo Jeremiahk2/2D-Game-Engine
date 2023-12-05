@@ -17,14 +17,14 @@ bool GameWindow::checkCollisions(GameObject** collides) {
         std::lock_guard<std::mutex> lock(*innerMutex);
         for (GameObject *i : collidables) {
 
-            if ((dynamic_cast<sf::Sprite *>(character))->getGlobalBounds().intersects((dynamic_cast<sf::Shape *>(i))->getGlobalBounds())) {
+            if ((dynamic_cast<sf::RectangleShape *>(character))->getGlobalBounds().intersects((dynamic_cast<sf::Shape *>(i))->getGlobalBounds())) {
                 // Return static collisions first.
                 *collides = i;
                 return true;
             }
         }
         for (std::shared_ptr<GameObject> i : nonStaticObjects) {
-            if (i->isCollidable() && ( dynamic_cast<sf::Sprite*>(character) )->getGlobalBounds().intersects( dynamic_cast<sf::Shape*>( i.get() )->getGlobalBounds() ) ) {
+            if (i->isCollidable() && ( dynamic_cast<sf::RectangleShape*>(character) )->getGlobalBounds().intersects( dynamic_cast<sf::Shape*>( i.get() )->getGlobalBounds() ) ) {
                 // If the found collision is not moving, return it immediately
                 *collides = i.get();
                 return true;

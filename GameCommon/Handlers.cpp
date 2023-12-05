@@ -164,46 +164,10 @@ void GravityHandler::onEvent(Event e)
 
     GameObject* collision;
     if (doGravity) {
-        character->move(0.f, gravity);
+        character->move(character->getSpeed());
         //Check collisions after gravity movement.
         if (window->checkCollisions(&collision)) {
-
-            //If the collided object is a stationary platform, correct the position to be on top of the platform.
-            if (collision->getObjectType() == Platform::objectType) {
-                Platform* temp = (Platform*)collision;
-                character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - oneHalfTicGrav);
-                //Enable jumping. TODO: Rename variable to better fit. canJump? canJump(bool)?
-                *upPressed = true;
-            }
-            else if (collision->getObjectType() == MovingPlatform::objectType) {
-                MovingPlatform* temp = (MovingPlatform*)collision;
-                float platSpeed = (float)temp->getSpeedValue() * (float)nonScalableTicLength * (float)(differential);
-
-                //If the platform is moving horizontally.
-                if (temp->getMovementType()) {
-                    //Gravity has happened, which means we moved down into a platform that was already there. Move along with it AND correct pos to the top of it.
-                    character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - oneHalfTicGrav);
-                    character->move(platSpeed, 0);
-                    *upPressed = true;
-                }
-                //If the platform is moving vertically
-                else {
-                    //If the platform is currently moving upwards
-                    if (platSpeed < 0.f) {
-                        //At this point, we know that we have been hit by a platform moving upwards, so correct our position upwards.
-                        character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - oneHalfTicGrav);
-                        //We are above a platform, we can jump.
-                        *upPressed = true;
-                    }
-                    //If the platform is moving downwards
-                    else {
-                        //Just moved down into a downward moving platform. Correct us to be on top of it.
-                        character->setPosition(character->getPosition().x, temp->getGlobalBounds().top - character->getGlobalBounds().height - oneHalfTicGrav);
-                        *upPressed = true;
-                    }
-                }
-            }
-            else if (collision->getObjectType() == DeathZone::objectType && !character->isDead()) {
+            if (!character->isDead()) {
                 Event death;
                 character->died();
                 Event::variant characterVariant;
@@ -233,7 +197,7 @@ void SpawnHandler::onEvent(Event e)
         std::cout << "Invalid arguments SpawnHandler" << std::endl;
         exit(3);
     }
-
+    character->setSpeed(sf::Vector2f(CHAR_SPEED, 0));
     character->respawn();
 }
 
