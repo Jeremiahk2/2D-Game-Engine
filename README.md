@@ -5,7 +5,7 @@ See readme instructions for individual projects in each folder.
 
 This project received a perfect score of 100 for each part of the assignment. Every line of code was written by me.
 
-##Homeworks
+##Homeworks##
 
 The homeworks folder is a collection of several milestones towards creating the game engine.
 
