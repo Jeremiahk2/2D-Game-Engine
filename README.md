@@ -21,7 +21,7 @@ and also makes handling the order and timing of events easier to manage for the 
 
 Homework five: Homework five is the final homework where scripting integration is introduced. Support for JavaScript injection to make future development and use of this engine easier and quicker.
 
-##Games
+## ****Games****
 
 The games folder contains games that were made using this engine. Currently I have put in a Snake game as an example of what this engine can do with only a few hours of programming.
 Future games made with this engine will be added to this folder.
