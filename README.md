@@ -23,8 +23,4 @@ Homework five: Homework five is the final homework where scripting integration i
 
 ## ****Games****
 
-The games folder contains games that were made using this engine. Currently I have put in a Snake game as an example of what this engine can do with only a few hours of programming.
-Future games made with this engine will be added to this folder.
-
-Note: Development has stopped due to holidays and schoolwork, but future development is planned. Namely making the scripting more seamless and integrated into the rest of the engine.
-Also, the earliest version of this project is not available here as it was done on a different environment (WSL) rather than Windows and VS Studio.
+I put a Snake game I made using this engine in the games folder, as a demonstration of a game that can be made with this engine. I've also used this engine to make a 2D platformer, and a top-down tile-based game. To use this game engine, I suggest working off the template I put in this folder.
