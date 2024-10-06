@@ -3,6 +3,7 @@ To run latest version, import the file into Visual Studio 2019.
 NOTE: Latest version is NOT supported for VS 2022 or later.
 See readme instructions for individual projects in each folder.
 
+We were given basic instructions, but creative and design freedom was left in our hands, as well as the entirety of the implementation.
 This project received a perfect score of 100 for each part of the assignment. Every line of code was written by me.
 
 ## ****Homeworks****
