@@ -25,3 +25,7 @@ Homework five: Homework five is the final homework where scripting integration i
 ## ****Games****
 
 I put a Snake game I made using this engine in the games folder, as a demonstration of a game that can be made with this engine. I've also used this engine to make a 2D platformer, and a top-down tile-based game. To use this game engine, I suggest working off the template I put in this folder.
+
+
+## ****New Features****
+New features have been temporarily placed in another repo, linked here: https://github.com/Jeremiahk2/GameAI. In the future, these repos will be combined. New features can be found in the new repo.
