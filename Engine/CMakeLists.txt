@@ -8,23 +8,19 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
-# Add source to this project's executable.
-add_executable (Engine "src/Engine.cpp" "src/Engine.h")
+file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
-# Recursively collect all .cpp and .h files in src/
-file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
-    ${CMAKE_SOURCE_DIR}/src/*.cpp
-    ${CMAKE_SOURCE_DIR}/src/*.h
-)
+add_executable("${CMAKE_PROJECT_NAME}")
 
-target_include_directories(Engine PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_sources("${CMAKE_PROJECT_NAME}" PRIVATE ${MY_SOURCES} )
+
 
 #Get VCPKG
 find_package(SFML REQUIRED COMPONENTS System Window Graphics)
 find_package(ZeroMQ REQUIRED)
 find_package(cppzmq REQUIRED)
 
-target_link_libraries(Engine
+target_link_libraries(${CMAKE_PROJECT_NAME}
     PRIVATE
         SFML::Graphics
         SFML::Window
