@@ -1,31 +1,25 @@
-Project completed entirely individually during CSC 481 at NCSU.
-To run latest version, import the file into Visual Studio 2019. 
-NOTE: Latest version is NOT supported for VS 2022 or later.
-See readme instructions for individual projects in each folder.
+# 2D Game Engine (SFML)
 
-We were given basic instructions, but creative and design freedom was left in our hands, as well as the entirety of the implementation.
-This project received a perfect score of 100 for each part of the assignment. Every line of code was written by me.
+This is a game engine created by me. It includes various features including multithreading, networked multiplayer, JavaScript integrations, and an event management system, among other things. This project was completed entirely individually by me. It started out as a Linux-based project, but I found SFML's Linux support to be lacking, and moved to this repo for development on windows through Visual Studio 2019.
 
-## ****Homeworks****
+## Basic Project Structure
+The current project contains an example game (Snake) along with the engine that utilizes all of the features that the engine offers, including a limited multiplayer. You'll fine a Snake folder with GameClient, Engine, and GameServer. It's what it sounds like. GameClient (And all thread classes in that folder), are what runs on the client side. GameServer (And all threads within) are what runs on the server side. Engine code is shared between both. I used relative paths for linking, so it should work fine when downloaded.
 
-The homeworks folder is a collection of several milestones towards creating the game engine.
+## Instructions for running and developing.
 
-Homework One: Homework one is not included as it was completed on a Linux environment.
+1. Download the project or clone the repository.
+2. Install VCPKG (https://github.com/microsoft/vcpkg) and set it up (./bootstrap)
+3. Install the following VCPKG packages and versions: sfml (2.6.1), cppzmq(4.10.0), and zeromq(2023_06_20). SFML version 3.0.0 and above are not supported. The other two have had minimal changes as far as I'm aware, and will probably work with the latest version.
+4. Run integrate install in VCPKG
+5. Open the .sin file in Visual Studio 2019. This project will not run in 2022 and beyond.
+6. Use NuGet Restore to get V8 version v142 added as a "packages" folder. The linking for this is already set up. The project will run without this, but certain things that rely on scripts will not (Like collecting apples in the snake game).
+7. Run the GameServer first. There are many ways to do this. I usually just set it as my startup and then run it that way.
+8. Repeat with GameClient.
+9. You can repeat with as many game clients as you want. The idea here is that multiple people can play at once, and the "High score" will be updated for eachother in real time for competition.
+10. Do not open multiple servers. Nothing terrible will happen, but it won't work.
 
-Homework Two: Homework two is included and shows my understanding of PUB-SUB and REQ-REP networking models as well as threading and synchronization techniques (at the time).
-It also demonstrates my ability to handle time and bind a program to time rather than the user's computer power. This provides a smoother and more streamlined experience.
+## Future plans
 
-Homework Three: Homework three builds on homework two by creating a Game Object Model which was designed by me. It demonstrates my knowledge of C++ topics like multiple inheritance, dynamic casting, etc.
+After this project was complete, I continued to develop game-related tools like AI in another repo (https://github.com/Jeremiahk2/GameAI), so you can check that out there.
 
-Homework Four: Homework four  builds off of previous homeworks and adds in an Event Management System, which registeres, queues, and then handles events. This makes threading easier to synchronize
-and also makes handling the order and timing of events easier to manage for the developer.
-
-Homework five: Homework five is the final homework where scripting integration is introduced. Support for JavaScript injection to make future development and use of this engine easier and quicker.
-
-## ****Games****
-
-I put a Snake game I made using this engine in the games folder, as a demonstration of a game that can be made with this engine. I've also used this engine to make a 2D platformer, and a top-down tile-based game. To use this game engine, I suggest working off the template I put in this folder.
-
-
-## ****New Features****
-New features have been temporarily placed in another repo, linked here: https://github.com/Jeremiahk2/GameAI. In the future, these repos will be combined. New features can be found in the new repo.
+I actually have a branch up where I was converting the project to a CMake project to avoid the hassle that native Visual Studio projects come with. I managed to succeed at this for the most part, but realized that I didn't really want to use SFML anymore, because I have the knowledge and capability now to use lower-level libraries that I can make have much better performance and scalability. Also, I found better ways to program, and better ways to use C++, so I'll be making a new repo using a different library in the future, if and when I decide to make a new game engine. The new game engine will support 3D games and will not use V8.
