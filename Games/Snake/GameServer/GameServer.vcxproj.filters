@@ -21,49 +21,49 @@
     <ClInclude Include="RepThread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameCommon\Character.h">
+    <ClInclude Include="..\Engine\Character.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameCommon\DeathZone.h">
+    <ClInclude Include="..\Engine\DeathZone.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameCommon\Event.h">
+    <ClInclude Include="..\Engine\Event.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameCommon\EventHandler.h">
+    <ClInclude Include="..\Engine\EventHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameCommon\EventManager.h">
+    <ClInclude Include="..\Engine\EventManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameCommon\GameObject.h">
+    <ClInclude Include="..\Engine\GameObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameCommon\GameWindow.h">
+    <ClInclude Include="..\Engine\GameWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameCommon\Handlers.h">
+    <ClInclude Include="..\Engine\Handlers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameCommon\MovingPlatform.h">
+    <ClInclude Include="..\Engine\MovingPlatform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameCommon\Platform.h">
+    <ClInclude Include="..\Engine\Platform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameCommon\ScriptManager.h">
+    <ClInclude Include="..\Engine\ScriptManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameCommon\SideBound.h">
+    <ClInclude Include="..\Engine\SideBound.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameCommon\SpawnPoint.h">
+    <ClInclude Include="..\Engine\SpawnPoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameCommon\Timeline.h">
+    <ClInclude Include="..\Engine\Timeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameCommon\v8helpers.h">
+    <ClInclude Include="..\Engine\v8helpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -77,46 +77,46 @@
     <ClCompile Include="RepThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameCommon\Character.cpp">
+    <ClCompile Include="..\Engine\Character.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameCommon\DeathZone.cpp">
+    <ClCompile Include="..\Engine\DeathZone.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameCommon\Event.cpp">
+    <ClCompile Include="..\Engine\Event.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameCommon\EventManager.cpp">
+    <ClCompile Include="..\Engine\EventManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameCommon\GameObject.cpp">
+    <ClCompile Include="..\Engine\GameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameCommon\GameWindow.cpp">
+    <ClCompile Include="..\Engine\GameWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameCommon\Handlers.cpp">
+    <ClCompile Include="..\Engine\Handlers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameCommon\MovingPlatform.cpp">
+    <ClCompile Include="..\Engine\MovingPlatform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameCommon\Platform.cpp">
+    <ClCompile Include="..\Engine\Platform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameCommon\ScriptManager.cpp">
+    <ClCompile Include="..\Engine\ScriptManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameCommon\SideBound.cpp">
+    <ClCompile Include="..\Engine\SideBound.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameCommon\SpawnPoint.cpp">
+    <ClCompile Include="..\Engine\SpawnPoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameCommon\Timeline.cpp">
+    <ClCompile Include="..\Engine\Timeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameCommon\v8helpers.cpp">
+    <ClCompile Include="..\Engine\v8helpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
