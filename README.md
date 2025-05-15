@@ -10,12 +10,13 @@ The current project contains an example game (Snake) along with the engine that 
 1. Download the project or clone the repository.
 2. Install VCPKG (https://github.com/microsoft/vcpkg) and set it up (./bootstrap)
 3. Install the following VCPKG packages and versions: sfml (2.6.1), cppzmq(4.10.0), and zeromq(2023_06_20). SFML version 3.0.0 and above are not supported. The other two have had minimal changes as far as I'm aware, and will probably work with the latest version.
-4. Open the .sin file in Visual Studio 2019. This project will not run in 2022 and beyond.
-5. Use NuGet Restore to get V8 version v142 added as a "packages" folder. The linking for this is already set up. The project will run without this, but certain things that rely on scripts will not (Like collecting apples in the snake game).
-6. Run the GameServer first. There are many ways to do this. I usually just set it as my startup and then run it that way.
-7. Repeat with GameClient.
-8. You can repeat with as many game clients as you want. The idea here is that multiple people can play at once, and the "High score" will be updated for eachother in real time for competition.
-9. Do not open multiple servers. Nothing terrible will happen, but it won't work.
+4. Run integrate install in VCPKG
+5. Open the .sin file in Visual Studio 2019. This project will not run in 2022 and beyond.
+6. Use NuGet Restore to get V8 version v142 added as a "packages" folder. The linking for this is already set up. The project will run without this, but certain things that rely on scripts will not (Like collecting apples in the snake game).
+7. Run the GameServer first. There are many ways to do this. I usually just set it as my startup and then run it that way.
+8. Repeat with GameClient.
+9. You can repeat with as many game clients as you want. The idea here is that multiple people can play at once, and the "High score" will be updated for eachother in real time for competition.
+10. Do not open multiple servers. Nothing terrible will happen, but it won't work.
 
 ## Future plans
 
